@@ -9,77 +9,157 @@ import { AuthService } from './auth.service';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   template: `
-    <div class="login-page">
-      <div class="bg-decoration">
-        <div class="blob blob-1"></div>
-        <div class="blob blob-2"></div>
-        <div class="blob blob-3"></div>
-      </div>
+    <div class="login-screen">
+      <div class="login-card fade-in">
+        <div class="d-flex flex-column flex-md-row">
+          
+          <!-- LADO IZQUIERDO: LOGO GRANDE -->
+          <div class="logo-section d-flex align-items-center justify-content-center p-5">
+            <div class="logo-container">
+              <img src="logo2.png" alt="Logo" class="img-fluid main-logo">
+            </div>
+          </div>
 
-      <div class="container d-flex align-items-center justify-content-center min-vh-100">
-        <div class="login-card shadow-2xl fade-in">
-          <div class="card-body p-5">
-            <div class="text-center mb-5">
-              <div class="brand-icon bg-primary-gradient mb-3 shadow-lg">
-                <i class="bi bi-cpu-fill text-white fs-2"></i>
-              </div>
-              <h2 class="fw-bold text-dark m-0">Celucentro</h2>
-              <p class="text-secondary small mt-1">Gestión Inteligente de Reparaciones</p>
+          <!-- LADO DERECHO: USUARIO Y CONTRASEÑA -->
+          <div class="form-section p-5 flex-grow-1 border-start-md">
+            <div class="form-header mb-4">
+              <h3 class="fw-bold text-dark m-0">Acceso al Sistema</h3>
+              <p class="text-muted small">Ingresa tus credenciales de administrador</p>
             </div>
 
-            <h4 class="fw-bold mb-4 text-center">Bienvenido de nuevo</h4>
-            
-            <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="mt-4">
-              <div class="form-floating mb-3">
-                <input type="text" formControlName="username" class="form-control custom-input" id="username" placeholder="Usuario">
-                <label for="username" class="text-muted small"><i class="bi bi-person me-2"></i>Nombre de usuario</label>
+            <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+              <!-- Usuario -->
+              <div class="mb-3">
+                <label class="form-label small fw-bold text-muted">USUARIO</label>
+                <div class="input-group-pro">
+                  <i class="bi bi-person"></i>
+                  <input type="text" formControlName="username" class="form-control pro-input" placeholder="Nombre de usuario">
+                </div>
               </div>
               
-              <div class="form-floating mb-3">
-                <input type="password" formControlName="password" class="form-control custom-input" id="password" placeholder="Contraseña">
-                <label for="password" class="text-muted small"><i class="bi bi-lock me-2"></i>Contraseña</label>
+              <!-- Contraseña -->
+              <div class="mb-4">
+                <label class="form-label small fw-bold text-muted">CONTRASEÑA</label>
+                <div class="input-group-pro">
+                  <i class="bi bi-lock"></i>
+                  <input type="password" formControlName="password" class="form-control pro-input" placeholder="••••••••">
+                </div>
               </div>
 
-              <div *ngIf="errorMessage()" class="alert alert-danger-custom d-flex align-items-center mb-4 slide-up">
-                <i class="bi bi-exclamation-circle-fill me-2"></i>
-                <span class="small">{{ errorMessage() }}</span>
+              <!-- Alerta de Error -->
+              <div *ngIf="errorMessage()" class="alert-pro mb-4 slide-up">
+                <i class="bi bi-x-circle-fill me-2"></i> {{ errorMessage() }}
               </div>
 
-              <button type="submit" class="btn btn-login w-100 py-3 rounded-3 shadow-lg mb-4" [disabled]="loginForm.invalid || isLoading()">
-                <span *ngIf="!isLoading()">Iniciar Sesión</span>
+              <!-- BOTÓN ENTRAR ABAJO -->
+              <button type="submit" class="btn btn-entrar w-100 py-3" [disabled]="loginForm.invalid || isLoading()">
+                <span *ngIf="!isLoading()" class="fw-bold tracking-widest">ENTRAR</span>
                 <div *ngIf="isLoading()" class="spinner-border spinner-border-sm text-white" role="status"></div>
               </button>
-
-              <div class="text-center mt-2">
-                <p class="text-muted small">¿No tienes acceso? <a href="#" class="text-primary fw-bold text-decoration-none">Soporte IT</a></p>
-              </div>
             </form>
           </div>
+
         </div>
+      </div>
+      
+      <div class="footer-text mt-4 text-muted small">
+        © 2026 Celucentro IT • Gestión Profesional
       </div>
     </div>
   `,
   styles: [`
-    :host { --primary: #6366f1; --secondary: #a855f7; }
-    .login-page { position: relative; min-height: 100vh; background-color: #f8fafc; overflow: hidden; font-family: 'Inter', sans-serif; }
-    .bg-decoration { position: absolute; width: 100%; height: 100%; z-index: 0; }
-    .blob { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.4; animation: move 20s infinite alternate; }
-    .blob-1 { width: 500px; height: 500px; background: #6366f1; top: -100px; left: -100px; }
-    .blob-2 { width: 400px; height: 400px; background: #a855f7; bottom: -50px; right: -50px; }
-    .blob-3 { width: 300px; height: 300px; background: #3b82f6; top: 40%; left: 60%; }
-    @keyframes move { from { transform: translate(0, 0) scale(1); } to { transform: translate(50px, 50px) scale(1.1); } }
-    .login-card { position: relative; z-index: 1; width: 100%; max-width: 480px; background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.5); border-radius: 32px; }
-    .brand-icon { width: 64px; height: 64px; border-radius: 20px; display: inline-flex; align-items: center; justify-content: center; }
-    .bg-primary-gradient { background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); }
-    .custom-input { border: 2px solid #e2e8f0; border-radius: 16px; padding: 1rem 1rem; transition: all 0.3s ease; background: rgba(255, 255, 255, 0.5); }
-    .custom-input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1); background: #fff; }
-    .btn-login { background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); color: white; border: none; font-weight: 700; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-    .btn-login:hover { transform: translateY(-2px); box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.4); opacity: 0.9; }
-    .alert-danger-custom { background: #fef2f2; color: #b91c1c; border-left: 4px solid #ef4444; padding: 0.75rem 1rem; border-radius: 12px; }
-    .fade-in { animation: fadeIn 0.8s ease-out; }
-    @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-    .slide-up { animation: slideUp 0.4s ease-out; }
-    @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    :host { --brand: #4f46e5; --brand-dark: #3730a3; }
+
+    .login-screen {
+      min-height: 100vh;
+      background-color: #f3f4f6;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Inter', sans-serif;
+      padding: 20px;
+    }
+
+    /* Tarjeta Principal Horizontal */
+    .login-card {
+      width: 100%;
+      max-width: 850px; /* Más ancha para el diseño logo + form */
+      background: #ffffff;
+      border-radius: 24px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
+      overflow: hidden;
+      border: 1px solid #e5e7eb;
+    }
+
+    /* Sección del Logo */
+    .logo-section {
+      background-color: #fbfbfb;
+      min-width: 350px;
+      display: flex;
+    }
+    .logo-container {
+      width: 240px; /* Logo grande */
+      transition: transform 0.3s ease;
+    }
+    .main-logo { filter: drop-shadow(0 10px 15px rgba(0,0,0,0.05)); }
+
+    /* Sección del Formulario */
+    .form-section { background: white; }
+    
+    @media (min-width: 768px) {
+      .border-start-md { border-left: 1px solid #f1f5f9; }
+    }
+
+    /* Inputs Estilizados */
+    .input-group-pro { position: relative; }
+    .input-group-pro i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #9ca3af; font-size: 1.1rem; }
+    
+    .pro-input {
+      padding: 12px 15px 12px 45px;
+      border: 2px solid #f3f4f6;
+      border-radius: 12px;
+      background: #f9fafb;
+      font-size: 0.95rem;
+      transition: all 0.2s;
+    }
+    .pro-input:focus {
+      background: #fff;
+      border-color: var(--brand);
+      box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+      outline: none;
+    }
+
+    /* Botón ENTRAR */
+    .btn-entrar {
+      background-color: var(--brand);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      transition: all 0.3s;
+    }
+    .btn-entrar:hover {
+      background-color: var(--brand-dark);
+      transform: translateY(-1px);
+      box-shadow: 0 10px 20px rgba(79, 70, 229, 0.3);
+    }
+    .btn-entrar:disabled { opacity: 0.6; transform: none; }
+
+    .alert-pro {
+      background: #fff1f2;
+      color: #b91c1c;
+      border-radius: 12px;
+      padding: 10px 15px;
+      font-size: 0.85rem;
+      border: 1px solid #fecdd3;
+    }
+
+    .fade-in { animation: fadeIn 0.7s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    
+    .tracking-widest { letter-spacing: 0.15em; }
   `]
 })
 export class LoginComponent {
@@ -99,16 +179,17 @@ export class LoginComponent {
     if (this.loginForm.valid) {
       this.isLoading.set(true);
       this.errorMessage.set(null);
+      
       this.authService.login(this.loginForm.value).subscribe({
         next: () => {
           setTimeout(() => {
             this.isLoading.set(false);
             this.router.navigate(['/dashboard']);
-          }, 800);
+          }, 600);
         },
         error: () => {
           this.isLoading.set(false);
-          this.errorMessage.set('Usuario o contraseña incorrectos');
+          this.errorMessage.set('Credenciales no válidas');
         }
       });
     }

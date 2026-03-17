@@ -10,50 +10,56 @@ import { AuthService } from './auth.service';
   imports: [CommonModule, ReactiveFormsModule],
   template: `
     <div class="login-screen">
+      <!-- Background decoration blobs -->
+      <div class="blob blob-1"></div>
+      <div class="blob blob-2"></div>
+      
       <div class="login-card fade-in">
-        <div class="d-flex flex-column flex-md-row">
+        <div class="row g-0">
           
           <!-- LADO IZQUIERDO: LOGO GRANDE -->
-          <div class="logo-section d-flex align-items-center justify-content-center p-5">
-            <div class="logo-container">
-              <img src="logo2.png" alt="Logo" class="img-fluid main-logo">
+          <div class="col-md-5 logo-section d-flex align-items-center justify-content-center">
+            <div class="logo-wrapper">
+              <img src="logo2.png" alt="Logo" class="main-logo">
             </div>
           </div>
 
           <!-- LADO DERECHO: USUARIO Y CONTRASEÑA -->
-          <div class="form-section p-5 flex-grow-1 border-start-md">
+          <div class="col-md-7 form-section p-4 p-lg-5">
             <div class="form-header mb-4">
               <h3 class="fw-bold text-dark m-0">Acceso al Sistema</h3>
-              <p class="text-muted small">Ingresa tus credenciales de administrador</p>
             </div>
 
             <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
               <!-- Usuario -->
               <div class="mb-3">
-                <label class="form-label small fw-bold text-muted">USUARIO</label>
-                <div class="input-group-pro">
-                  <i class="bi bi-person"></i>
+                <label class="form-label small fw-bold text-muted text-uppercase letter-spacing-1">Usuario</label>
+                <div class="input-container">
+                  <i class="bi bi-person icon-field"></i>
                   <input type="text" formControlName="username" class="form-control pro-input" placeholder="">
                 </div>
               </div>
               
               <!-- Contraseña -->
               <div class="mb-4">
-                <label class="form-label small fw-bold text-muted">CONTRASEÑA</label>
-                <div class="input-group-pro">
-                  <i class="bi bi-lock"></i>
+                <label class="form-label small fw-bold text-muted text-uppercase letter-spacing-1">Contraseña</label>
+                <div class="input-container">
+                  <i class="bi bi-lock icon-field"></i>
                   <input type="password" formControlName="password" class="form-control pro-input" placeholder="">
                 </div>
               </div>
 
               <!-- Alerta de Error -->
-              <div *ngIf="errorMessage()" class="alert-pro mb-4 slide-up">
-                <i class="bi bi-x-circle-fill me-2"></i> {{ errorMessage() }}
+              <div *ngIf="errorMessage()" class="alert-pro mb-4">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ errorMessage() }}
               </div>
 
-              <!-- BOTÓN ENTRAR ABAJO -->
+              <!-- BOTÓN ENTRAR -->
               <button type="submit" class="btn btn-entrar w-100 py-3" [disabled]="loginForm.invalid || isLoading()">
-                <span *ngIf="!isLoading()" class="fw-bold tracking-widest">ENTRAR</span>
+                <div *ngIf="!isLoading()" class="d-flex align-items-center justify-content-center">
+                  <span class="fw-bold me-2">INICIAR SESIÓN</span>
+                  <i class="bi bi-arrow-right-short fs-4"></i>
+                </div>
                 <div *ngIf="isLoading()" class="spinner-border spinner-border-sm text-white" role="status"></div>
               </button>
             </form>
@@ -62,104 +68,154 @@ import { AuthService } from './auth.service';
         </div>
       </div>
       
-      <div class="footer-text mt-4 text-muted small">
-        © 2026 Celucentro IT • Gestión Profesional
-      </div>
+
     </div>
   `,
   styles: [`
-    :host { --brand: #4f46e5; --brand-dark: #3730a3; }
+    :host { 
+      --primary: #2563eb; 
+      --primary-hover: #1d4ed8;
+      --bg-dark: #0f172a;
+      --text-main: #1e293b;
+      --input-bg: #f8fafc;
+      --input-border: #e2e8f0;
+      --font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
 
     .login-screen {
       min-height: 100vh;
-      background-color: #0f172a; /* Fondo sólido oscuro para contrastar */
+      background-color: var(--bg-dark);
+      background-image: radial-gradient(at 0% 0%, rgba(37, 99, 235, 0.1) 0, transparent 50%), 
+                        radial-gradient(at 50% 0%, rgba(30, 41, 59, 0.1) 0, transparent 50%);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      font-family: 'Inter', sans-serif;
+      font-family: var(--font-family);
       padding: 20px;
+      position: relative;
+      overflow: hidden;
     }
 
-    /* Tarjeta Principal Horizontal */
+    /* Background blobs for premium look */
+    .blob {
+      position: absolute;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(37, 99, 235, 0.08) 0%, rgba(37, 99, 235, 0) 70%);
+      border-radius: 50%;
+      z-index: 0;
+    }
+    .blob-1 { top: -100px; left: -100px; }
+    .blob-2 { bottom: -100px; right: -100px; }
+
+    /* Tarjeta Principal */
     .login-card {
       width: 100%;
-      max-width: 900px; /* Un poco más ancha para el logo más grande */
+      max-width: 900px;
       background: #ffffff;
-      border-radius: 24px;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+      border-radius: 28px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
       overflow: hidden;
-      border: 1px solid rgba(255,255,255,0.1);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      position: relative;
+      z-index: 1;
     }
 
     /* Sección del Logo */
     .logo-section {
-      background-color: #ffffff;
-      min-width: 400px;
-      display: flex;
+      background: #f8fafc;
+      border-right: 1px solid #f1f5f9;
+      padding: 3rem;
     }
-    .logo-container {
-      width: 320px; /* Logo más grande */
-      transition: transform 0.3s ease;
+    .logo-wrapper {
+      width: 100%;
+      max-width: 480px;
+      filter: drop-shadow(0 10px 15px rgba(0,0,0,0.05));
+      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    .main-logo { filter: drop-shadow(0 10px 15px rgba(0,0,0,0.05)); }
+    .main-logo { width: 100%; height: auto; object-fit: contain; }
+    .login-card:hover .logo-wrapper { transform: scale(1.02); }
 
     /* Sección del Formulario */
-    .form-section { background: white; }
+    .form-section { background: #ffffff; }
     
-    @media (min-width: 768px) {
-      .border-start-md { border-left: 1px solid #f1f5f9; }
-    }
+    .letter-spacing-1 { letter-spacing: 0.05em; }
 
     /* Inputs Estilizados */
-    .input-group-pro { position: relative; }
-    .input-group-pro i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #9ca3af; font-size: 1.1rem; }
+    .input-container { position: relative; }
+    .icon-field { 
+      position: absolute; 
+      left: 16px; 
+      top: 50%; 
+      transform: translateY(-50%); 
+      color: #94a3b8; 
+      font-size: 1.1rem; 
+      transition: color 0.2s;
+    }
     
     .pro-input {
-      padding: 12px 15px 12px 45px;
-      border: 2px solid #f3f4f6;
-      border-radius: 12px;
-      background: #f9fafb;
+      padding: 14px 16px 14px 48px;
+      border: 2px solid var(--input-border);
+      border-radius: 14px;
+      background: var(--input-bg);
       font-size: 0.95rem;
-      transition: all 0.2s;
+      color: var(--text-main);
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
+    .pro-input::placeholder { color: #cbd5e1; }
     .pro-input:focus {
       background: #fff;
-      border-color: var(--brand);
-      box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
       outline: none;
     }
+    .input-container:focus-within .icon-field { color: var(--primary); }
 
     /* Botón ENTRAR */
     .btn-entrar {
-      background-color: var(--brand);
+      background: linear-gradient(135deg, var(--primary) 0%, #1d4ed8 100%);
       color: white;
       border: none;
-      border-radius: 12px;
-      font-weight: 800;
-      letter-spacing: 2px;
-      transition: all 0.3s;
+      border-radius: 14px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
     }
-    .btn-entrar:hover {
-      background-color: var(--brand-dark);
-      transform: translateY(-1px);
-      box-shadow: 0 10px 20px rgba(79, 70, 229, 0.3);
+    .btn-entrar:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.4);
+      filter: brightness(1.1);
     }
-    .btn-entrar:disabled { opacity: 0.6; transform: none; }
+    .btn-entrar:active:not(:disabled) { transform: translateY(0); }
+    .btn-entrar:disabled { opacity: 0.7; cursor: not-allowed; }
 
+    /* Alerta de Error */
     .alert-pro {
       background: #fff1f2;
-      color: #b91c1c;
+      color: #e11d48;
       border-radius: 12px;
-      padding: 10px 15px;
-      font-size: 0.85rem;
-      border: 1px solid #fecdd3;
+      padding: 12px 16px;
+      font-size: 0.875rem;
+      border: 1px solid #ffe4e6;
+      animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
     }
 
-    .fade-in { animation: fadeIn 0.7s ease-out; }
+    @keyframes shake {
+      10%, 90% { transform: translate3d(-1px, 0, 0); }
+      20%, 80% { transform: translate3d(2px, 0, 0); }
+      30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+      40%, 60% { transform: translate3d(4px, 0, 0); }
+    }
+
+    .fade-in { animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     
-    .tracking-widest { letter-spacing: 0.15em; }
+    @media (max-width: 767px) {
+      .logo-section { border-right: none; border-bottom: 1px solid #f1f5f9; padding: 2rem; }
+      .logo-wrapper { max-width: 180px; }
+    }
   `]
 })
 export class LoginComponent {

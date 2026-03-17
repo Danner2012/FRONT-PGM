@@ -33,7 +33,7 @@ import { AuthService } from './auth.service';
                 <label class="form-label small fw-bold text-muted">USUARIO</label>
                 <div class="input-group-pro">
                   <i class="bi bi-person"></i>
-                  <input type="text" formControlName="username" class="form-control pro-input" placeholder="Nombre de usuario">
+                  <input type="text" formControlName="username" class="form-control pro-input" placeholder="">
                 </div>
               </div>
               
@@ -42,7 +42,7 @@ import { AuthService } from './auth.service';
                 <label class="form-label small fw-bold text-muted">CONTRASEÑA</label>
                 <div class="input-group-pro">
                   <i class="bi bi-lock"></i>
-                  <input type="password" formControlName="password" class="form-control pro-input" placeholder="••••••••">
+                  <input type="password" formControlName="password" class="form-control pro-input" placeholder="">
                 </div>
               </div>
 
@@ -72,7 +72,7 @@ import { AuthService } from './auth.service';
 
     .login-screen {
       min-height: 100vh;
-      background-color: #f3f4f6;
+      background-color: #0f172a; /* Fondo sólido oscuro para contrastar */
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -84,22 +84,22 @@ import { AuthService } from './auth.service';
     /* Tarjeta Principal Horizontal */
     .login-card {
       width: 100%;
-      max-width: 850px; /* Más ancha para el diseño logo + form */
+      max-width: 900px; /* Un poco más ancha para el logo más grande */
       background: #ffffff;
       border-radius: 24px;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
       overflow: hidden;
-      border: 1px solid #e5e7eb;
+      border: 1px solid rgba(255,255,255,0.1);
     }
 
     /* Sección del Logo */
     .logo-section {
-      background-color: #fbfbfb;
-      min-width: 350px;
+      background-color: #ffffff;
+      min-width: 400px;
       display: flex;
     }
     .logo-container {
-      width: 240px; /* Logo grande */
+      width: 320px; /* Logo más grande */
       transition: transform 0.3s ease;
     }
     .main-logo { filter: drop-shadow(0 10px 15px rgba(0,0,0,0.05)); }

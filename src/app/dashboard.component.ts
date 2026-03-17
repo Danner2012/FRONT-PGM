@@ -13,12 +13,11 @@ import { AuthService } from './auth.service';
       <nav id="sidebar" class="sidebar" [class.collapsed]="isCollapsed()">
         <div class="sidebar-header">
           <div class="logo-container">
-            <div class="logo-circle bg-primary-gradient shadow-sm">
-              <i class="bi bi-cpu text-white fs-4"></i>
+            <div class="logo-circle overflow-hidden">
+              <img src="androide.png" alt="Logo" style="width: 100%; height: 100%; object-fit: cover;">
             </div>
             <div class="header-text" *ngIf="!isCollapsed()">
-              <h5 class="fw-bold m-0 text-white">Celucentro</h5>
-              <span class="text-secondary-light">Gestión v2.0</span>
+              <h5 class="fw-bold m-0 text-white">CELUCENTRO</h5>
             </div>
           </div>
         </div>
@@ -101,7 +100,7 @@ import { AuthService } from './auth.service';
 
         <div class="p-4 container-fluid fade-in">
           <div class="welcome-header mb-4">
-            <h2 class="fw-bold m-0 mt-2">¡Hola, {{ user()?.username }}! 👋</h2>
+            <h2 class="fw-bold m-0 mt-2">¡Hola, {{ user()?.username }}! </h2>
             <p class="text-secondary m-0">Bienvenido al panel central de Celucentro.</p>
           </div>
 

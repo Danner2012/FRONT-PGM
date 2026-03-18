@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 
@@ -8,8 +8,8 @@ import { Observable, tap } from 'rxjs';
 export class AuthService {
   private apiUrl = 'http://localhost:8000/api/';
   
-  // Usamos signals para un manejo de estado moderno y reactivo
   currentUser = signal<any>(null);
+  userRole = signal<string | null>(localStorage.getItem('user_role'));
   isAuthenticated = signal<boolean>(!!localStorage.getItem('access_token'));
 
   constructor(private http: HttpClient) { }
@@ -19,6 +19,8 @@ export class AuthService {
       tap(res => {
         localStorage.setItem('access_token', res.access);
         localStorage.setItem('refresh_token', res.refresh);
+        localStorage.setItem('user_role', res.rol);
+        this.userRole.set(res.rol);
         this.isAuthenticated.set(true);
       })
     );
@@ -27,16 +29,19 @@ export class AuthService {
   logout() {
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
+    localStorage.removeItem('user_role');
     this.isAuthenticated.set(false);
+    this.userRole.set(null);
     this.currentUser.set(null);
   }
 
   getUserProfile(): Observable<any> {
-    const token = localStorage.getItem('access_token');
-    return this.http.get<any>(`${this.apiUrl}user/`, {
-      headers: { Authorization: `Bearer ${token}` }
-    }).pipe(
+    return this.http.get<any>(`${this.apiUrl}user/`).pipe(
       tap(user => this.currentUser.set(user))
     );
+  }
+
+  hasRole(role: string): boolean {
+    return this.userRole() === role;
   }
 }

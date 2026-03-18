@@ -2,7 +2,7 @@ import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AuthService } from './auth.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -33,10 +33,10 @@ import { AuthService } from './auth.service';
             <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
               <!-- Usuario -->
               <div class="mb-3">
-                <label class="form-label small fw-bold text-muted text-uppercase letter-spacing-1">Usuario</label>
+                <label class="form-label small fw-bold text-muted text-uppercase letter-spacing-1">Correo Electrónico</label>
                 <div class="input-container">
                   <i class="bi bi-person icon-field"></i>
-                  <input type="text" formControlName="username" class="form-control pro-input" placeholder="">
+                  <input type="email" formControlName="correo" class="form-control pro-input" placeholder="">
                 </div>
               </div>
               
@@ -45,7 +45,7 @@ import { AuthService } from './auth.service';
                 <label class="form-label small fw-bold text-muted text-uppercase letter-spacing-1">Contraseña</label>
                 <div class="input-container">
                   <i class="bi bi-lock icon-field"></i>
-                  <input type="password" formControlName="password" class="form-control pro-input" placeholder="">
+                  <input type="password" formControlName="clave" class="form-control pro-input" placeholder="">
                 </div>
               </div>
 
@@ -224,8 +224,8 @@ export class LoginComponent {
   private router = inject(Router);
 
   loginForm: FormGroup = this.fb.group({
-    username: ['', Validators.required],
-    password: ['', Validators.required]
+    correo: ['', [Validators.required, Validators.email]],
+    clave: ['', Validators.required]
   });
 
   errorMessage = signal<string | null>(null);
@@ -243,9 +243,9 @@ export class LoginComponent {
             this.router.navigate(['/dashboard']);
           }, 600);
         },
-        error: () => {
+        error: (err) => {
           this.isLoading.set(false);
-          this.errorMessage.set('Credenciales no válidas');
+          this.errorMessage.set(err.error?.error || 'Credenciales no válidas');
         }
       });
     }

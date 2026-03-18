@@ -1,7 +1,7 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
-import { AuthService } from './auth.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -31,31 +31,31 @@ import { AuthService } from './auth.service';
               </a>
             </li>
             
-            <li class="section-title mt-3 mb-2" *ngIf="!isCollapsed()">OPERACIONES</li>
+            <li class="section-title mt-3 mb-2" *ngIf="!isCollapsed() && canSeeOperations()">OPERACIONES</li>
             
-            <li class="mb-1">
+            <li class="mb-1" *ngIf="canSeeClientes()">
               <a routerLink="/clientes" routerLinkActive="active" class="nav-link-pro" title="Clientes">
                 <i class="bi bi-people"></i> 
                 <span *ngIf="!isCollapsed()">Clientes</span>
               </a>
             </li>
-            <li class="mb-1">
+            <li class="mb-1" *ngIf="canSeeReparaciones()">
               <a routerLink="/reparaciones" routerLinkActive="active" class="nav-link-pro" title="Reparaciones">
                 <i class="bi bi-tools"></i> 
                 <span *ngIf="!isCollapsed()">Reparaciones</span>
                 <span class="badge bg-danger ms-auto rounded-pill" *ngIf="!isCollapsed()">4</span>
               </a>
             </li>
-            <li class="mb-1">
+            <li class="mb-1" *ngIf="canSeeInventario()">
               <a routerLink="/inventario" routerLinkActive="active" class="nav-link-pro" title="Inventario">
                 <i class="bi bi-box-seam"></i> 
                 <span *ngIf="!isCollapsed()">Inventario</span>
               </a>
             </li>
 
-            <li class="section-title mt-3 mb-2" *ngIf="!isCollapsed()">SISTEMA</li>
+            <li class="section-title mt-3 mb-2" *ngIf="!isCollapsed() && canSeeConfiguracion()">SISTEMA</li>
             
-            <li class="mb-1">
+            <li class="mb-1" *ngIf="canSeeConfiguracion()">
               <a routerLink="/configuracion" routerLinkActive="active" class="nav-link-pro" title="Configuración">
                 <i class="bi bi-gear"></i> 
                 <span *ngIf="!isCollapsed()">Configuración</span>
@@ -83,12 +83,12 @@ import { AuthService } from './auth.service';
 
             <div class="ms-auto d-flex align-items-center gap-3">
               <div class="user-nav-pill d-flex align-items-center bg-white border rounded-pill p-1 pe-3 shadow-sm shadow-hover">
-                 <div class="avatar-nav bg-primary-gradient me-2 text-white">
-                   {{ user()?.username?.charAt(0).toUpperCase() }}
+                 <div class="avatar-nav bg-primary-gradient me-2 text-white text-uppercase">
+                   {{ user()?.correo?.charAt(0) }}
                  </div>
                  <div class="user-meta d-none d-md-block me-3">
-                    <div class="fw-bold small lh-1">{{ user()?.username }}</div>
-                    <div class="text-muted small" style="font-size: 0.65rem;">Administrador</div>
+                    <div class="fw-bold small lh-1 text-truncate" style="max-width: 150px;">{{ user()?.correo }}</div>
+                    <div class="text-muted small text-capitalize" style="font-size: 0.65rem;">{{ userRole() }}</div>
                  </div>
                  <button (click)="onLogout()" class="btn btn-logout-circle shadow-sm" title="Cerrar Sesión">
                    <i class="bi bi-power"></i>
@@ -100,8 +100,8 @@ import { AuthService } from './auth.service';
 
         <div class="p-4 container-fluid fade-in">
           <div class="welcome-header mb-4">
-            <h2 class="fw-bold m-0 mt-2">¡Hola, {{ user()?.username }}! </h2>
-            <p class="text-secondary m-0">Bienvenido al panel central de Celucentro.</p>
+            <h2 class="fw-bold m-0 mt-2">¡Hola, {{ user()?.correo }}! </h2>
+            <p class="text-secondary m-0">Bienvenido al panel central de Celucentro. Tu rol es: <strong class="text-primary text-capitalize">{{ userRole() }}</strong></p>
           </div>
 
           <!-- Stats -->
@@ -145,7 +145,6 @@ import { AuthService } from './auth.service';
     .bg-primary-gradient { background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); }
     
     .header-text h5 { line-height: 1; font-size: 1.1rem; }
-    .text-secondary-light { color: #94a3b8; font-size: 0.75rem; }
 
     /* Navegación */
     .nav-scroll { flex-grow: 1; overflow-y: auto; overflow-x: hidden; }
@@ -188,7 +187,15 @@ export class DashboardComponent implements OnInit {
   private router = inject(Router);
 
   user = this.authService.currentUser;
+  userRole = this.authService.userRole;
   isCollapsed = signal(false);
+
+  // Logic for role-based access
+  canSeeOperations = computed(() => this.userRole() !== 'estudiante');
+  canSeeClientes = computed(() => ['superadministrador', 'administrador'].includes(this.userRole() || ''));
+  canSeeReparaciones = computed(() => ['superadministrador', 'administrador', 'técnico'].includes(this.userRole() || ''));
+  canSeeInventario = computed(() => ['superadministrador', 'administrador', 'técnico'].includes(this.userRole() || ''));
+  canSeeConfiguracion = computed(() => this.userRole() === 'superadministrador');
 
   ngOnInit() {
     this.authService.getUserProfile().subscribe();

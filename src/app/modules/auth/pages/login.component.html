@@ -1,85 +1,91 @@
-<div class="login-container">
-  
-  <!-- FONDO ANIMADO GLOBAL (Canvas cubre todo) -->
-  <canvas #canvas class="particles-canvas"></canvas>
-  
-  <!-- LADO IZQUIERDO: FORMULARIO GLASS -->
-  <aside class="login-sidebar fade-in">
-    <div class="login-content">
-      <div class="brand-section">
-        <div class="logo-glow-container">
-            <img src="logo2.png" alt="Logo" class="login-logo">
-        </div>
-      </div>
-
-      <div class="header-section mb-5">
-        <h2 class="fw-bold text-white text-uppercase tracking-widest">CELUCENTRO</h2>
-      </div>
-
-      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
-        <!-- Usuario -->
-        <div class="form-group mb-4">
-          <label class="form-label-custom">Usuario / Correo</label>
-          <div class="input-wrapper">
-            <i class="bi bi-person-circle icon-input"></i>
-            <input type="email" formControlName="correo" class="form-input-custom" placeholder="Ingresa tu correo">
+  <div class="login-container">
+    
+    <!-- FONDO ANIMADO GLOBAL (Canvas cubre todo) -->
+    <canvas #canvas class="particles-canvas"></canvas>
+    
+    <!-- LADO IZQUIERDO: FORMULARIO GLASS -->
+    <aside class="login-sidebar fade-in">
+      <div class="login-content">
+        <div class="brand-section">
+          <!-- Contenedor con brillo para que el logo resalte en oscuro -->
+          <div class="logo-glow-container">
+              <img src="logo2.png" alt="Logo" class="login-logo">
           </div>
         </div>
+
+        <div class="header-section mb-5">
+          <h2 class="fw-bold text-white text-uppercase tracking-widest">CELUCENTRO</h2>
+        </div>
+
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+          <!-- Usuario -->
+          <div class="form-group mb-4">
+            <label class="form-label-custom">Usuario / Correo</label>
+            <div class="input-wrapper">
+              <i class="bi bi-person-circle icon-input"></i>
+              <input type="email" formControlName="correo" class="form-input-custom" placeholder="">
+            </div>
+          </div>
+          
+          <!-- Contraseña -->
+          <div class="form-group mb-4">
+            <label class="form-label-custom">Contraseña</label>
+            <div class="input-wrapper">
+              <i class="bi bi-shield-lock icon-input"></i>
+              <input [type]="showPassword() ? 'text' : 'password'" 
+                    formControlName="clave" 
+                    class="form-input-custom" 
+                    placeholder="">
+              <!-- BOTÓN DEL OJITO -->
+              <button type="button" class="btn-toggle-password" (click)="togglePassword()">
+                <i class="bi" [class.bi-eye-slash]="showPassword()" [class.bi-eye]="!showPassword()"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Alerta de Error -->
+          @if (errorMessage()) {
+            <div class="error-box mb-4">
+              <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ errorMessage() }}
+            </div>
+          }
+
+          <!-- BOTÓN INICIAR SESIÓN -->
+          <button type="submit" class="btn-login" [disabled]="loginForm.invalid || isLoading()">
+            @if (!isLoading()) {
+              <div class="d-flex align-items-center justify-content-center">
+                <span>INICIAR SESIÓN</span>
+                <i class="bi bi-cpu ms-2"></i>
+              </div>
+            } @else {
+              <div class="spinner-border spinner-border-sm" role="status"></div>
+            }
+          </button>
+        </form>
+
+        <footer class="login-footer mt-auto pt-4">
+          <p class="small text-gray-500 text-center">Software de Control v2.4 • Celucentro</p>
+        </footer>
+      </div>
+    </aside>
+
+    <!-- LADO DERECHO: TEXTO FLOTANTE -->
+    <main class="visual-section">
+      <div class="floating-content">
+        <div class="tech-badge">TECNOLOGÍA DE DIAGNÓSTICO INTELIGENTE</div>
+        <h1 class="display-3 fw-bold mb-5">Reparación Inteligente de Celulares</h1>
         
-        <!-- Contraseña -->
-        <div class="form-group mb-4">
-          <label class="form-label-custom">Contraseña</label>
-          <div class="input-wrapper">
-            <i class="bi bi-shield-lock icon-input"></i>
-            <input [type]="showPassword() ? 'text' : 'password'" 
-                   formControlName="clave" 
-                   class="form-input-custom" 
-                   placeholder="••••••••">
-            <!-- BOTÓN DEL OJITO -->
-            <button type="button" class="btn-toggle-password" (click)="togglePassword()">
-              <i class="bi" [ngClass]="showPassword() ? 'bi-eye-slash' : 'bi-eye'"></i>
-            </button>
+        <div class="circuit-legend">
+          <div class="legend-item">
+            <span class="led green"></span>
+            <span class="label">SISTEMA ACTIVO</span>
           </div>
-        </div>
-
-        <!-- Alerta de Error -->
-        <div *ngIf="errorMessage()" class="error-box mb-4">
-          <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ errorMessage() }}
-        </div>
-
-        <!-- BOTÓN ENTRAR -->
-        <button type="submit" class="btn-login" [disabled]="loginForm.invalid || isLoading()">
-          <div *ngIf="!isLoading()" class="d-flex align-items-center justify-content-center">
-            <span>INICIAR SESIÓN</span>
-            <i class="bi bi-cpu ms-2"></i>
+          <div class="legend-item">
+            <span class="led blue"></span>
+            <span class="label">IA EN EJECUCIÓN</span>
           </div>
-          <div *ngIf="isLoading()" class="spinner-border spinner-border-sm" role="status"></div>
-        </button>
-      </form>
-
-      <footer class="login-footer mt-auto pt-4">
-        <p class="small text-gray-500 text-center">Software de Control v2.4 • Celucentro</p>
-      </footer>
-    </div>
-  </aside>
-
-  <!-- LADO DERECHO: TEXTO FLOTANTE -->
-  <main class="visual-section">
-    <div class="floating-content">
-      <div class="tech-badge">TECNOLOGÍA DE DIAGNÓSTICO INTELIGENTE</div>
-      <h1 class="display-3 fw-bold mb-5">Reparación Inteligente de Celulares</h1>
-      
-      <div class="circuit-legend">
-        <div class="legend-item">
-          <span class="led green"></span>
-          <span class="label">SISTEMA ACTIVO</span>
-        </div>
-        <div class="legend-item">
-          <span class="led blue"></span>
-          <span class="label">IA EN EJECUCIÓN</span>
         </div>
       </div>
-    </div>
-  </main>
+    </main>
 
-</div>
+  </div>

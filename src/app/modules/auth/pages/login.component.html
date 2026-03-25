@@ -1,6 +1,6 @@
 <div class="login-container">
   
-  <!-- LADO IZQUIERDO: FORMULARIO -->
+  <!-- LADO IZQUIERDO: FORMULARIO (35% - 40%) -->
   <aside class="login-sidebar fade-in">
     <div class="login-content">
       <div class="brand-section mb-5">
@@ -8,17 +8,17 @@
       </div>
 
       <div class="header-section mb-4">
-        <h2 class="fw-bold">Bienvenido</h2>
-        <p class="text-muted">Ingresa tus credenciales para continuar</p>
+        <h2 class="fw-bold title-gradient">Celucentro</h2>
+        <p class="text-muted">Sistema Centralizado de Gestión Técnica</p>
       </div>
 
       <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
         <!-- Usuario -->
         <div class="form-group mb-3">
-          <label class="form-label-custom">Correo Electrónico</label>
+          <label class="form-label-custom">Usuario / Correo</label>
           <div class="input-wrapper">
-            <i class="bi bi-envelope icon-input"></i>
-            <input type="email" formControlName="correo" class="form-input-custom" placeholder="ejemplo@correo.com">
+            <i class="bi bi-person-circle icon-input"></i>
+            <input type="email" formControlName="correo" class="form-input-custom" placeholder="Ingresa tu correo">
           </div>
         </div>
         
@@ -26,50 +26,54 @@
         <div class="form-group mb-4">
           <label class="form-label-custom">Contraseña</label>
           <div class="input-wrapper">
-            <i class="bi bi-lock icon-input"></i>
+            <i class="bi bi-shield-lock icon-input"></i>
             <input type="password" formControlName="clave" class="form-input-custom" placeholder="••••••••">
           </div>
         </div>
 
         <!-- Alerta de Error -->
-        <div *ngIf="errorMessage()" class="error-message mb-4">
-          <i class="bi bi-exclamation-circle-fill me-2"></i> {{ errorMessage() }}
+        <div *ngIf="errorMessage()" class="error-box mb-4">
+          <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ errorMessage() }}
         </div>
 
         <!-- BOTÓN ENTRAR -->
         <button type="submit" class="btn-login" [disabled]="loginForm.invalid || isLoading()">
-          <span *ngIf="!isLoading()">Acceder al Sistema</span>
+          <div *ngIf="!isLoading()" class="d-flex align-items-center justify-content-center">
+            <span>INICIAR SESIÓN</span>
+            <i class="bi bi-arrow-right ms-2"></i>
+          </div>
           <div *ngIf="isLoading()" class="spinner-border spinner-border-sm" role="status"></div>
         </button>
       </form>
 
-      <footer class="login-footer mt-auto">
-        <p class="small text-muted text-center">© 2024 Celucentro - Gestión Tecnológica</p>
+      <footer class="login-footer mt-auto pt-4">
+        <p class="small text-muted text-center">© 2024 Celucentro v2.0</p>
       </footer>
     </div>
   </aside>
 
-  <!-- LADO DERECHO: ANIMACIÓN TECNOLÓGICA -->
+  <!-- LADO DERECHO: ANIMACIÓN TECNOLÓGICA (CANVAS) -->
   <main class="visual-section">
-    <div class="tech-grid"></div>
-    <div class="particles">
-      <div class="particle"></div>
-      <div class="particle"></div>
-      <div class="particle"></div>
-      <div class="particle"></div>
-      <div class="particle"></div>
-      <div class="particle"></div>
-    </div>
-    <div class="visual-overlay">
-      <div class="floating-icons">
-        <i class="bi bi-cpu"></i>
-        <i class="bi bi-phone"></i>
-        <i class="bi bi-gpu-card"></i>
-        <i class="bi bi-wifi"></i>
-      </div>
-      <div class="hero-text">
-        <h1 class="display-4 fw-bold">Innovación en cada reparación</h1>
-        <p class="lead">Plataforma integral de gestión de servicios técnicos.</p>
+    <!-- Canvas animado mediante lógica de Angular -->
+    <canvas #canvas class="particles-canvas"></canvas>
+    
+    <div class="visual-overlay"></div>
+
+    <div class="floating-content">
+      <div class="tech-badge">SISTEMA INTELIGENTE</div>
+      <h1 class="display-3 fw-bold mb-3">Red de Soporte</h1>
+      <p class="lead">Líderes en gestión técnica y administrativa para dispositivos móviles.</p>
+      
+      <div class="tech-stats">
+        <div class="stat-item">
+          <span class="stat-value">24/7</span>
+          <span class="stat-label">DISPONIBLE</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-value">SSL</span>
+          <span class="stat-label">PROTEGIDO</span>
+        </div>
       </div>
     </div>
   </main>

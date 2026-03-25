@@ -4,6 +4,13 @@ import { ReactiveFormsModule, FormBuilder, Validators, FormGroup } from '@angula
 import { Router } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
 
+interface CircuitPath {
+  points: {x: number, y: number}[];
+  opacity: number;
+  pulsePos: number;
+  speed: number;
+}
+
 @Component({
   selector: 'app-login',
   standalone: true,
@@ -18,7 +25,7 @@ export class LoginComponent implements AfterViewInit, OnDestroy {
   private authService = inject(AuthService);
   private router = inject(Router);
   private ctx!: CanvasRenderingContext2D;
-  private particles: any[] = [];
+  private paths: CircuitPath[] = [];
   private animationId!: number;
 
   loginForm: FormGroup = this.fb.group({
@@ -30,17 +37,15 @@ export class LoginComponent implements AfterViewInit, OnDestroy {
   isLoading = signal(false);
 
   ngAfterViewInit() {
-    this.initParticles();
+    this.initCircuit();
   }
 
   ngOnDestroy() {
-    if (this.animationId) {
-      cancelAnimationFrame(this.animationId);
-    }
+    if (this.animationId) cancelAnimationFrame(this.animationId);
     window.removeEventListener('resize', () => this.resizeCanvas());
   }
 
-  initParticles() {
+  initCircuit() {
     const canvas = this.canvas.nativeElement;
     const context = canvas.getContext('2d');
     if (!context) return;
@@ -49,19 +54,36 @@ export class LoginComponent implements AfterViewInit, OnDestroy {
     this.resizeCanvas();
     window.addEventListener('resize', () => this.resizeCanvas());
 
-    // Crear partículas (Nodos tecnológicos)
-    this.particles = [];
-    const particleCount = 80;
-    for (let i = 0; i < particleCount; i++) {
-      this.particles.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        vx: (Math.random() - 0.5) * 0.4,
-        vy: (Math.random() - 0.5) * 0.4,
-        radius: Math.random() * 1.5 + 1
-      });
+    // Inicializar caminos de circuito
+    this.paths = [];
+    for(let i=0; i<18; i++) {
+      this.paths.push(this.createPath());
     }
     this.animate();
+  }
+
+  createPath(): CircuitPath {
+    const canvas = this.canvas.nativeElement;
+    let x = Math.random() * canvas.width;
+    let y = Math.random() * canvas.height;
+    const points = [{x, y}];
+    
+    const segments = 3 + Math.floor(Math.random() * 4);
+    for(let i=0; i<segments; i++) {
+      // Ángulos de 45 o 90 grados para estilo PCB
+      const angle = (Math.floor(Math.random() * 8) * Math.PI) / 4;
+      const len = 60 + Math.random() * 120;
+      x += Math.cos(angle) * len;
+      y += Math.sin(angle) * len;
+      points.push({x, y});
+    }
+
+    return {
+      points,
+      opacity: 0.1 + Math.random() * 0.5,
+      pulsePos: Math.random(), // Empezar en puntos diferentes
+      speed: 0.003 + Math.random() * 0.008
+    };
   }
 
   resizeCanvas() {
@@ -72,42 +94,63 @@ export class LoginComponent implements AfterViewInit, OnDestroy {
 
   animate() {
     const canvas = this.canvas.nativeElement;
-    this.ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    // Dibujar y conectar partículas
-    this.particles.forEach((p, i) => {
-      p.x += p.vx;
-      p.y += p.vy;
+    // Fondo semi-transparente para crear estelas de luz
+    this.ctx.fillStyle = 'rgba(15, 23, 42, 0.2)';
+    this.ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Rebotar en bordes
-      if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
-      if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
-
-      // Dibujar punto
+    this.paths.forEach((path, index) => {
+      // Dibujar la pista (pista conductora)
       this.ctx.beginPath();
-      this.ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-      this.ctx.fillStyle = 'rgba(37, 99, 235, 0.6)';
-      this.ctx.fill();
+      this.ctx.moveTo(path.points[0].x, path.points[0].y);
+      for(let i=1; i<path.points.length; i++) {
+        this.ctx.lineTo(path.points[i].x, path.points[i].y);
+      }
+      this.ctx.strokeStyle = `rgba(37, 99, 235, ${path.opacity * 0.3})`;
+      this.ctx.lineWidth = 1.5;
+      this.ctx.stroke();
 
-      // Conexiones (Líneas tipo circuito)
-      for (let j = i + 1; j < this.particles.length; j++) {
-        const p2 = this.particles[j];
-        const dx = p.x - p2.x;
-        const dy = p.y - p2.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
+      // Dibujar el pulso de energía
+      this.drawPulse(path);
 
-        if (dist < 140) {
-          this.ctx.beginPath();
-          this.ctx.strokeStyle = `rgba(37, 99, 235, ${1 - dist / 140})`;
-          this.ctx.lineWidth = 0.6;
-          this.ctx.moveTo(p.x, p.y);
-          this.ctx.lineTo(p2.x, p2.y);
-          this.ctx.stroke();
-        }
+      // Actualizar posición del pulso
+      path.pulsePos += path.speed;
+      if (path.pulsePos >= 1) {
+        this.paths[index] = this.createPath();
+        this.paths[index].pulsePos = 0;
       }
     });
 
     this.animationId = requestAnimationFrame(() => this.animate());
+  }
+
+  drawPulse(path: CircuitPath) {
+    const totalSegments = path.points.length - 1;
+    const currentProgress = path.pulsePos * totalSegments;
+    const segmentIdx = Math.floor(currentProgress);
+    const segmentProgress = currentProgress % 1;
+
+    if (segmentIdx < totalSegments) {
+      const p1 = path.points[segmentIdx];
+      const p2 = path.points[segmentIdx + 1];
+      
+      const x = p1.x + (p2.x - p1.x) * segmentProgress;
+      const y = p1.y + (p2.y - p1.y) * segmentProgress;
+
+      // Glow efecto neón
+      this.ctx.shadowBlur = 12;
+      this.ctx.shadowColor = '#3b82f6';
+      this.ctx.beginPath();
+      this.ctx.arc(x, y, 2.5, 0, Math.PI * 2);
+      this.ctx.fillStyle = '#ffffff';
+      this.ctx.fill();
+      this.ctx.shadowBlur = 0;
+
+      // Partícula de rastro pequeña
+      this.ctx.beginPath();
+      this.ctx.arc(x, y, 4, 0, Math.PI * 2);
+      this.ctx.fillStyle = 'rgba(59, 130, 246, 0.3)';
+      this.ctx.fill();
+    }
   }
 
   onSubmit() {

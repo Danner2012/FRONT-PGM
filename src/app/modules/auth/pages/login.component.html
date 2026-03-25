@@ -1,6 +1,6 @@
 <div class="login-container">
   
-  <!-- LADO IZQUIERDO: FORMULARIO (35% - 40%) -->
+  <!-- LADO IZQUIERDO: FORMULARIO -->
   <aside class="login-sidebar fade-in">
     <div class="login-content">
       <div class="brand-section mb-5">
@@ -9,7 +9,7 @@
 
       <div class="header-section mb-4">
         <h2 class="fw-bold title-gradient">Celucentro</h2>
-        <p class="text-muted">Sistema Centralizado de Gestión Técnica</p>
+        <p class="text-muted">Laboratorio Técnico de Alta Especialidad</p>
       </div>
 
       <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
@@ -39,40 +39,38 @@
         <!-- BOTÓN ENTRAR -->
         <button type="submit" class="btn-login" [disabled]="loginForm.invalid || isLoading()">
           <div *ngIf="!isLoading()" class="d-flex align-items-center justify-content-center">
-            <span>INICIAR SESIÓN</span>
-            <i class="bi bi-arrow-right ms-2"></i>
+            <span>ENTRAR AL LABORATORIO</span>
+            <i class="bi bi-cpu ms-2"></i>
           </div>
           <div *ngIf="isLoading()" class="spinner-border spinner-border-sm" role="status"></div>
         </button>
       </form>
 
       <footer class="login-footer mt-auto pt-4">
-        <p class="small text-muted text-center">© 2024 Celucentro v2.0</p>
+        <p class="small text-muted text-center">Software de Control v2.4 • Celucentro</p>
       </footer>
     </div>
   </aside>
 
-  <!-- LADO DERECHO: ANIMACIÓN TECNOLÓGICA (CANVAS) -->
+  <!-- LADO DERECHO: ANIMACIÓN PCB FLOW -->
   <main class="visual-section">
-    <!-- Canvas animado mediante lógica de Angular -->
     <canvas #canvas class="particles-canvas"></canvas>
     
     <div class="visual-overlay"></div>
 
     <div class="floating-content">
-      <div class="tech-badge">SISTEMA INTELIGENTE</div>
-      <h1 class="display-3 fw-bold mb-3">Red de Soporte</h1>
-      <p class="lead">Líderes en gestión técnica y administrativa para dispositivos móviles.</p>
+      <div class="tech-badge">TECNOLOGÍA PCB FLOW</div>
+      <h1 class="display-3 fw-bold mb-3">Hardware Intelligence</h1>
+      <p class="lead">Gestión avanzada para el diagnóstico y reparación de dispositivos móviles de última generación.</p>
       
-      <div class="tech-stats">
-        <div class="stat-item">
-          <span class="stat-value">24/7</span>
-          <span class="stat-label">DISPONIBLE</span>
+      <div class="circuit-legend">
+        <div class="legend-item">
+          <span class="led green"></span>
+          <span class="label">CORE ONLINE</span>
         </div>
-        <div class="stat-divider"></div>
-        <div class="stat-item">
-          <span class="stat-value">SSL</span>
-          <span class="stat-label">PROTEGIDO</span>
+        <div class="legend-item">
+          <span class="led blue"></span>
+          <span class="label">LINK ACTIVE</span>
         </div>
       </div>
     </div>

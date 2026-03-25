@@ -3,7 +3,7 @@
   <!-- LADO IZQUIERDO: FORMULARIO -->
   <aside class="login-sidebar fade-in">
     <div class="login-content">
-      <div class="brand-section mb-5">
+      <div class="brand-section">
         <img src="logo2.png" alt="Logo" class="login-logo">
       </div>
 
@@ -39,7 +39,7 @@
         <!-- BOTÓN ENTRAR -->
         <button type="submit" class="btn-login" [disabled]="loginForm.invalid || isLoading()">
           <div *ngIf="!isLoading()" class="d-flex align-items-center justify-content-center">
-            <span>ENTRAR AL LABORATORIO</span>
+            <span>INICIAR SESIÓN</span>
             <i class="bi bi-cpu ms-2"></i>
           </div>
           <div *ngIf="isLoading()" class="spinner-border spinner-border-sm" role="status"></div>

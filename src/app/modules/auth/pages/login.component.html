@@ -1,20 +1,26 @@
 <div class="login-container">
   
-  <!-- LADO IZQUIERDO: FORMULARIO -->
+  <!-- FONDO ANIMADO GLOBAL (Canvas cubre todo) -->
+  <canvas #canvas class="particles-canvas"></canvas>
+  
+  <!-- LADO IZQUIERDO: FORMULARIO GLASS -->
   <aside class="login-sidebar fade-in">
     <div class="login-content">
       <div class="brand-section">
-        <img src="logo2.png" alt="Logo" class="login-logo">
+        <!-- Contenedor con brillo para que el logo resalte en oscuro -->
+        <div class="logo-glow-container">
+            <img src="logo2.png" alt="Logo" class="login-logo">
+        </div>
       </div>
 
       <div class="header-section mb-4">
-        <h2 class="fw-bold title-gradient">Celucentro</h2>
-        <p class="text-muted">Laboratorio Técnico de Alta Especialidad</p>
+        <h2 class="fw-bold text-white mb-2">Celucentro</h2>
+        <p class="text-gray-400">Laboratorio Técnico de Alta Especialidad</p>
       </div>
 
       <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
         <!-- Usuario -->
-        <div class="form-group">
+        <div class="form-group mb-4">
           <label class="form-label-custom">Usuario / Correo</label>
           <div class="input-wrapper">
             <i class="bi bi-person-circle icon-input"></i>
@@ -23,7 +29,7 @@
         </div>
         
         <!-- Contraseña -->
-        <div class="form-group">
+        <div class="form-group mb-4">
           <label class="form-label-custom">Contraseña</label>
           <div class="input-wrapper">
             <i class="bi bi-shield-lock icon-input"></i>
@@ -32,7 +38,7 @@
         </div>
 
         <!-- Alerta de Error -->
-        <div *ngIf="errorMessage()" class="error-box">
+        <div *ngIf="errorMessage()" class="error-box mb-4">
           <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ errorMessage() }}
         </div>
 
@@ -47,17 +53,14 @@
       </form>
 
       <footer class="login-footer mt-auto pt-4">
-        <p class="small text-muted text-center">Software de Control v2.4 • Celucentro</p>
+        <p class="small text-gray-500 text-center">Software de Control v2.4 • Celucentro</p>
       </footer>
     </div>
   </aside>
 
-  <!-- LADO DERECHO: ANIMACIÓN PCB FLOW -->
+  <!-- LADO DERECHO: TEXTO FLOTANTE -->
   <main class="visual-section">
-    <canvas #canvas class="particles-canvas"></canvas>
-    
-    <div class="visual-overlay"></div>
-
+    <!-- El canvas ya no está aquí, está de fondo global -->
     <div class="floating-content">
       <div class="tech-badge">TECNOLOGÍA DE DIAGNÓSTICO INTELIGENTE</div>
       <h1 class="display-3 fw-bold mb-5">Reparación Inteligente de Celulares</h1>

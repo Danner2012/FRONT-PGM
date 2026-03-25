@@ -54,9 +54,9 @@ export class LoginComponent implements AfterViewInit, OnDestroy {
     this.resizeCanvas();
     window.addEventListener('resize', () => this.resizeCanvas());
 
-    // Inicializar caminos de circuito
+    // Inicializar caminos de circuito - Más cantidad para pantalla completa
     this.paths = [];
-    for(let i=0; i<18; i++) {
+    for(let i=0; i<25; i++) {
       this.paths.push(this.createPath());
     }
     this.animate();
@@ -81,38 +81,40 @@ export class LoginComponent implements AfterViewInit, OnDestroy {
     return {
       points,
       opacity: 0.1 + Math.random() * 0.5,
-      pulsePos: Math.random(), // Empezar en puntos diferentes
+      pulsePos: Math.random(), 
       speed: 0.003 + Math.random() * 0.008
     };
   }
 
   resizeCanvas() {
     const canvas = this.canvas.nativeElement;
-    canvas.width = canvas.offsetWidth;
-    canvas.height = canvas.offsetHeight;
+    // Ocupar toda la pantalla
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
   }
 
   animate() {
     const canvas = this.canvas.nativeElement;
     // Fondo semi-transparente para crear estelas de luz
+    // Usamos el color de fondo oscuro global
     this.ctx.fillStyle = 'rgba(15, 23, 42, 0.2)';
     this.ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     this.paths.forEach((path, index) => {
-      // Dibujar la pista (pista conductora)
+      // Dibujar la pista
       this.ctx.beginPath();
       this.ctx.moveTo(path.points[0].x, path.points[0].y);
       for(let i=1; i<path.points.length; i++) {
         this.ctx.lineTo(path.points[i].x, path.points[i].y);
       }
-      this.ctx.strokeStyle = `rgba(37, 99, 235, ${path.opacity * 0.3})`;
+      this.ctx.strokeStyle = `rgba(59, 130, 246, ${path.opacity * 0.25})`; // Azul más brillante
       this.ctx.lineWidth = 1.5;
       this.ctx.stroke();
 
-      // Dibujar el pulso de energía
+      // Dibujar el pulso
       this.drawPulse(path);
 
-      // Actualizar posición del pulso
+      // Actualizar posición
       path.pulsePos += path.speed;
       if (path.pulsePos >= 1) {
         this.paths[index] = this.createPath();
@@ -138,17 +140,17 @@ export class LoginComponent implements AfterViewInit, OnDestroy {
 
       // Glow efecto neón
       this.ctx.shadowBlur = 12;
-      this.ctx.shadowColor = '#3b82f6';
+      this.ctx.shadowColor = '#60a5fa';
       this.ctx.beginPath();
       this.ctx.arc(x, y, 2.5, 0, Math.PI * 2);
       this.ctx.fillStyle = '#ffffff';
       this.ctx.fill();
       this.ctx.shadowBlur = 0;
 
-      // Partícula de rastro pequeña
+      // Rastro
       this.ctx.beginPath();
       this.ctx.arc(x, y, 4, 0, Math.PI * 2);
-      this.ctx.fillStyle = 'rgba(59, 130, 246, 0.3)';
+      this.ctx.fillStyle = 'rgba(96, 165, 250, 0.3)';
       this.ctx.fill();
     }
   }

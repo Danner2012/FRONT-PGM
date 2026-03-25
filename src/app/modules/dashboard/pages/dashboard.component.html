@@ -44,13 +44,12 @@
         </li>
 
         <!-- Sección Asistente Técnico IA (Solo Estudiantes) -->
-        <li class="section-title mt-3 mb-2" *ngIf="!isCollapsed() && isEstudiante()">ASISTENTE TÉCNICO IA</li>
         
         <li class="mb-1" *ngIf="isEstudiante()">
           <div class="nav-item-accordion">
             <a class="nav-link-pro" (click)="toggleAccordion('asistente')" [class.active-parent]="isAccordionOpen('asistente')" title="Asistente IA">
               <i class="bi bi-cpu-fill"></i>
-              <span *ngIf="!isCollapsed()">Asistente Técnico IA</span>
+              <span *ngIf="!isCollapsed()">Asistente IA</span>
               <i class="bi bi-chevron-down ms-auto small" *ngIf="!isCollapsed()" [class.rotated]="isAccordionOpen('asistente')"></i>
             </a>
             

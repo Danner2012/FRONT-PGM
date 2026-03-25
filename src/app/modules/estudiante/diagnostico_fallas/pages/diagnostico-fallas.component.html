@@ -1,0 +1,108 @@
+<div class="container-fluid fade-in p-4">
+  <!-- Encabezado -->
+  <div class="header-section mb-5">
+    <div class="d-flex align-items-center gap-3 mb-2">
+      <div class="icon-orb">
+        <i class="bi bi-robot"></i>
+      </div>
+      <div>
+        <h2 class="title-tech m-0">Diagnóstico IA</h2>
+        <p class="subtitle-tech m-0 text-muted">Red Neuronal MLP Multilabel • Asistencia Técnica</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <!-- Panel de Entrada de Síntomas -->
+    <div class="col-lg-5">
+      <div class="light-card p-4 h-100">
+        <h5 class="section-title-tech mb-4"><i class="bi bi-terminal me-2"></i>Entrada de Datos</h5>
+        
+        <div class="input-wrapper-tech mb-4">
+          <input type="text" 
+                class="form-control tech-input" 
+                placeholder="Describa un síntoma..." 
+                [(ngModel)]="nuevoSintoma" 
+                (keyup.enter)="agregarSintoma()">
+          <button class="btn-add-tech" (click)="agregarSintoma()">
+            <i class="bi bi-plus-lg"></i>
+          </button>
+        </div>
+
+        <div class="tags-container mb-4">
+          <div *ngFor="let s of sintomas(); let i = index" class="tech-tag animate-pop">
+            <span>{{ s }}</span>
+            <button (click)="removerSintoma(i)" class="btn-remove-tag">
+              <i class="bi bi-x"></i>
+            </button>
+          </div>
+          <div *ngIf="sintomas().length === 0" class="empty-tags text-center py-4">
+            <i class="bi bi-hash mb-2 d-block fs-2 text-muted opacity-25"></i>
+            <p class="text-muted small">Sin síntomas registrados</p>
+          </div>
+        </div>
+
+        <button class="btn-primary-tech w-100 mt-auto" 
+                [disabled]="sintomas().length === 0 || cargando()"
+                (click)="realizarDiagnostico()">
+          <span *ngIf="!cargando()">
+            <i class="bi bi-cpu-fill me-2"></i>PROCESAR CON MLP
+          </span>
+          <span *ngIf="cargando()">
+            <span class="spinner-border spinner-border-sm me-2"></span>ANALIZANDO...
+          </span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Panel de Resultados -->
+    <div class="col-lg-7">
+      <div class="light-card p-4 h-100">
+        <h5 class="section-title-tech mb-4"><i class="bi bi-bar-chart-fill me-2"></i>Predicciones del Modelo</h5>
+        
+        <!-- Estado Inicial -->
+        <div *ngIf="!diagnostico() && !cargando() && !error()" class="empty-results py-5 text-center">
+          <div class="pulse-circle mx-auto mb-4">
+            <i class="bi bi-radar"></i>
+          </div>
+          <p class="text-muted">Esperando flujo de datos para análisis...</p>
+        </div>
+
+        <!-- Cargando -->
+        <div *ngIf="cargando()" class="loading-tech py-5 text-center">
+          <div class="scanning-bar mb-4"></div>
+          <p class="fw-bold tracking-widest">CALCULANDO PROBABILIDADES...</p>
+        </div>
+
+        <!-- Resultados -->
+        <div *ngIf="diagnostico()" class="results-grid animate-fade-in">
+          <div *ngFor="let res of diagnostico()" class="prediction-card mb-3">
+            <div class="prediction-info d-flex justify-content-between align-items-center mb-2">
+              <span class="falla-name">{{ res.falla }}</span>
+              <span class="falla-percent">{{ res.probabilidad }}%</span>
+            </div>
+            <div class="prediction-progress">
+              <div class="progress-fill" [style.width.%]="res.probabilidad"></div>
+            </div>
+          </div>
+          
+          <div class="info-footer mt-4">
+            <i class="bi bi-info-square me-2"></i>
+            <span>Precisión basada en el entrenamiento actual de la red neuronal.</span>
+          </div>
+        </div>
+
+        <!-- Error -->
+        <div *ngIf="error()" class="tech-alert error mt-3">
+          <div class="d-flex align-items-center gap-3">
+            <i class="bi bi-exclamation-octagon fs-4 text-danger"></i>
+            <div>
+              <div class="fw-bold text-danger">Fallo de Enlace</div>
+              <div class="small text-danger opacity-75">No se puede contactar con el núcleo IA (Flask).</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

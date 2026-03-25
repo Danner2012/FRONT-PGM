@@ -14,7 +14,7 @@
 
       <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
         <!-- Usuario -->
-        <div class="form-group mb-3">
+        <div class="form-group">
           <label class="form-label-custom">Usuario / Correo</label>
           <div class="input-wrapper">
             <i class="bi bi-person-circle icon-input"></i>
@@ -23,7 +23,7 @@
         </div>
         
         <!-- Contraseña -->
-        <div class="form-group mb-4">
+        <div class="form-group">
           <label class="form-label-custom">Contraseña</label>
           <div class="input-wrapper">
             <i class="bi bi-shield-lock icon-input"></i>
@@ -32,7 +32,7 @@
         </div>
 
         <!-- Alerta de Error -->
-        <div *ngIf="errorMessage()" class="error-box mb-4">
+        <div *ngIf="errorMessage()" class="error-box">
           <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ errorMessage() }}
         </div>
 
@@ -59,18 +59,17 @@
     <div class="visual-overlay"></div>
 
     <div class="floating-content">
-      <div class="tech-badge">TECNOLOGÍA PCB FLOW</div>
-      <h1 class="display-3 fw-bold mb-3">Hardware Intelligence</h1>
-      <p class="lead">Gestión avanzada para el diagnóstico y reparación de dispositivos móviles de última generación.</p>
+      <div class="tech-badge">TECNOLOGÍA DE DIAGNÓSTICO INTELIGENTE</div>
+      <h1 class="display-3 fw-bold mb-5">Reparación Inteligente de Celulares</h1>
       
       <div class="circuit-legend">
         <div class="legend-item">
           <span class="led green"></span>
-          <span class="label">CORE ONLINE</span>
+          <span class="label">SISTEMA ACTIVO</span>
         </div>
         <div class="legend-item">
           <span class="led blue"></span>
-          <span class="label">LINK ACTIVE</span>
+          <span class="label">IA EN EJECUCIÓN</span>
         </div>
       </div>
     </div>

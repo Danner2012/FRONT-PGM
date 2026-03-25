@@ -1,144 +1,236 @@
-:host { 
-  --primary: #2563eb; 
-  --primary-hover: #1d4ed8;
-  --bg-dark: #0f172a;
-  --text-main: #1e293b;
-  --input-bg: #f8fafc;
+:host {
+  --primary: #2563eb;
+  --primary-glow: rgba(37, 99, 235, 0.4);
+  --bg-sidebar: #ffffff;
+  --bg-visual: #0f172a;
+  --text-dark: #1e293b;
+  --text-light: #f8fafc;
   --input-border: #e2e8f0;
-  --font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.login-screen {
-  min-height: 100vh;
-  background-color: var(--bg-dark);
-  background-image: radial-gradient(at 0% 0%, rgba(37, 99, 235, 0.1) 0, transparent 50%), 
-                    radial-gradient(at 50% 0%, rgba(30, 41, 59, 0.1) 0, transparent 50%);
+.login-container {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* --- LADO IZQUIERDO (LOGIN) --- */
+.login-sidebar {
+  width: 35%; /* Ocupa el 35% del ancho */
+  min-width: 400px;
+  background: var(--bg-sidebar);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 3rem;
+  z-index: 10;
+  box-shadow: 10px 0 30px rgba(0,0,0,0.05);
+}
+
+.login-content {
+  width: 100%;
+  max-width: 360px;
   display: flex;
   flex-direction: column;
+  height: 100%;
+}
+
+.login-logo {
+  height: 50px;
+  width: auto;
+  object-fit: contain;
+}
+
+.form-label-custom {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.input-wrapper {
+  position: relative;
+  display: flex;
   align-items: center;
-  justify-content: center;
-  font-family: var(--font-family);
-  padding: 20px;
-  position: relative;
-  overflow: hidden;
 }
 
-/* Background blobs for premium look */
-.blob {
+.icon-input {
   position: absolute;
-  width: 500px;
-  height: 500px;
-  background: radial-gradient(circle, rgba(37, 99, 235, 0.08) 0%, rgba(37, 99, 235, 0) 70%);
-  border-radius: 50%;
-  z-index: 0;
+  left: 1rem;
+  color: #94a3b8;
+  font-size: 1.1rem;
 }
-.blob-1 { top: -100px; left: -100px; }
-.blob-2 { bottom: -100px; right: -100px; }
 
-/* Tarjeta Principal */
-.login-card {
+.form-input-custom {
   width: 100%;
-  max-width: 900px;
-  background: #ffffff;
-  border-radius: 28px;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-  overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  position: relative;
-  z-index: 1;
-}
-
-/* Sección del Logo */
-.logo-section {
-  background: #f8fafc;
-  border-right: 1px solid #f1f5f9;
-  padding: 3rem;
-}
-.logo-wrapper {
-  width: 100%;
-  max-width: 480px;
-  filter: drop-shadow(0 10px 15px rgba(0,0,0,0.05));
-  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.main-logo { width: 100%; height: auto; object-fit: contain; }
-.login-card:hover .logo-wrapper { transform: scale(1.02); }
-
-/* Sección del Formulario */
-.form-section { background: #ffffff; }
-
-.letter-spacing-1 { letter-spacing: 0.05em; }
-
-/* Inputs Estilizados */
-.input-container { position: relative; }
-.icon-field { 
-  position: absolute; 
-  left: 16px; 
-  top: 50%; 
-  transform: translateY(-50%); 
-  color: #94a3b8; 
-  font-size: 1.1rem; 
-  transition: color 0.2s;
-}
-
-.pro-input {
-  padding: 14px 16px 14px 48px;
-  border: 2px solid var(--input-border);
-  border-radius: 14px;
-  background: var(--input-bg);
+  padding: 0.8rem 1rem 0.8rem 3rem;
+  border: 1.5px solid var(--input-border);
+  border-radius: 12px;
   font-size: 0.95rem;
-  color: var(--text-main);
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: var(--transition);
+  background: #f8fafc;
 }
-.pro-input::placeholder { color: #cbd5e1; }
-.pro-input:focus {
-  background: #fff;
-  border-color: var(--primary);
-  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
-  outline: none;
-}
-.input-container:focus-within .icon-field { color: var(--primary); }
 
-/* Botón ENTRAR */
-.btn-entrar {
-  background: linear-gradient(135deg, var(--primary) 0%, #1d4ed8 100%);
+.form-input-custom:focus {
+  outline: none;
+  border-color: var(--primary);
+  background: white;
+  box-shadow: 0 0 0 4px var(--primary-glow);
+}
+
+.btn-login {
+  width: 100%;
+  padding: 1rem;
+  background: var(--primary);
   color: white;
   border: none;
-  border-radius: 14px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
-}
-.btn-entrar:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.4);
-  filter: brightness(1.1);
-}
-.btn-entrar:active:not(:disabled) { transform: translateY(0); }
-.btn-entrar:disabled { opacity: 0.7; cursor: not-allowed; }
-
-/* Alerta de Error */
-.alert-pro {
-  background: #fff1f2;
-  color: #e11d48;
   border-radius: 12px;
-  padding: 12px 16px;
-  font-size: 0.875rem;
-  border: 1px solid #ffe4e6;
-  animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: var(--transition);
+  cursor: pointer;
+  margin-top: 1rem;
 }
 
-@keyframes shake {
-  10%, 90% { transform: translate3d(-1px, 0, 0); }
-  20%, 80% { transform: translate3d(2px, 0, 0); }
-  30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
-  40%, 60% { transform: translate3d(4px, 0, 0); }
+.btn-login:hover:not(:disabled) {
+  background: #1d4ed8;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px -5px var(--primary-glow);
 }
 
-.fade-in { animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+.btn-login:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 
-@media (max-width: 767px) {
-  .logo-section { border-right: none; border-bottom: 1px solid #f1f5f9; padding: 2rem; }
-  .logo-wrapper { max-width: 180px; }
+.error-message {
+  padding: 0.75rem 1rem;
+  background: #fef2f2;
+  color: #dc2626;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  border: 1px solid #fee2e2;
+}
+
+/* --- LADO DERECHO (VISUAL) --- */
+.visual-section {
+  flex: 1; /* Ocupa el 65% restante */
+  background: var(--bg-visual);
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+/* Efecto de Rejilla Tecnológica */
+.tech-grid {
+  position: absolute;
+  width: 200%;
+  height: 200%;
+  background-image: 
+    linear-gradient(rgba(37, 99, 235, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(37, 99, 235, 0.1) 1px, transparent 1px);
+  background-size: 50px 50px;
+  transform: perspective(500px) rotateX(45deg);
+  animation: gridMove 20s linear infinite;
+  top: -50%;
+}
+
+@keyframes gridMove {
+  from { transform: perspective(500px) rotateX(45deg) translateY(0); }
+  to { transform: perspective(500px) rotateX(45deg) translateY(50px); }
+}
+
+/* Partículas Flotantes */
+.particles {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+.particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: var(--primary);
+  border-radius: 50%;
+  filter: blur(1px);
+  box-shadow: 0 0 10px var(--primary);
+  animation: float 10s infinite ease-in-out;
+}
+
+/* Generar posiciones aleatorias para partículas */
+.particle:nth-child(1) { left: 10%; top: 20%; animation-delay: 0s; }
+.particle:nth-child(2) { left: 80%; top: 10%; animation-delay: 2s; }
+.particle:nth-child(3) { left: 40%; top: 60%; animation-delay: 4s; }
+.particle:nth-child(4) { left: 70%; top: 80%; animation-delay: 1s; }
+.particle:nth-child(5) { left: 20%; top: 70%; animation-delay: 3s; }
+.particle:nth-child(6) { left: 50%; top: 30%; animation-delay: 5s; }
+
+@keyframes float {
+  0%, 100% { transform: translate(0, 0); opacity: 0.3; }
+  50% { transform: translate(20px, -50px); opacity: 1; }
+}
+
+.visual-overlay {
+  z-index: 5;
+  text-align: center;
+  color: white;
+  padding: 2rem;
+}
+
+.floating-icons {
+  font-size: 3rem;
+  margin-bottom: 2rem;
+  display: flex;
+  gap: 2rem;
+  justify-content: center;
+  opacity: 0.6;
+}
+
+.floating-icons i {
+  animation: iconFloat 4s infinite ease-in-out;
+}
+
+.floating-icons i:nth-child(2n) { animation-delay: 1s; }
+
+@keyframes iconFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-15px); }
+}
+
+.hero-text h1 {
+  letter-spacing: -1px;
+  margin-bottom: 1rem;
+}
+
+.hero-text p {
+  opacity: 0.7;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+/* --- RESPONSIVIDAD --- */
+@media (max-width: 1024px) {
+  .login-sidebar { width: 45%; }
+}
+
+@media (max-width: 768px) {
+  .login-container { flex-direction: column; }
+  .login-sidebar { width: 100%; height: 100vh; padding: 2rem; }
+  .visual-section { display: none; }
+}
+
+.fade-in {
+  animation: fadeIn 0.8s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: translateX(0); }
 }

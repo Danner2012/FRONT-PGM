@@ -192,25 +192,36 @@
   filter: drop-shadow(0 0 10px var(--primary));
 }
 
+/* --- BOTÓN INICIAR SESIÓN REFINADO --- */
 .btn-login {
   font-family: 'Orbitron', sans-serif;
   width: 100%;
   padding: 1.1rem;
-  background: linear-gradient(135deg, var(--primary) 0%, #2563eb 100%);
+  background: #172b4a; /* Color marino oscuro solicitado */
+  border: 1px solid rgba(59, 130, 246, 0.3);
   color: white;
-  border: none;
   border-radius: 16px;
   font-weight: 700;
   letter-spacing: 2px;
-  box-shadow: 0 4px 20px rgba(37, 99, 235, 0.3);
-  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4), 0 0 10px rgba(59, 130, 246, 0.1);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   cursor: pointer;
   margin-top: 1rem;
+  position: relative;
+  overflow: hidden;
 }
 
 .btn-login:hover:not(:disabled) {
+  background: #1e3a5f;
+  border-color: var(--primary);
   transform: translateY(-2px);
-  box-shadow: 0 10px 30px rgba(37, 99, 235, 0.5);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), 0 0 20px rgba(59, 130, 246, 0.4);
+}
+
+.btn-login:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  filter: grayscale(1);
 }
 
 .error-box {

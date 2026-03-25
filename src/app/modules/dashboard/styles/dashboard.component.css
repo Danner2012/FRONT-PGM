@@ -92,13 +92,12 @@
 }
 
 /* Resto de estilos */
-.main-content { flex-grow: 1; height: 100vh; overflow-y: auto; background: #f8fafc; }
+.main-content { flex-grow: 1; height: 100vh; overflow-y: auto; background: #f8fafc; color: #1e293b; }
 .pro-navbar { 
   background: rgba(255, 255, 255, 0.9); 
   backdrop-filter: blur(12px); 
   border-bottom: 1px solid #e2e8f0; 
   height: 75px; 
-  box-shadow: 0 1px 3px rgba(0,0,0,0.02);
 }
 
 .btn-icon { 
@@ -112,17 +111,18 @@
   padding: 0;
 }
 .btn-icon i { line-height: 1; display: flex; align-items: center; justify-content: center; }
-.btn-icon:hover { background: #f8fafc; color: var(--primary); border-color: var(--primary); }
+.btn-icon:hover { background: #f1f5f9; color: var(--primary); border-color: var(--primary); }
 
 .search-box input {
   background: #f1f5f9;
   border: 1px solid #e2e8f0 !important;
+  color: #1e293b !important;
   transition: all 0.3s;
 }
 .search-box input:focus {
   background: white;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
   border-color: var(--primary) !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
 }
 
 .avatar-nav { 
@@ -133,9 +133,12 @@
 }
 .user-nav-pill {
   transition: all 0.3s;
+  background: white !important;
   border: 1px solid #e2e8f0 !important;
 }
-.user-nav-pill:hover { border-color: var(--primary) !important; transform: translateY(-1px); }
+.user-nav-pill .user-meta .text-muted { color: #64748b !important; }
+.user-nav-pill .user-meta .fw-bold { color: #1e293b !important; }
+.user-nav-pill:hover { border-color: var(--primary) !important; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
 
 .btn-logout-circle { 
   width: 32px; height: 32px; border-radius: 8px; 
@@ -143,16 +146,18 @@
   display: flex; align-items: center; justify-content: center; 
   transition: 0.2s; 
 }
-.btn-logout-circle:hover { background: #ef4444; color: #fff; transform: scale(1.1); border-color: #ef4444; }
+.btn-logout-circle:hover { background: #ef4444; color: #fff; transform: scale(1.1); }
 
 .stat-card { 
   background: white; border-radius: 20px; 
   border: 1px solid #e2e8f0; 
   transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
 }
+.stat-card h6 { color: #64748b !important; }
+.stat-card h3 { color: #1e293b !important; }
 .stat-card:hover { 
   transform: translateY(-5px); 
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02); 
+  box-shadow: 0 15px 30px rgba(0,0,0,0.05);
   border-color: var(--primary);
 }
 .icon-box { width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; }

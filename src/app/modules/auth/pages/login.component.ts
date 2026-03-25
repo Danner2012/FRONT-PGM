@@ -35,6 +35,7 @@ export class LoginComponent implements AfterViewInit, OnDestroy {
 
   errorMessage = signal<string | null>(null);
   isLoading = signal(false);
+  showPassword = signal(false); // Signal para visibilidad de contraseña
 
   ngAfterViewInit() {
     this.initCircuit();
@@ -43,6 +44,10 @@ export class LoginComponent implements AfterViewInit, OnDestroy {
   ngOnDestroy() {
     if (this.animationId) cancelAnimationFrame(this.animationId);
     window.removeEventListener('resize', () => this.resizeCanvas());
+  }
+
+  togglePassword() {
+    this.showPassword.update(v => !v);
   }
 
   initCircuit() {
@@ -54,7 +59,6 @@ export class LoginComponent implements AfterViewInit, OnDestroy {
     this.resizeCanvas();
     window.addEventListener('resize', () => this.resizeCanvas());
 
-    // Inicializar caminos de circuito - Más cantidad para pantalla completa
     this.paths = [];
     for(let i=0; i<25; i++) {
       this.paths.push(this.createPath());
@@ -70,7 +74,6 @@ export class LoginComponent implements AfterViewInit, OnDestroy {
     
     const segments = 3 + Math.floor(Math.random() * 4);
     for(let i=0; i<segments; i++) {
-      // Ángulos de 45 o 90 grados para estilo PCB
       const angle = (Math.floor(Math.random() * 8) * Math.PI) / 4;
       const len = 60 + Math.random() * 120;
       x += Math.cos(angle) * len;
@@ -88,33 +91,27 @@ export class LoginComponent implements AfterViewInit, OnDestroy {
 
   resizeCanvas() {
     const canvas = this.canvas.nativeElement;
-    // Ocupar toda la pantalla
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
   }
 
   animate() {
     const canvas = this.canvas.nativeElement;
-    // Fondo semi-transparente para crear estelas de luz
-    // Usamos el color de fondo oscuro global
     this.ctx.fillStyle = 'rgba(15, 23, 42, 0.2)';
     this.ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     this.paths.forEach((path, index) => {
-      // Dibujar la pista
       this.ctx.beginPath();
       this.ctx.moveTo(path.points[0].x, path.points[0].y);
       for(let i=1; i<path.points.length; i++) {
         this.ctx.lineTo(path.points[i].x, path.points[i].y);
       }
-      this.ctx.strokeStyle = `rgba(59, 130, 246, ${path.opacity * 0.25})`; // Azul más brillante
+      this.ctx.strokeStyle = `rgba(59, 130, 246, ${path.opacity * 0.25})`;
       this.ctx.lineWidth = 1.5;
       this.ctx.stroke();
 
-      // Dibujar el pulso
       this.drawPulse(path);
 
-      // Actualizar posición
       path.pulsePos += path.speed;
       if (path.pulsePos >= 1) {
         this.paths[index] = this.createPath();
@@ -134,11 +131,9 @@ export class LoginComponent implements AfterViewInit, OnDestroy {
     if (segmentIdx < totalSegments) {
       const p1 = path.points[segmentIdx];
       const p2 = path.points[segmentIdx + 1];
-      
       const x = p1.x + (p2.x - p1.x) * segmentProgress;
       const y = p1.y + (p2.y - p1.y) * segmentProgress;
 
-      // Glow efecto neón
       this.ctx.shadowBlur = 12;
       this.ctx.shadowColor = '#60a5fa';
       this.ctx.beginPath();
@@ -147,7 +142,6 @@ export class LoginComponent implements AfterViewInit, OnDestroy {
       this.ctx.fill();
       this.ctx.shadowBlur = 0;
 
-      // Rastro
       this.ctx.beginPath();
       this.ctx.arc(x, y, 4, 0, Math.PI * 2);
       this.ctx.fillStyle = 'rgba(96, 165, 250, 0.3)';
@@ -159,7 +153,6 @@ export class LoginComponent implements AfterViewInit, OnDestroy {
     if (this.loginForm.valid) {
       this.isLoading.set(true);
       this.errorMessage.set(null);
-      
       this.authService.login(this.loginForm.value).subscribe({
         next: () => {
           setTimeout(() => {

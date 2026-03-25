@@ -7,15 +7,13 @@
   <aside class="login-sidebar fade-in">
     <div class="login-content">
       <div class="brand-section">
-        <!-- Contenedor con brillo para que el logo resalte en oscuro -->
         <div class="logo-glow-container">
             <img src="logo2.png" alt="Logo" class="login-logo">
         </div>
       </div>
 
-      <div class="header-section mb-4">
-        <h2 class="fw-bold text-white mb-2">Celucentro</h2>
-        <p class="text-gray-400">Laboratorio Técnico de Alta Especialidad</p>
+      <div class="header-section mb-5">
+        <h2 class="fw-bold text-white text-uppercase tracking-widest">CELUCENTRO</h2>
       </div>
 
       <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
@@ -33,7 +31,14 @@
           <label class="form-label-custom">Contraseña</label>
           <div class="input-wrapper">
             <i class="bi bi-shield-lock icon-input"></i>
-            <input type="password" formControlName="clave" class="form-input-custom" placeholder="••••••••">
+            <input [type]="showPassword() ? 'text' : 'password'" 
+                   formControlName="clave" 
+                   class="form-input-custom" 
+                   placeholder="••••••••">
+            <!-- BOTÓN DEL OJITO -->
+            <button type="button" class="btn-toggle-password" (click)="togglePassword()">
+              <i class="bi" [ngClass]="showPassword() ? 'bi-eye-slash' : 'bi-eye'"></i>
+            </button>
           </div>
         </div>
 
@@ -60,7 +65,6 @@
 
   <!-- LADO DERECHO: TEXTO FLOTANTE -->
   <main class="visual-section">
-    <!-- El canvas ya no está aquí, está de fondo global -->
     <div class="floating-content">
       <div class="tech-badge">TECNOLOGÍA DE DIAGNÓSTICO INTELIGENTE</div>
       <h1 class="display-3 fw-bold mb-5">Reparación Inteligente de Celulares</h1>

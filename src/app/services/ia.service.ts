@@ -11,7 +11,6 @@ export class IaService {
   private apiUrl = 'http://localhost:5000';
 
   diagnosticar(sintomas: string[]): Observable<any> {
-    // El backend espera: {"sintomas": ["sintoma1", "sintoma2"]}
     return this.http.post(`${this.apiUrl}/diagnostico`, { sintomas });
   }
 

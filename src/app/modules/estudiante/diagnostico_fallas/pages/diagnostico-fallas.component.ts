@@ -1,7 +1,17 @@
-import { Component, inject, signal } from '@angular/core';
+import {
+  Component,
+  inject,
+  signal,
+  ViewChild,
+  ElementRef
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IaService } from '../../../../services/ia.service';
+import { Chart, registerables } from 'chart.js';
+
+// Registrar Chart.js
+Chart.register(...registerables);
 
 @Component({
   selector: 'app-diagnostico-fallas',
@@ -11,8 +21,12 @@ import { IaService } from '../../../../services/ia.service';
   styleUrls: ['../styles/diagnostico-fallas.component.css']
 })
 export class DiagnosticoFallasComponent {
+
   private iaService = inject(IaService);
-  
+
+  @ViewChild('chartCanvas') chartRef!: ElementRef<HTMLCanvasElement>;
+  chart: Chart | null = null;
+
   sintomas = signal<string[]>([]);
   nuevoSintoma = '';
   diagnostico = signal<any[] | null>(null);
@@ -38,7 +52,14 @@ export class DiagnosticoFallasComponent {
     this.iaService.diagnosticar(this.sintomas()).subscribe({
       next: (res) => {
         if (res.status === 'success') {
-          this.diagnostico.set(res.diagnostico);
+          const data = res.diagnostico;
+          this.diagnostico.set(data);
+
+
+          setTimeout(() => {
+            this.crearGrafico(data);
+          }, 100);
+
         } else {
           this.error.set(true);
         }
@@ -47,6 +68,69 @@ export class DiagnosticoFallasComponent {
       error: () => {
         this.error.set(true);
         this.cargando.set(false);
+      }
+    });
+  }
+
+  crearGrafico(data: any[]) {
+    if (!this.chartRef) return;
+
+    const labels = data.map(d => d.falla);
+    const valores = data.map(d => d.probabilidad);
+
+    // destruir gráfico anterior
+    if (this.chart) {
+      this.chart.destroy();
+    }
+
+    this.chart = new Chart(this.chartRef.nativeElement, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Probabilidad (%)',
+          data: valores,
+          borderWidth: 2,
+          borderRadius: 10,
+          backgroundColor: 'rgba(23, 42, 73, 0.7)',
+          borderColor: 'rgba(23, 42, 73, 1)'
+        }]
+      },
+      options: {
+        responsive: true,
+        animation: {
+          duration: 1200
+        },
+        plugins: {
+          legend: {
+            labels: {
+              color: '#1e293b',
+              font: {
+                weight: 'bold'
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            ticks: {
+              color: '#64748b'
+            },
+            grid: {
+              display: false
+            }
+          },
+          y: {
+            beginAtZero: true,
+            max: 100,
+            ticks: {
+              color: '#64748b'
+            },
+            grid: {
+              color: 'rgba(0,0,0,0.05)'
+            }
+          }
+        }
       }
     });
   }

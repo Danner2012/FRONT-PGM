@@ -1,5 +1,5 @@
 <div class="wrapper" [class.collapsed]="isCollapsed()">
-  <!-- Sidebar Dark Pro - Optimizado -->
+  <!-- Sidebar Dark Pro -->
   <nav id="sidebar" class="sidebar" [class.collapsed]="isCollapsed()">
     <div class="sidebar-header">
       <div class="logo-container">
@@ -15,7 +15,8 @@
     <div class="nav-scroll">
       <ul class="nav-links list-unstyled px-3">
         <li class="mb-1">
-          <a routerLink="/dashboard" routerLinkActive="active" class="nav-link-pro" title="Dashboard">
+          <!-- Apunta a /dashboard/inicio -->
+          <a routerLink="/dashboard/inicio" routerLinkActive="active" class="nav-link-pro" title="Dashboard">
             <i class="bi bi-grid-1x2-fill"></i> 
             <span *ngIf="!isCollapsed()">Dashboard</span>
           </a>
@@ -24,29 +25,56 @@
         <li class="section-title mt-3 mb-2" *ngIf="!isCollapsed() && canSeeOperations()">OPERACIONES</li>
         
         <li class="mb-1" *ngIf="canSeeClientes()">
-          <a routerLink="/clientes" routerLinkActive="active" class="nav-link-pro" title="Clientes">
+          <a routerLink="/dashboard/clientes" routerLinkActive="active" class="nav-link-pro" title="Clientes">
             <i class="bi bi-people"></i> 
             <span *ngIf="!isCollapsed()">Clientes</span>
           </a>
         </li>
         <li class="mb-1" *ngIf="canSeeReparaciones()">
-          <a routerLink="/reparaciones" routerLinkActive="active" class="nav-link-pro" title="Reparaciones">
+          <a routerLink="/dashboard/reparaciones" routerLinkActive="active" class="nav-link-pro" title="Reparaciones">
             <i class="bi bi-tools"></i> 
             <span *ngIf="!isCollapsed()">Reparaciones</span>
-            <span class="badge bg-danger ms-auto rounded-pill" *ngIf="!isCollapsed()">4</span>
           </a>
         </li>
         <li class="mb-1" *ngIf="canSeeInventario()">
-          <a routerLink="/inventario" routerLinkActive="active" class="nav-link-pro" title="Inventario">
+          <a routerLink="/dashboard/inventario" routerLinkActive="active" class="nav-link-pro" title="Inventario">
             <i class="bi bi-box-seam"></i> 
             <span *ngIf="!isCollapsed()">Diagnostico IA</span>
           </a>
         </li>
 
+        <!-- Sección Asistente Técnico IA (Solo Estudiantes) -->
+        <li class="section-title mt-3 mb-2" *ngIf="!isCollapsed() && isEstudiante()">ASISTENTE TÉCNICO IA</li>
+        
+        <li class="mb-1" *ngIf="isEstudiante()">
+          <div class="nav-item-accordion">
+            <a class="nav-link-pro" (click)="toggleAccordion('asistente')" [class.active-parent]="isAccordionOpen('asistente')" title="Asistente IA">
+              <i class="bi bi-cpu-fill"></i>
+              <span *ngIf="!isCollapsed()">Asistente Técnico IA</span>
+              <i class="bi bi-chevron-down ms-auto small" *ngIf="!isCollapsed()" [class.rotated]="isAccordionOpen('asistente')"></i>
+            </a>
+            
+            <ul class="nav-sub-links list-unstyled ps-4" *ngIf="isAccordionOpen('asistente') && !isCollapsed()">
+              <li class="mb-1">
+                <a routerLink="/dashboard/diagnostico-fallas" routerLinkActive="active" class="nav-link-sub">
+                  <i class="bi bi-activity me-2"></i>
+                  <span>Diagnóstico de fallas</span>
+                </a>
+              </li>
+              <li class="mb-1">
+                <a routerLink="/dashboard/reconocimiento-ia" routerLinkActive="active" class="nav-link-sub">
+                  <i class="bi bi-robot me-2"></i>
+                  <span>Reconocimiento IA</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </li>
+
         <li class="section-title mt-3 mb-2" *ngIf="!isCollapsed() && canSeeConfiguracion()">SISTEMA</li>
         
         <li class="mb-1" *ngIf="canSeeConfiguracion()">
-          <a routerLink="/configuracion" routerLinkActive="active" class="nav-link-pro" title="Configuración">
+          <a routerLink="/dashboard/configuracion" routerLinkActive="active" class="nav-link-pro" title="Configuración">
             <i class="bi bi-gear"></i> 
             <span *ngIf="!isCollapsed()">Configuración</span>
           </a>
@@ -57,11 +85,10 @@
 
   <!-- Main Content -->
   <main id="content" class="main-content">
-    <!-- Navbar Superior Pro -->
     <nav class="navbar navbar-expand navbar-light pro-navbar sticky-top">
       <div class="container-fluid px-4">
         <div class="d-flex align-items-center">
-          <button (click)="toggleSidebar()" class="btn btn-icon me-3 toggle-btn" [class.rotated]="isCollapsed()">
+          <button (click)="toggleSidebar()" class="btn btn-icon me-3">
             <i class="bi bi-list fs-4"></i>
           </button>
           
@@ -88,29 +115,7 @@
       </div>
     </nav>
 
-    <div class="p-4 container-fluid fade-in">
-      <div class="welcome-header mb-4">
-        <h2 class="fw-bold m-0 mt-2">¡Hola, {{ user()?.correo }}! </h2>
-        <p class="text-secondary m-0">Bienvenido al panel central de Celucentro. Tu rol es: <strong class="text-primary text-capitalize">{{ userRole() }}</strong></p>
-      </div>
-
-      <!-- Stats -->
-      <div class="row g-4 mb-4">
-        <div class="col-md-3">
-          <div class="stat-card p-4 shadow-hover">
-            <div class="icon-box bg-indigo-light text-indigo mb-3"><i class="bi bi-cash-stack fs-4"></i></div>
-            <h6 class="text-secondary mb-1">Ingresos Hoy</h6>
-            <h3 class="fw-bold m-0">$4,250</h3>
-          </div>
-        </div>
-        <div class="col-md-3">
-          <div class="stat-card p-4 shadow-hover">
-            <div class="icon-box bg-emerald-light text-emerald mb-3"><i class="bi bi-people fs-4"></i></div>
-            <h6 class="text-secondary mb-1">Clientes</h6>
-            <h3 class="fw-bold m-0">48</h3>
-          </div>
-        </div>
-      </div>
-    </div>
+    <!-- AQUÍ SE CARGARÁN LAS VISTAS DINÁMICAMENTE -->
+    <router-outlet></router-outlet>
   </main>
 </div>

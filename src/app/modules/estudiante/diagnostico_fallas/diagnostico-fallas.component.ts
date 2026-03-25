@@ -30,10 +30,10 @@ import { IaService } from '../../../services/ia.service';
             
             <div class="input-wrapper-tech mb-4">
               <input type="text" 
-                     class="form-control tech-input" 
-                     placeholder="Describa un síntoma..." 
-                     [(ngModel)]="nuevoSintoma" 
-                     (keyup.enter)="agregarSintoma()">
+                    class="form-control tech-input" 
+                    placeholder="Describa un síntoma..." 
+                    [(ngModel)]="nuevoSintoma" 
+                    (keyup.enter)="agregarSintoma()">
               <button class="btn-add-tech" (click)="agregarSintoma()">
                 <i class="bi bi-plus-lg"></i>
               </button>
@@ -78,13 +78,13 @@ import { IaService } from '../../../services/ia.service';
               <p class="text-muted">Esperando flujo de datos para análisis...</p>
             </div>
 
-            <!-- Cargando Animación Tech -->
+            <!-- Cargando -->
             <div *ngIf="cargando()" class="loading-tech py-5 text-center">
               <div class="scanning-bar mb-4"></div>
-              <p class="text-primary fw-bold tracking-widest">CALCULANDO PROBABILIDADES...</p>
+              <p class="fw-bold tracking-widest">CALCULANDO PROBABILIDADES...</p>
             </div>
 
-            <!-- Lista de Resultados -->
+            <!-- Resultados -->
             <div *ngIf="diagnostico()" class="results-grid animate-fade-in">
               <div *ngFor="let res of diagnostico()" class="prediction-card mb-3">
                 <div class="prediction-info d-flex justify-content-between align-items-center mb-2">
@@ -102,7 +102,7 @@ import { IaService } from '../../../services/ia.service';
               </div>
             </div>
 
-            <!-- Mensaje de Error -->
+            <!-- Error -->
             <div *ngIf="error()" class="tech-alert error mt-3">
               <div class="d-flex align-items-center gap-3">
                 <i class="bi bi-exclamation-octagon fs-4 text-danger"></i>
@@ -118,7 +118,7 @@ import { IaService } from '../../../services/ia.service';
     </div>
   `,
   styles: [`
-    :host { --accent: #3b82f6; --accent-soft: rgba(59, 130, 246, 0.08); }
+    :host { --accent: #172a49; --accent-soft: rgba(23, 42, 73, 0.08); }
     
     .title-tech { font-family: 'Orbitron', sans-serif; font-weight: 800; letter-spacing: 1px; color: #1e293b; }
     .subtitle-tech { font-size: 0.85rem; letter-spacing: 2px; text-transform: uppercase; color: #64748b; }
@@ -126,7 +126,7 @@ import { IaService } from '../../../services/ia.service';
     .icon-orb {
       width: 50px; height: 50px; background: var(--accent);
       border-radius: 14px; display: flex; align-items: center; justify-content: center;
-      font-size: 1.5rem; color: white; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+      font-size: 1.5rem; color: white; box-shadow: 0 4px 15px rgba(23, 42, 73, 0.3);
     }
 
     .light-card {
@@ -142,7 +142,6 @@ import { IaService } from '../../../services/ia.service';
       color: #64748b; letter-spacing: 1px;
     }
 
-    /* Input Design */
     .input-wrapper-tech {
       display: flex; background: #f1f5f9;
       border: 1px solid #e2e8f0;
@@ -159,85 +158,41 @@ import { IaService } from '../../../services/ia.service';
       background: var(--accent); border: none; color: white;
       padding: 0 16px; transition: 0.2s;
     }
-    .btn-add-tech:hover { background: #2563eb; }
+    .btn-add-tech:hover { background: #0f1f38; }
 
-    /* Tags */
     .tech-tag {
       display: inline-flex; align-items: center; gap: 8px;
-      background: var(--accent-soft); border: 1px solid rgba(59, 130, 246, 0.15);
+      background: var(--accent-soft); border: 1px solid rgba(23, 42, 73, 0.15);
       color: var(--accent); padding: 6px 14px; border-radius: 10px;
       font-size: 0.85rem; margin: 4px; font-weight: 600;
     }
-    .btn-remove-tag {
-      background: transparent; border: none; color: #ef4444;
-      padding: 0; line-height: 1; font-size: 1.1rem; cursor: pointer;
-    }
 
-    /* Buttons */
     .btn-primary-tech {
       background: var(--accent); border: none; color: white;
       padding: 14px; border-radius: 14px; font-weight: 700;
       font-family: 'Orbitron', sans-serif; letter-spacing: 2px;
       transition: all 0.3s;
     }
-    .btn-primary-tech:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(59, 130, 246, 0.25); }
-    .btn-primary-tech:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-primary-tech:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(23, 42, 73, 0.25); }
 
-    /* Results Design */
-    .prediction-card {
-      background: #f8fafc; padding: 16px;
-      border-radius: 16px; border: 1px solid #e2e8f0;
-    }
-    .falla-name { font-weight: 700; color: #334155; }
-    .falla-percent { font-family: 'Orbitron', sans-serif; color: var(--accent); font-weight: 700; }
-    
-    .prediction-progress {
-      height: 8px; background: #e2e8f0;
-      border-radius: 10px; overflow: hidden; margin-top: 10px;
-    }
     .progress-fill {
-      height: 100%; background: linear-gradient(90deg, var(--accent), #60a5fa);
+      height: 100%; background: linear-gradient(90deg, var(--accent), #2c4a7a);
       border-radius: 10px; transition: width 1s ease-out;
     }
 
-    .info-footer {
-      font-size: 0.75rem; color: #94a3b8; font-style: italic;
-      display: flex; align-items: center;
-    }
-
-    /* Animations & Loaders */
     .pulse-circle {
       width: 60px; height: 60px; border-radius: 50%;
       background: #f1f5f9; color: var(--accent);
       display: flex; align-items: center; justify-content: center;
       font-size: 1.5rem; animation: pulse 2s infinite;
     }
+
     @keyframes pulse {
-      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.2); }
-      70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
-      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(23, 42, 73, 0.2); }
+      70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(23, 42, 73, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(23, 42, 73, 0); }
     }
 
-    .scanning-bar {
-      width: 100%; height: 3px; background: #e2e8f0;
-      position: relative; overflow: hidden; border-radius: 2px;
-    }
-    .scanning-bar::after {
-      content: ''; position: absolute; left: -100%; width: 100%; height: 100%;
-      background: linear-gradient(90deg, transparent, var(--accent), transparent);
-      animation: scan 1.5s infinite;
-    }
-    @keyframes scan { 100% { left: 100%; } }
-
-    .tech-alert.error {
-      background: #fef2f2; border: 1px solid #fecaca;
-      padding: 16px; border-radius: 16px;
-    }
-
-    .fade-in { animation: fadeIn 0.6s ease-out; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    .animate-pop { animation: pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
-    @keyframes pop { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     .tracking-widest { letter-spacing: 0.2em; color: var(--accent); }
   `]
 })
@@ -275,7 +230,7 @@ export class DiagnosticoFallasComponent {
         }
         this.cargando.set(false);
       },
-      error: (err) => {
+      error: () => {
         this.error.set(true);
         this.cargando.set(false);
       }

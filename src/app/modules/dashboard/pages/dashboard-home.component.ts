@@ -9,7 +9,7 @@ import { AuthService } from '../../../services/auth.service';
   template: `
     <div class="p-4 container-fluid fade-in">
       <div class="welcome-header mb-4">
-        <h2 class="fw-bold m-0 mt-2">¡Hola, {{ user()?.correo }}! </h2>
+        <h2 class="fw-bold m-0 mt-2">¡Hola, {{ user()?.nombre_completo || user()?.correo }}! </h2>
         <p class="text-secondary m-0">Bienvenido al panel central de Celucentro. Tu rol es: <strong class="text-primary text-capitalize">{{ userRole() }}</strong></p>
       </div>
 

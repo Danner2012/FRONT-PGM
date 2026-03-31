@@ -100,10 +100,10 @@
         <div class="ms-auto d-flex align-items-center gap-3">
           <div class="user-nav-pill d-flex align-items-center bg-white border rounded-pill p-1 pe-3 shadow-sm shadow-hover">
              <div class="avatar-nav bg-primary-gradient me-2 text-white text-uppercase">
-               {{ user()?.correo?.charAt(0) }}
+               {{ (user()?.nombre_completo || user()?.correo)?.charAt(0) }}
              </div>
              <div class="user-meta d-none d-md-block me-3">
-                <div class="fw-bold small lh-1 text-truncate" style="max-width: 150px;">{{ user()?.correo }}</div>
+                <div class="fw-bold small lh-1 text-truncate" style="max-width: 150px;">{{ user()?.nombre_completo || user()?.correo }}</div>
                 <div class="text-muted small text-capitalize" style="font-size: 0.65rem;">{{ userRole() }}</div>
              </div>
              <button (click)="onLogout()" class="btn btn-logout-circle shadow-sm" title="Cerrar Sesión">

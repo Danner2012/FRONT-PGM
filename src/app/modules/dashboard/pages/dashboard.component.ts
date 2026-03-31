@@ -19,13 +19,17 @@ export class DashboardComponent implements OnInit {
   isCollapsed = signal(false);
   activeAccordion = signal<string | null>(null);
 
-  // Lógica de acceso por roles
-  canSeeOperations = computed(() => this.userRole() !== 'estudiante');
-  canSeeClientes = computed(() => ['superadministrador', 'administrador'].includes(this.userRole() || ''));
-  canSeeReparaciones = computed(() => ['superadministrador', 'administrador', 'técnico'].includes(this.userRole() || ''));
-  canSeeInventario = computed(() => ['superadministrador', 'administrador', 'técnico'].includes(this.userRole() || ''));
-  canSeeConfiguracion = computed(() => this.userRole() === 'superadministrador');
-  isEstudiante = computed(() => this.userRole() === 'estudiante');
+  // Lógica de acceso por roles (Insensible a mayúsculas para mayor seguridad)
+  private currentRole = computed(() => this.userRole()?.toLowerCase() || '');
+
+  canSeeOperations = computed(() => this.currentRole() !== 'estudiante');
+  canSeeClientes = computed(() => ['superadministrador', 'administrador'].includes(this.currentRole()));
+  canSeeReparaciones = computed(() => ['superadministrador', 'administrador', 'técnico', 'tecnico'].includes(this.currentRole()));
+  canSeeInventario = computed(() => ['superadministrador', 'administrador', 'técnico', 'tecnico'].includes(this.currentRole()));
+  canSeeConfiguracion = computed(() => this.currentRole() === 'superadministrador');
+  isEstudiante = computed(() => this.currentRole() === 'estudiante');
+  isAdministrador = computed(() => this.currentRole() === 'administrador');
+  canSeeUserManagement = computed(() => ['superadministrador', 'administrador'].includes(this.currentRole()));
 
   ngOnInit() {
     this.authService.getUserProfile().subscribe();

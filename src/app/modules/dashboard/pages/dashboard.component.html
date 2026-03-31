@@ -24,6 +24,26 @@
         
         <li class="section-title mt-3 mb-2" *ngIf="!isCollapsed() && canSeeOperations()">OPERACIONES</li>
         
+        <!-- Gestión de Usuarios (Acordeón) -->
+        <li class="mb-1" *ngIf="canSeeUserManagement()">
+          <div class="nav-item-accordion">
+            <a class="nav-link-pro" (click)="toggleAccordion('gestion_usuarios')" [class.active-parent]="isAccordionOpen('gestion_usuarios')" title="Gestión de Usuarios">
+              <i class="bi bi-people-fill"></i>
+              <span *ngIf="!isCollapsed()">Gestión de Usuarios</span>
+              <i class="bi bi-chevron-down ms-auto small" *ngIf="!isCollapsed()" [class.rotated]="isAccordionOpen('gestion_usuarios')"></i>
+            </a>
+            
+            <ul class="nav-sub-links list-unstyled ps-4" *ngIf="isAccordionOpen('gestion_usuarios') && !isCollapsed()">
+              <li class="mb-1">
+                <a routerLink="/dashboard/tecnicos" routerLinkActive="active" class="nav-link-sub">
+                  <i class="bi bi-person-badge me-2"></i>
+                  <span>Técnicos</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </li>
+
         <li class="mb-1" *ngIf="canSeeClientes()">
           <a routerLink="/dashboard/clientes" routerLinkActive="active" class="nav-link-pro" title="Clientes">
             <i class="bi bi-people"></i> 

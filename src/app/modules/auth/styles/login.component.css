@@ -196,7 +196,7 @@
   font-family: 'Orbitron', sans-serif;
   width: 100%;
   padding: 1.1rem;
-  background: #172a49; /* 🔵 color que quieres */
+  background: #172a49; 
   border: 1px solid rgba(23, 42, 73, 0.5);
   color: white;
   border-radius: 16px;
@@ -212,7 +212,7 @@
 }
 
 .btn-login:hover:not(:disabled) {
-  background: #0f1f38; /* 🔵 un poco más oscuro al hover */
+  background: #0f1f38; 
   border-color: #172a49;
   transform: translateY(-2px);
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5),

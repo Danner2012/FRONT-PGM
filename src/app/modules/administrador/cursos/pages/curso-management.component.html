@@ -20,7 +20,7 @@
                 <table class="table table-custom table-hover">
                     <thead>
                         <tr>
-                            <th class="text-center" style="width: 60px;">ID</th>
+                            <th class="text-center" style="width: 60px;">#</th>
                             <th>Información del Curso</th>
                             <th>Tipo</th>
                             <th class="text-center">Precio</th>
@@ -31,7 +31,7 @@
                     </thead>
                     <tbody>
                         <tr *ngFor="let curso of cursos(); let i = index">
-                            <td class="text-center fw-bold">{{ curso.id }}</td>
+                            <td class="text-center fw-bold">{{ i + 1 }}</td>
                             <td>
                                 <div class="d-flex align-items-center">
                                     <div class="avatar-sm bg-light-primary text-primary me-2 rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 32px; height: 32px; font-size: 0.75rem; background-color: #ebf8ff; color: #3182ce;">

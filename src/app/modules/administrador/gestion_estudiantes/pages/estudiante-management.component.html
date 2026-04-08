@@ -1,0 +1,129 @@
+<div class="management-container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="fw-bold mb-0">Gestión de Estudiantes</h4>
+            <p class="text-muted small">Administra las cuentas y perfiles de los estudiantes del sistema.</p>
+        </div>
+        <button class="btn btn-primary rounded-pill px-4 shadow-sm d-flex align-items-center gap-2" (click)="openModal()">
+            <i class="bi bi-person-plus-fill fs-5"></i>
+            <span>Nuevo Estudiante</span>
+        </button>
+    </div>
+
+    <!-- Tabla de Estudiantes -->
+    <div class="card card-custom overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-custom table-hover">
+                <thead>
+                    <tr>
+                        <th class="text-center" style="width: 60px;">#</th>
+                        <th>Nombre Completo</th>
+                        <th>CI</th>
+                        <th>Correo / Usuario</th>
+                        <th>Celular</th>
+                        <th>Registro</th>
+                        <th class="text-center">Estado</th>
+                        <th class="text-end" style="width: 150px;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let estudiante of estudiantes(); let i = index">
+                        <td class="text-center fw-bold">{{ i + 1 }}</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-sm bg-light-primary text-primary me-2 rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 32px; height: 32px; font-size: 0.75rem;">
+                                    {{ estudiante.nombre.charAt(0) }}
+                                </div>
+                                <span>{{ estudiante.nombre }} {{ estudiante.apellido_paterno }} {{ estudiante.apellido_materno }}</span>
+                            </div>
+                        </td>
+                        <td>{{ estudiante.ci }}</td>
+                        <td>{{ estudiante.correo }}</td>
+                        <td>{{ estudiante.celular }}</td>
+                        <td>
+                            <span class="text-muted small">{{ estudiante.fecha_registro | date:'dd/MM/yyyy' }}</span>
+                        </td>
+                        <td class="text-center">
+                            <span [class]="estudiante.estado ? 'badge-active' : 'badge-inactive'">
+                                {{ estudiante.estado ? 'Activo' : 'Inactivo' }}
+                            </span>
+                        </td>
+                        <td class="text-end">
+                            <div class="d-flex justify-content-end gap-2">
+                                <button class="btn btn-action btn-edit" (click)="openModal(estudiante)" title="Editar">
+                                    <i class="bi bi-pencil-square"></i>
+                                </button>
+                                <button class="btn btn-action" 
+                                        [class]="estudiante.estado ? 'btn-toggle-on' : 'btn-toggle-off'" 
+                                        (click)="toggleStatus(estudiante)"
+                                        [title]="estudiante.estado ? 'Desactivar' : 'Activar'">
+                                    <i [class]="estudiante.estado ? 'bi bi-toggle-on' : 'bi bi-toggle-off'"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr *ngIf="estudiantes().length === 0">
+                        <td colspan="8" class="text-center py-5 text-muted">
+                            <i class="bi bi-people fs-1 d-block mb-2 opacity-50"></i>
+                            No hay estudiantes registrados.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal Formulario (Ventana Flotante) -->
+    <div class="modal-overlay" *ngIf="showModal()">
+        <div class="modal-content-custom">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="fw-bold mb-0">{{ isEditing() ? 'Editar Estudiante' : 'Agregar Nuevo Estudiante' }}</h5>
+                <button class="btn-close" (click)="closeModal()"></button>
+            </div>
+
+            <form [formGroup]="estudianteForm" (ngSubmit)="saveEstudiante()">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">Nombre</label>
+                        <input type="text" class="form-control" formControlName="nombre">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">CI</label>
+                        <input type="text" class="form-control" formControlName="ci">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">Apellido Paterno</label>
+                        <input type="text" class="form-control" formControlName="apellido_paterno">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">Apellido Materno</label>
+                        <input type="text" class="form-control" formControlName="apellido_materno" >
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label small fw-bold">Celular</label>
+                        <input type="text" class="form-control" formControlName="celular" >
+                    </div>
+                    
+                    <hr class="my-4 opacity-10">
+                    
+                    <div class="col-12">
+                        <label class="form-label small fw-bold">Correo Electrónico (Usuario)</label>
+                        <input type="email" class="form-control" formControlName="correo">
+                    </div>
+                    
+                    <div class="col-12" *ngIf="!isEditing()">
+                        <label class="form-label small fw-bold">Contraseña</label>
+                        <input type="password" class="form-control" formControlName="password">
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 mt-5">
+                    <button type="button" class="btn btn-light rounded-pill px-4" (click)="closeModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4" [disabled]="estudianteForm.invalid">
+                        {{ isEditing() ? 'Guardar Cambios' : 'Crear Estudiante' }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

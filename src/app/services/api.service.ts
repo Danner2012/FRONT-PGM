@@ -30,4 +30,25 @@ export class ApiService {
   toggleTecnicoStatus(id: number): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}tecnicos/${id}/toggle-status/`, {});
   }
+
+  // Métodos para Estudiantes
+  getEstudiantes(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}estudiantes/`);
+  }
+
+  getEstudiante(id: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}estudiantes/${id}/`);
+  }
+
+  createEstudiante(data: any): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}estudiantes/`, data);
+  }
+
+  updateEstudiante(id: number, data: any): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}estudiantes/${id}/`, data);
+  }
+
+  toggleEstudianteStatus(id: number): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}estudiantes/${id}/toggle-status/`, {});
+  }
 }

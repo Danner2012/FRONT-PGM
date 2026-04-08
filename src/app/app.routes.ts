@@ -4,6 +4,7 @@ import { DashboardComponent } from './modules/dashboard/pages/dashboard.componen
 import { DashboardHomeComponent } from './modules/dashboard/pages/dashboard-home.component';
 import { DiagnosticoFallasComponent } from './modules/estudiante/diagnostico_fallas/pages/diagnostico-fallas.component';
 import { TecnicoManagementComponent } from './modules/administrador/gestion_tecnicos/pages/tecnico-management.component';
+import { EstudianteManagementComponent } from './modules/administrador/gestion_estudiantes/pages/estudiante-management.component';
 import { CursoManagementComponent } from './modules/administrador/cursos/pages/curso-management.component';
 import { authGuard } from './guards/auth.guard';
 
@@ -17,6 +18,7 @@ export const routes: Routes = [
       { path: 'inicio', component: DashboardHomeComponent },
       { path: 'diagnostico-fallas', component: DiagnosticoFallasComponent },
       { path: 'tecnicos', component: TecnicoManagementComponent },
+      { path: 'estudiantes', component: EstudianteManagementComponent },
       { path: 'cursos', component: CursoManagementComponent },
       { path: '', redirectTo: 'inicio', pathMatch: 'full' }
     ]

@@ -27,6 +27,9 @@ export class CursoManagementComponent implements OnInit {
   maestroType = signal<'tipo' | 'horario'>('tipo');
   isEditing = signal(false);
   selectedId = signal<number | null>(null);
+  showAsignarForm = signal<number | null>(null);
+  showDetailsModal = signal(false);
+  selectedCursoDetails = signal<any>(null);
 
   // Formularios
   cursoForm: FormGroup = this.fb.group({
@@ -79,6 +82,12 @@ export class CursoManagementComponent implements OnInit {
     this.cursoService.getDias().subscribe(data => this.dias.set(data));
   }
 
+  // --- Ver Detalles ---
+  openDetails(curso: any) {
+    this.selectedCursoDetails.set(curso);
+    this.showDetailsModal.set(true);
+  }
+
   // --- Gestión de Cursos ---
   openCursoModal(curso: any = null) {
     this.isEditing.set(!!curso);
@@ -115,6 +124,15 @@ export class CursoManagementComponent implements OnInit {
   }
 
   // --- Asignación de Horarios ---
+  toggleAsignarForm(id: number) {
+    if (this.showAsignarForm() === id) {
+      this.showAsignarForm.set(null);
+    } else {
+      this.showAsignarForm.set(id);
+      this.horarioAsignacionForm.reset({ cupo_maximo: 20 });
+    }
+  }
+
   asignarHorario(cursoId: number) {
     if (this.horarioAsignacionForm.invalid) return;
     const data = { ...this.horarioAsignacionForm.value, id_curso: cursoId };

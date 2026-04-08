@@ -1,270 +1,327 @@
-<div class="container-fluid py-4">
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="fw-bold text-primary m-0">Gestión de Cursos</h2>
-    <div class="btn-group shadow-sm">
-      <button class="btn" [class.btn-primary]="activeTab() === 'cursos'" [class.btn-light]="activeTab() !== 'cursos'" (click)="activeTab.set('cursos')">Cursos</button>
-      <button class="btn" [class.btn-primary]="activeTab() === 'maestros'" [class.btn-light]="activeTab() !== 'maestros'" (click)="activeTab.set('maestros')">Datos Maestros</button>
-    </div>
-  </div>
-
-  <!-- TAB: CURSOS -->
-  <div *ngIf="activeTab() === 'cursos'">
-    <div class="card border-0 shadow-sm mb-4">
-      <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-        <h5 class="m-0 fw-bold">Lista de Cursos</h5>
-        <button class="btn btn-success btn-sm rounded-pill px-3" (click)="openCursoModal()">
-          <i class="bi bi-plus-lg me-1"></i> Nuevo Curso
+<div class="management-container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="fw-bold mb-0">Gestión de Cursos</h4>
+            <div class="mt-2 tabs-container">
+                <button class="tab-btn" [class.active]="activeTab() === 'cursos'" (click)="activeTab.set('cursos')">Cursos</button>
+                <button class="tab-btn" [class.active]="activeTab() === 'maestros'" (click)="activeTab.set('maestros')">Maestros</button>
+            </div>
+        </div>
+        <button *ngIf="activeTab() === 'cursos'" class="btn btn-primary rounded-pill px-4 shadow-sm d-flex align-items-center gap-2" (click)="openCursoModal()">
+            <i class="bi bi-journal-plus fs-5"></i>
+            <span>Nuevo Curso</span>
         </button>
-      </div>
-      <div class="card-body p-0">
-        <div class="table-responsive">
-          <table class="table table-hover align-middle mb-0">
-            <thead class="bg-light">
-              <tr>
-                <th>Nombre</th>
-                <th>Tipo</th>
-                <th>Precio</th>
-                <th>Fechas</th>
-                <th>Horarios Asignados</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let curso of cursos()">
-                <td>
-                  <div class="fw-bold">{{ curso.nombre }}</div>
-                  <small class="text-muted">{{ curso.descripcion | slice:0:50 }}...</small>
-                </td>
-                <td><span class="badge bg-info text-dark">{{ curso.tipo_nombre }}</span></td>
-                <td>Bs. {{ curso.precio }}</td>
-                <td>
-                  <small class="d-block text-nowrap">Ini: {{ curso.fecha_inicio }}</small>
-                  <small class="d-block text-nowrap">Fin: {{ curso.fecha_fin }}</small>
-                </td>
-                <td>
-                  <div class="d-flex flex-wrap gap-1">
-                    <span *ngFor="let h of curso.horarios" class="badge bg-secondary position-relative me-2 mb-1 p-2">
-                      {{ h.dia_nombre }}: {{ h.horario_detalle }} ({{ h.cupo_maximo }})
-                      <i class="bi bi-x-circle ms-1 cursor-pointer" (click)="quitarHorario(h.id)" title="Quitar horario"></i>
-                    </span>
-                    <button class="btn btn-outline-primary btn-xs p-1 lh-1" (click)="selectedId.set(curso.id)" title="Asignar Horario">
-                      <i class="bi bi-calendar-plus"></i>
-                    </button>
-                  </div>
-
-                  <!-- Formulario rápido de asignación -->
-                  <div *ngIf="selectedId() === curso.id && !showCursoModal()" class="mt-2 p-2 border rounded bg-light shadow-sm" style="max-width: 300px;">
-                    <form [formGroup]="horarioAsignacionForm" (ngSubmit)="asignarHorario(curso.id)">
-                      <div class="mb-2">
-                        <select class="form-select form-select-sm" formControlName="id_dia">
-                          <option value="">Día...</option>
-                          <option *ngFor="let d of dias()" [value]="d.id">{{ d.nombre }}</option>
-                        </select>
-                      </div>
-                      <div class="mb-2">
-                        <select class="form-select form-select-sm" formControlName="id_horario">
-                          <option value="">Horario...</option>
-                          <option *ngFor="let h of horarios()" [value]="h.id">{{ h.nombre }} ({{h.hora_inicio}} - {{h.hora_fin}})</option>
-                        </select>
-                      </div>
-                      <div class="mb-2">
-                        <input type="number" class="form-control form-select-sm" placeholder="Cupo" formControlName="cupo_maximo">
-                      </div>
-                      <div class="d-flex gap-1">
-                        <button type="submit" class="btn btn-primary btn-sm w-100" [disabled]="horarioAsignacionForm.invalid">Asignar</button>
-                        <button type="button" class="btn btn-light btn-sm" (click)="selectedId.set(null)">X</button>
-                      </div>
-                    </form>
-                  </div>
-                </td>
-                <td>
-                  <div class="btn-group">
-                    <button class="btn btn-outline-warning btn-sm" (click)="openCursoModal(curso)"><i class="bi bi-pencil"></i></button>
-                    <!-- Podrías agregar eliminar curso si se requiere -->
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
     </div>
-  </div>
 
-  <!-- TAB: MAESTROS -->
-  <div *ngIf="activeTab() === 'maestros'">
-    <div class="row">
-      <!-- Tipos de Curso -->
-      <div class="col-md-6 mb-4">
-        <div class="card border-0 shadow-sm h-100">
-          <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-            <h5 class="m-0 fw-bold">Tipos de Curso</h5>
-            <button class="btn btn-success btn-sm rounded-pill px-3" (click)="openMaestroModal('tipo')">
-              <i class="bi bi-plus-lg me-1"></i> Nuevo
-            </button>
-          </div>
-          <div class="card-body">
-            <ul class="list-group list-group-flush">
-              <li *ngFor="let t of tiposCurso()" class="list-group-item d-flex justify-content-between align-items-center">
-                {{ t.nombre }}
-                <div class="btn-group">
-                  <button class="btn btn-link text-warning p-0 me-2" (click)="openMaestroModal('tipo', t)"><i class="bi bi-pencil"></i></button>
-                  <button class="btn btn-link text-danger p-0" (click)="deleteMaestro('tipo', t.id)"><i class="bi bi-trash"></i></button>
-                </div>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
-
-      <!-- Horarios -->
-      <div class="col-md-6 mb-4">
-        <div class="card border-0 shadow-sm h-100">
-          <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-            <h5 class="m-0 fw-bold">Horarios (Maestros)</h5>
-            <button class="btn btn-success btn-sm rounded-pill px-3" (click)="openMaestroModal('horario')">
-              <i class="bi bi-plus-lg me-1"></i> Nuevo
-            </button>
-          </div>
-          <div class="card-body">
+    <!-- TAB: LISTADO DE CURSOS -->
+    <div *ngIf="activeTab() === 'cursos'" class="animate-fade-in">
+        <div class="card card-custom overflow-hidden">
             <div class="table-responsive">
-              <table class="table table-sm">
-                <thead>
-                  <tr>
-                    <th>Nombre</th>
-                    <th>Inicio</th>
-                    <th>Fin</th>
-                    <th>Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let h of horarios()">
-                    <td>{{ h.nombre }}</td>
-                    <td>{{ h.hora_inicio }}</td>
-                    <td>{{ h.hora_fin }}</td>
-                    <td>
-                      <button class="btn btn-link text-warning p-0 me-2" (click)="openMaestroModal('horario', h)"><i class="bi bi-pencil"></i></button>
-                      <button class="btn btn-link text-danger p-0" (click)="deleteMaestro('horario', h.id)"><i class="bi bi-trash"></i></button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
+                <table class="table table-custom table-hover">
+                    <thead>
+                        <tr>
+                            <th class="text-center" style="width: 60px;">ID</th>
+                            <th>Información del Curso</th>
+                            <th>Tipo</th>
+                            <th class="text-center">Precio</th>
+                            <th>Vigencia</th>
+                            <th>Días/Horarios</th>
+                            <th class="text-end" style="width: 180px;">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let curso of cursos(); let i = index">
+                            <td class="text-center fw-bold">{{ curso.id }}</td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-sm bg-light-primary text-primary me-2 rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 32px; height: 32px; font-size: 0.75rem; background-color: #ebf8ff; color: #3182ce;">
+                                        {{ curso.nombre.charAt(0) }}
+                                    </div>
+                                    <span class="fw-semibold">{{ curso.nombre }}</span>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-dark border">{{ curso.tipo_nombre }}</span>
+                            </td>
+                            <td class="text-center fw-bold">Bs. {{ curso.precio }}</td>
+                            <td>
+                                <div class="d-flex flex-column small">
+                                    <span><i class="bi bi-calendar-check text-primary me-1"></i> {{ curso.fecha_inicio | date:'dd/MM/yy' }}</span>
+                                    <span class="text-muted"><i class="bi bi-calendar-x me-1"></i> {{ curso.fecha_fin | date:'dd/MM/yy' }}</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="d-flex flex-wrap gap-1 align-items-center">
+                                    <span *ngFor="let h of curso.horarios" class="day-chip" [title]="h.horario_detalle">
+                                        {{ h.dia_nombre.substring(0,2).toUpperCase() }}
+                                    </span>
+                                    <button class="btn btn-link btn-sm p-0 ms-1" (click)="toggleAsignarForm(curso.id)" title="Gestionar Horarios">
+                                        <i class="bi bi-gear-fill text-muted"></i>
+                                    </button>
+                                </div>
 
-      <!-- Días (Solo Lista) -->
-      <div class="col-md-12">
-        <div class="card border-0 shadow-sm">
-          <div class="card-header bg-white py-3">
-            <h5 class="m-0 fw-bold">Días Disponibles (Configurados)</h5>
-          </div>
-          <div class="card-body">
-            <div class="d-flex flex-wrap gap-2">
-              <span *ngFor="let d of dias()" class="badge bg-light text-dark border p-2">{{ d.nombre }}</span>
+                                <!-- Formulario rápido de asignación -->
+                                <div *ngIf="showAsignarForm() === curso.id" class="modal-overlay" style="background: rgba(0,0,0,0.1); backdrop-filter: none;">
+                                    <div class="modal-content-custom" style="max-width: 300px; padding: 1.5rem;">
+                                        <h6 class="fw-bold mb-3 text-uppercase border-bottom pb-2">Asignar Horario</h6>
+                                        <form [formGroup]="horarioAsignacionForm" (ngSubmit)="asignarHorario(curso.id)">
+                                            <div class="d-flex flex-column gap-3">
+                                                <div>
+                                                    <label class="form-label small fw-bold">Día</label>
+                                                    <select class="form-select form-select-sm" formControlName="id_dia">
+                                                        <option value="">Seleccione...</option>
+                                                        <option *ngFor="let d of dias()" [value]="d.id">{{ d.nombre }}</option>
+                                                    </select>
+                                                </div>
+                                                <div>
+                                                    <label class="form-label small fw-bold">Horario</label>
+                                                    <select class="form-select form-select-sm" formControlName="id_horario">
+                                                        <option value="">Seleccione...</option>
+                                                        <option *ngFor="let h of horarios()" [value]="h.id">{{ h.nombre }} ({{h.hora_inicio}})</option>
+                                                    </select>
+                                                </div>
+                                                <div>
+                                                    <label class="form-label small fw-bold">Cupo Máximo</label>
+                                                    <input type="number" class="form-control form-control-sm" formControlName="cupo_maximo">
+                                                </div>
+                                                <div class="d-flex gap-2 pt-2">
+                                                    <button type="submit" class="btn btn-primary btn-sm flex-grow-1" [disabled]="horarioAsignacionForm.invalid">Guardar</button>
+                                                    <button type="button" class="btn btn-light btn-sm" (click)="showAsignarForm.set(null)">Cerrar</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="text-end">
+                                <div class="d-flex justify-content-end gap-2">
+                                    <button class="btn btn-action btn-details" (click)="openDetails(curso)" title="Ver Detalles">
+                                        <i class="bi bi-eye-fill"></i>
+                                    </button>
+                                    <button class="btn btn-action btn-edit" (click)="openCursoModal(curso)" title="Editar">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr *ngIf="cursos().length === 0">
+                            <td colspan="7" class="text-center py-5 text-muted">
+                                <i class="bi bi-journal-x fs-1 d-block mb-2 opacity-50"></i>
+                                No hay cursos registrados.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
-          </div>
         </div>
-      </div>
     </div>
-  </div>
+
+    <!-- TAB: MAESTROS -->
+    <div *ngIf="activeTab() === 'maestros'" class="animate-fade-in">
+        <div class="row g-4">
+            <!-- Tipos -->
+            <div class="col-md-5">
+                <div class="card card-custom h-100">
+                    <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
+                        <h6 class="m-0 fw-bold">Tipos de Curso</h6>
+                        <button class="btn btn-primary btn-sm rounded-circle p-0" style="width: 30px; height: 30px;" (click)="openMaestroModal('tipo')">
+                            <i class="bi bi-plus"></i>
+                        </button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-custom mb-0">
+                            <tbody>
+                                <tr *ngFor="let t of tiposCurso()">
+                                    <td class="ps-3 fw-semibold">{{ t.nombre }}</td>
+                                    <td class="text-end pe-3">
+                                        <button class="btn btn-link btn-sm text-primary" (click)="openMaestroModal('tipo', t)"><i class="bi bi-pencil"></i></button>
+                                        <button class="btn btn-link btn-sm text-danger" (click)="deleteMaestro('tipo', t.id)"><i class="bi bi-trash"></i></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Horarios -->
+            <div class="col-md-7">
+                <div class="card card-custom h-100">
+                    <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
+                        <h6 class="m-0 fw-bold">Catálogo de Horarios</h6>
+                        <button class="btn btn-primary btn-sm rounded-circle p-0" style="width: 30px; height: 30px;" (click)="openMaestroModal('horario')">
+                            <i class="bi bi-plus"></i>
+                        </button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-custom mb-0">
+                            <thead class="small">
+                                <tr>
+                                    <th class="ps-3">Nombre</th>
+                                    <th>Rango</th>
+                                    <th class="text-end pe-3">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let h of horarios()">
+                                    <td class="ps-3 fw-semibold">{{ h.nombre }}</td>
+                                    <td class="small">{{ h.hora_inicio }} - {{ h.hora_fin }}</td>
+                                    <td class="text-end pe-3">
+                                        <button class="btn btn-link btn-sm text-primary" (click)="openMaestroModal('horario', h)"><i class="bi bi-pencil"></i></button>
+                                        <button class="btn btn-link btn-sm text-danger" (click)="deleteMaestro('horario', h.id)"><i class="bi bi-trash"></i></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
-<!-- MODAL CURSO -->
-<div class="modal fade show" [class.d-block]="showCursoModal()" tabindex="-1" style="background: rgba(0,0,0,0.5);">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content border-0 shadow">
-      <div class="modal-header bg-primary text-white">
-        <h5 class="modal-title fw-bold">{{ isEditing() ? 'Editar Curso' : 'Nuevo Curso' }}</h5>
-        <button type="button" class="btn-close btn-close-white" (click)="showCursoModal.set(false)"></button>
-      </div>
-      <div class="modal-body p-4">
+<!-- MODAL: DETALLES DEL CURSO (FLOTANTE) -->
+<div class="modal-overlay" *ngIf="showDetailsModal()">
+    <div class="modal-content-custom">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h5 class="fw-bold mb-0">Información Detallada</h5>
+            <button class="btn-close" (click)="showDetailsModal.set(false)"></button>
+        </div>
+
+        <div *ngIf="selectedCursoDetails() as curso">
+            <div class="p-3 bg-light rounded-4 mb-4">
+                <h4 class="fw-bold text-dark mb-1">{{ curso.nombre }}</h4>
+                <span class="badge bg-primary rounded-pill px-3 mb-2">{{ curso.tipo_nombre }}</span>
+                <p class="text-muted small mb-0">{{ curso.descripcion }}</p>
+            </div>
+            
+            <h6 class="fw-bold text-uppercase small text-secondary mb-3">Horarios Asignados</h6>
+            <div class="table-responsive border rounded-3 mb-4">
+                <table class="table table-sm align-middle mb-0">
+                    <thead class="bg-light text-center small">
+                        <tr>
+                            <th>Día</th>
+                            <th>Horario</th>
+                            <th>Cupo</th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-center">
+                        <tr *ngFor="let h of curso.horarios">
+                            <td class="fw-bold text-primary">{{ h.dia_nombre }}</td>
+                            <td>{{ h.horario_detalle }}</td>
+                            <td><span class="badge bg-dark rounded-pill">{{ h.cupo_maximo }}</span></td>
+                            <td>
+                                <button class="btn btn-link text-danger p-0" (click)="quitarHorario(h.id); showDetailsModal.set(false)">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr *ngIf="curso.horarios.length === 0">
+                            <td colspan="4" class="text-muted py-3">No hay horarios asignados</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center bg-light p-3 rounded-4">
+                <div>
+                    <div class="small text-muted text-uppercase fw-bold">Precio</div>
+                    <div class="h5 fw-bold text-dark m-0">Bs. {{ curso.precio }}</div>
+                </div>
+                <button class="btn btn-primary rounded-pill px-4" (click)="showDetailsModal.set(false)">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: REGISTRO/EDICIÓN CURSO -->
+<div class="modal-overlay" *ngIf="showCursoModal()">
+    <div class="modal-content-custom">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h5 class="fw-bold mb-0">{{ isEditing() ? 'Editar Curso' : 'Registrar Nuevo Curso' }}</h5>
+            <button class="btn-close" (click)="showCursoModal.set(false)"></button>
+        </div>
+
         <form [formGroup]="cursoForm" (ngSubmit)="saveCurso()">
-          <div class="row">
-            <div class="col-md-8 mb-3">
-              <label class="form-label fw-bold">Nombre del Curso</label>
-              <input type="text" class="form-control" formControlName="nombre" placeholder="Ej. Reparación de Celulares Nivel 1">
+            <div class="row g-3">
+                <div class="col-md-8">
+                    <label class="form-label small fw-bold">Nombre del Curso</label>
+                    <input type="text" class="form-control" formControlName="nombre" placeholder="Ej. Reparación de Celulares Nivel 1">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small fw-bold">Categoría / Tipo</label>
+                    <select class="form-select" formControlName="id_tipo">
+                        <option value="">Seleccione...</option>
+                        <option *ngFor="let t of tiposCurso()" [value]="t.id">{{ t.nombre }}</option>
+                    </select>
+                </div>
+                <div class="col-12">
+                    <label class="form-label small fw-bold">Descripción</label>
+                    <textarea class="form-control" formControlName="descripcion" rows="3" placeholder="Detalle los objetivos y contenido..."></textarea>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small fw-bold">Inversión (Bs.)</label>
+                    <input type="number" class="form-control" formControlName="precio">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small fw-bold">Fecha de Inicio</label>
+                    <input type="date" class="form-control" formControlName="fecha_inicio">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small fw-bold">Fecha de Fin</label>
+                    <input type="date" class="form-control" formControlName="fecha_fin">
+                </div>
             </div>
-            <div class="col-md-4 mb-3">
-              <label class="form-label fw-bold">Tipo de Curso</label>
-              <select class="form-select" formControlName="id_tipo">
-                <option value="">Seleccione...</option>
-                <option *ngFor="let t of tiposCurso()" [value]="t.id">{{ t.nombre }}</option>
-              </select>
+            
+            <div class="d-flex justify-content-end gap-2 mt-5">
+                <button type="button" class="btn btn-light rounded-pill px-4" (click)="showCursoModal.set(false)">Cancelar</button>
+                <button type="submit" class="btn btn-primary rounded-pill px-4" [disabled]="cursoForm.invalid">
+                    {{ isEditing() ? 'Guardar Cambios' : 'Confirmar Registro' }}
+                </button>
             </div>
-            <div class="col-md-12 mb-3">
-              <label class="form-label fw-bold">Descripción</label>
-              <textarea class="form-control" formControlName="descripcion" rows="3"></textarea>
-            </div>
-            <div class="col-md-4 mb-3">
-              <label class="form-label fw-bold">Precio (Bs.)</label>
-              <input type="number" class="form-control" formControlName="precio">
-            </div>
-            <div class="col-md-4 mb-3">
-              <label class="form-label fw-bold">Fecha Inicio</label>
-              <input type="date" class="form-control" formControlName="fecha_inicio">
-            </div>
-            <div class="col-md-4 mb-3">
-              <label class="form-label fw-bold">Fecha Fin</label>
-              <input type="date" class="form-control" formControlName="fecha_fin">
-            </div>
-          </div>
-          <div class="modal-footer px-0 pb-0 pt-3">
-            <button type="button" class="btn btn-light rounded-pill px-4" (click)="showCursoModal.set(false)">Cancelar</button>
-            <button type="submit" class="btn btn-primary rounded-pill px-4" [disabled]="cursoForm.invalid">
-              {{ isEditing() ? 'Actualizar Curso' : 'Crear Curso' }}
-            </button>
-          </div>
         </form>
-      </div>
     </div>
-  </div>
 </div>
 
-<!-- MODAL MAESTROS (TIPO O HORARIO) -->
-<div class="modal fade show" [class.d-block]="showMaestroModal()" tabindex="-1" style="background: rgba(0,0,0,0.5);">
-  <div class="modal-dialog">
-    <div class="modal-content border-0 shadow">
-      <div class="modal-header bg-success text-white">
-        <h5 class="modal-title fw-bold">{{ isEditing() ? 'Editar' : 'Nuevo' }} {{ maestroType() === 'tipo' ? 'Tipo de Curso' : 'Horario' }}</h5>
-        <button type="button" class="btn-close btn-close-white" (click)="showMaestroModal.set(false)"></button>
-      </div>
-      <div class="modal-body p-4">
-        <!-- Form Tipo -->
+<!-- MODAL: MAESTROS (TIPOS/HORARIOS) -->
+<div class="modal-overlay" *ngIf="showMaestroModal()">
+    <div class="modal-content-custom" style="max-width: 500px;">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h5 class="fw-bold mb-0">{{ isEditing() ? 'Editar' : 'Nuevo' }} {{ maestroType() === 'tipo' ? 'Tipo de Curso' : 'Horario' }}</h5>
+            <button class="btn-close" (click)="showMaestroModal.set(false)"></button>
+        </div>
+
         <form *ngIf="maestroType() === 'tipo'" [formGroup]="tipoForm" (ngSubmit)="saveMaestro()">
-          <div class="mb-3">
-            <label class="form-label fw-bold">Nombre</label>
-            <input type="text" class="form-control" formControlName="nombre">
-          </div>
-          <div class="d-flex justify-content-end gap-2">
-            <button type="button" class="btn btn-light" (click)="showMaestroModal.set(false)">Cancelar</button>
-            <button type="submit" class="btn btn-success" [disabled]="tipoForm.invalid">Guardar</button>
-          </div>
+            <div class="mb-3">
+                <label class="form-label small fw-bold">Nombre</label>
+                <input type="text" class="form-control" formControlName="nombre">
+            </div>
+            <div class="d-flex justify-content-end gap-2 mt-4">
+                <button type="button" class="btn btn-light rounded-pill px-4" (click)="showMaestroModal.set(false)">Cancelar</button>
+                <button type="submit" class="btn btn-primary rounded-pill px-4" [disabled]="tipoForm.invalid">Guardar</button>
+            </div>
         </form>
 
-        <!-- Form Horario -->
         <form *ngIf="maestroType() === 'horario'" [formGroup]="horarioMaestroForm" (ngSubmit)="saveMaestro()">
-          <div class="mb-3">
-            <label class="form-label fw-bold">Identificador/Nombre</label>
-            <input type="text" class="form-control" formControlName="nombre" placeholder="Ej. Mañana A">
-          </div>
-          <div class="row">
-            <div class="col-6 mb-3">
-              <label class="form-label fw-bold">Hora Inicio</label>
-              <input type="time" class="form-control" formControlName="hora_inicio">
+            <div class="mb-3">
+                <label class="form-label small fw-bold">Etiqueta (Ej. Mañana A)</label>
+                <input type="text" class="form-control" formControlName="nombre">
             </div>
-            <div class="col-6 mb-3">
-              <label class="form-label fw-bold">Hora Fin</label>
-              <input type="time" class="form-control" formControlName="hora_fin">
+            <div class="row">
+                <div class="col-6 mb-3">
+                    <label class="form-label small fw-bold">Hora Inicio</label>
+                    <input type="time" class="form-control" formControlName="hora_inicio">
+                </div>
+                <div class="col-6 mb-3">
+                    <label class="form-label small fw-bold">Hora Fin</label>
+                    <input type="time" class="form-control" formControlName="hora_fin">
+                </div>
             </div>
-          </div>
-          <div class="d-flex justify-content-end gap-2">
-            <button type="button" class="btn btn-light" (click)="showMaestroModal.set(false)">Cancelar</button>
-            <button type="submit" class="btn btn-success" [disabled]="horarioMaestroForm.invalid">Guardar</button>
-          </div>
+            <div class="d-flex justify-content-end gap-2 mt-4">
+                <button type="button" class="btn btn-light rounded-pill px-4" (click)="showMaestroModal.set(false)">Cancelar</button>
+                <button type="submit" class="btn btn-primary rounded-pill px-4" [disabled]="horarioMaestroForm.invalid">Guardar</button>
+            </div>
         </form>
-      </div>
     </div>
-  </div>
 </div>

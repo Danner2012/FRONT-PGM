@@ -4,7 +4,7 @@
             <h4 class="fw-bold mb-0">Gestión de Cursos</h4>
             <div class="mt-2 tabs-container">
                 <button class="tab-btn" [class.active]="activeTab() === 'cursos'" (click)="activeTab.set('cursos')">Cursos</button>
-                <button class="tab-btn" [class.active]="activeTab() === 'maestros'" (click)="activeTab.set('maestros')">Maestros</button>
+                <button class="tab-btn" [class.active]="activeTab() === 'maestros'" (click)="activeTab.set('maestros')">Tipo/Horarios</button>
             </div>
         </div>
         <button *ngIf="activeTab() === 'cursos'" class="btn btn-primary rounded-pill px-4 shadow-sm d-flex align-items-center gap-2" (click)="openCursoModal()">
@@ -260,7 +260,7 @@
             <div class="row g-3">
                 <div class="col-md-8">
                     <label class="form-label small fw-bold">Nombre del Curso</label>
-                    <input type="text" class="form-control" formControlName="nombre" placeholder="Ej. Reparación de Celulares Nivel 1">
+                    <input type="text" class="form-control" formControlName="nombre">
                 </div>
                 <div class="col-md-4">
                     <label class="form-label small fw-bold">Categoría / Tipo</label>
@@ -271,7 +271,7 @@
                 </div>
                 <div class="col-12">
                     <label class="form-label small fw-bold">Descripción</label>
-                    <textarea class="form-control" formControlName="descripcion" rows="3" placeholder="Detalle los objetivos y contenido..."></textarea>
+                    <textarea class="form-control" formControlName="descripcion" rows="3"></textarea>
                 </div>
                 <div class="col-md-4">
                     <label class="form-label small fw-bold">Inversión (Bs.)</label>

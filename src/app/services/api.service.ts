@@ -51,4 +51,30 @@ export class ApiService {
   toggleEstudianteStatus(id: number): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}estudiantes/${id}/toggle-status/`, {});
   }
+
+  // Métodos para Cursos
+  getCursos(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}cursos/`);
+  }
+
+  getCursoHorarios(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}curso-horarios/`);
+  }
+
+  // Métodos para Inscripciones
+  getInscripciones(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}inscripciones/`);
+  }
+
+  createInscripcion(data: any): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}inscripciones/`, data);
+  }
+
+  updateInscripcion(id: number, data: any): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}inscripciones/${id}/`, data);
+  }
+
+  deleteInscripcion(id: number): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}inscripciones/${id}/`);
+  }
 }

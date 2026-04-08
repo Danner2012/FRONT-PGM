@@ -1,0 +1,218 @@
+<div class="management-container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="fw-bold mb-0">Operaciones de Admisión</h4>
+            <div class="mt-2 tabs-container">
+                <button class="tab-btn" [class.active]="activeTab() === 'inscripciones'" (click)="activeTab.set('inscripciones')">Inscripciones</button>
+                <button class="tab-btn" [class.active]="activeTab() === 'estudiantes'" (click)="activeTab.set('estudiantes')">Estudiantes</button>
+            </div>
+        </div>
+        
+        <button *ngIf="activeTab() === 'inscripciones'" class="btn btn-primary rounded-pill px-4 shadow-sm d-flex align-items-center gap-2" (click)="openModal()">
+            <i class="bi bi-plus-circle-fill fs-5"></i>
+            <span>Nueva Inscripción</span>
+        </button>
+
+        <button *ngIf="activeTab() === 'estudiantes'" class="btn btn-primary rounded-pill px-4 shadow-sm d-flex align-items-center gap-2" (click)="openStudentModal()">
+            <i class="bi bi-person-plus-fill fs-5"></i>
+            <span>Registro Rápido</span>
+        </button>
+    </div>
+
+    <!-- TAB: INSCRIPCIONES -->
+    <div *ngIf="activeTab() === 'inscripciones'" class="animate-fade-in">
+        <div class="card card-custom overflow-hidden">
+            <div class="table-responsive">
+                <table class="table table-custom table-hover">
+                    <thead>
+                        <tr>
+                            <th class="text-center" style="width: 60px;">#</th>
+                            <th>Estudiante</th>
+                            <th>Curso / Horario</th>
+                            <th>Fecha Inscripción</th>
+                            <th class="text-center">Estado</th>
+                            <th class="text-end" style="width: 150px;">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let inscripcion of inscripciones(); let i = index">
+                            <td class="text-center fw-bold">{{ i + 1 }}</td>
+                            <td>
+                                <div class="fw-bold">{{ inscripcion.estudiante_detalle?.nombre_completo }}</div>
+                                <div class="text-muted small">CI: {{ inscripcion.estudiante_detalle?.ci }}</div>
+                            </td>
+                            <td>
+                                <div class="fw-bold text-primary">{{ inscripcion.curso_horario_detalle?.curso_nombre }}</div>
+                                <div class="text-muted small">
+                                    <i class="bi bi-calendar-event me-1"></i>{{ inscripcion.curso_horario_detalle?.dia_nombre }} 
+                                    <i class="bi bi-clock ms-2 me-1"></i>{{ inscripcion.curso_horario_detalle?.horario_detalle }}
+                                </div>
+                            </td>
+                            <td>{{ inscripcion.fecha_inscripcion | date:'dd/MM/yyyy HH:mm' }}</td>
+                            <td class="text-center">
+                                <span [class]="'badge-' + inscripcion.estado">
+                                    {{ inscripcion.estado | titlecase }}
+                                </span>
+                            </td>
+                            <td class="text-end">
+                                <div class="d-flex justify-content-end gap-2">
+                                    <button class="btn btn-outline-danger btn-sm rounded-pill" (click)="cancelInscripcion(inscripcion)" title="Cancelar">
+                                        <i class="bi bi-x-circle"></i>
+                                    </button>
+                                    <button class="btn btn-outline-success btn-sm rounded-pill" (click)="confirmInscripcion(inscripcion)" title="Confirmar">
+                                        <i class="bi bi-check-circle"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr *ngIf="inscripciones().length === 0">
+                            <td colspan="6" class="text-center py-5 text-muted">
+                                No hay inscripciones registradas.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB: ESTUDIANTES (REGISTRO RÁPIDO) -->
+    <div *ngIf="activeTab() === 'estudiantes'" class="animate-fade-in">
+        <div class="card card-custom overflow-hidden">
+            <div class="table-responsive">
+                <table class="table table-custom table-hover">
+                    <thead>
+                        <tr>
+                            <th class="text-center" style="width: 60px;">#</th>
+                            <th>Estudiante</th>
+                            <th>CI</th>
+                            <th>Celular</th>
+                            <th>Registro</th>
+                            <th class="text-end">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let est of estudiantes(); let i = index">
+                            <td class="text-center fw-bold">{{ i + 1 }}</td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-sm bg-light-primary text-primary me-2 rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 32px; height: 32px; font-size: 0.75rem; background-color: #ebf8ff; color: #3182ce;">
+                                        {{ est.nombre.charAt(0) }}
+                                    </div>
+                                    <span class="fw-semibold">{{ est.nombre_completo }}</span>
+                                </div>
+                            </td>
+                            <td>{{ est.ci }}</td>
+                            <td>{{ est.celular }}</td>
+                            <td>{{ est.fecha_registro | date:'dd/MM/yyyy' }}</td>
+                            <td class="text-end">
+                                <button class="btn btn-link btn-sm text-primary" (click)="openStudentModal(est)">
+                                    <i class="bi bi-pencil-square"></i> Editar
+                                </button>
+                            </td>
+                        </tr>
+                        <tr *ngIf="estudiantes().length === 0">
+                            <td colspan="6" class="text-center py-5 text-muted">No hay estudiantes registrados.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: NUEVA INSCRIPCIÓN -->
+    <div class="modal-overlay" *ngIf="showModal()">
+        <div class="modal-content-custom">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="fw-bold mb-0">Nueva Inscripción</h5>
+                <button class="btn-close" (click)="closeModal()"></button>
+            </div>
+
+            <form [formGroup]="inscripcionForm" (ngSubmit)="saveInscripcion()">
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="form-label small fw-bold">Estudiante</label>
+                        <select class="form-select" formControlName="id_estudiante">
+                            <option value="">Seleccione un estudiante...</option>
+                            <option *ngFor="let est of estudiantes()" [value]="est.id">
+                                {{ est.nombre_completo }} (CI: {{ est.ci }})
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label small fw-bold">Curso y Horario</label>
+                        <select class="form-select" formControlName="id_curso_horario">
+                            <option value="">Seleccione un curso y horario...</option>
+                            <ng-container *ngFor="let curso of cursos()">
+                                <optgroup [label]="curso.nombre">
+                                    <option *ngFor="let ch of curso.horarios" [value]="ch.id">
+                                        {{ ch.dia_nombre }} - {{ ch.horario_detalle }} (Cupo: {{ ch.cupo_maximo }})
+                                    </option>
+                                </optgroup>
+                            </ng-container>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">Estado Inicial</label>
+                        <select class="form-select" formControlName="estado">
+                            <option value="pendiente">Pendiente</option>
+                            <option value="confirmado">Confirmado</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 mt-5">
+                    <button type="button" class="btn btn-light rounded-pill px-4" (click)="closeModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4" [disabled]="inscripcionForm.invalid">
+                        Confirmar Inscripción
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: REGISTRO RÁPIDO ESTUDIANTE -->
+    <div class="modal-overlay" *ngIf="showStudentModal()">
+        <div class="modal-content-custom" style="max-width: 500px;">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="fw-bold mb-0">{{ isEditing() ? 'Editar Datos' : 'Registro Rápido' }}</h5>
+                <button class="btn-close" (click)="showStudentModal.set(false)"></button>
+            </div>
+
+            <form [formGroup]="studentForm" (ngSubmit)="saveStudent()">
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="form-label small fw-bold">Nombre</label>
+                        <input type="text" class="form-control" formControlName="nombre" placeholder="Nombres">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">Apellido Paterno</label>
+                        <input type="text" class="form-control" formControlName="apellido_paterno">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">Apellido Materno</label>
+                        <input type="text" class="form-control" formControlName="apellido_materno">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">Cédula de Identidad (CI)</label>
+                        <input type="text" class="form-control" formControlName="ci">
+                        <div class="text-muted" style="font-size: 0.65rem;" *ngIf="!isEditing()">* Se usará como usuario y clave</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">Celular</label>
+                        <input type="text" class="form-control" formControlName="celular">
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 mt-5">
+                    <button type="button" class="btn btn-light rounded-pill px-4" (click)="showStudentModal.set(false)">Cancelar</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4" [disabled]="studentForm.invalid">
+                        {{ isEditing() ? 'Guardar Cambios' : 'Registrar Estudiante' }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

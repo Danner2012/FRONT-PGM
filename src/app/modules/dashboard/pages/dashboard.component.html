@@ -44,6 +44,13 @@
           </div>
         </li>
 
+        <li class="mb-1" *ngIf="isAdministrador()">
+          <a routerLink="/dashboard/cursos" routerLinkActive="active" class="nav-link-pro" title="Cursos">
+            <i class="bi bi-journal-bookmark-fill"></i> 
+            <span *ngIf="!isCollapsed()">Cursos</span>
+          </a>
+        </li>
+
         <li class="mb-1" *ngIf="canSeeClientes()">
           <a routerLink="/dashboard/clientes" routerLinkActive="active" class="nav-link-pro" title="Clientes">
             <i class="bi bi-people"></i> 

@@ -1,0 +1,53 @@
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.btn-xs {
+  padding: 0.125rem 0.25rem;
+  font-size: 0.75rem;
+}
+
+.badge i:hover {
+  color: #ffc107;
+}
+
+.card {
+  transition: transform 0.2s;
+}
+
+.table-hover tbody tr:hover {
+  background-color: rgba(0, 123, 255, 0.05);
+}
+
+.modal {
+  display: none;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.d-block {
+  display: block !important;
+}
+
+.modal-dialog {
+  margin-top: 5rem;
+}
+
+.badge {
+  font-weight: 500;
+}
+
+.nav-link-sub.active {
+  color: var(--primary-color);
+  background: rgba(var(--primary-rgb), 0.1);
+}
+
+/* Animación para modales */
+.modal.fade.show {
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}

@@ -23,9 +23,9 @@ export class DashboardComponent implements OnInit {
   private currentRole = computed(() => this.userRole()?.toLowerCase() || '');
 
   canSeeOperations = computed(() => this.currentRole() !== 'estudiante');
-  canSeeClientes = computed(() => ['superadministrador', 'administrador'].includes(this.currentRole()));
-  canSeeReparaciones = computed(() => ['superadministrador', 'administrador', 'técnico', 'tecnico'].includes(this.currentRole()));
-  canSeeInventario = computed(() => ['superadministrador', 'administrador', 'técnico', 'tecnico'].includes(this.currentRole()));
+  canSeeClientes = computed(() => ['superadministrador'].includes(this.currentRole()));
+  canSeeReparaciones = computed(() => ['superadministrador', 'técnico', 'tecnico'].includes(this.currentRole()));
+  canSeeInventario = computed(() => ['superadministrador', 'técnico', 'tecnico'].includes(this.currentRole()));
   canSeeConfiguracion = computed(() => this.currentRole() === 'superadministrador');
   isEstudiante = computed(() => this.currentRole() === 'estudiante');
   isAdministrador = computed(() => this.currentRole() === 'administrador');

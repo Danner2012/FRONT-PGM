@@ -63,4 +63,12 @@ export class CursoService {
   quitarHorario(id: number): Observable<any> {
     return this.http.delete<any>(`${this.apiUrl}curso-horarios/${id}/`);
   }
+
+  // Asignación de Técnicos a Cursos
+  asignarTecnico(data: any): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}curso-tecnicos/`, data);
+  }
+  quitarTecnico(id: number): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}curso-tecnicos/${id}/`);
+  }
 }

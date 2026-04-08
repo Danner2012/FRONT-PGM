@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CursoService } from '../../../../services/curso.service';
+import { ApiService } from '../../../../services/api.service';
 
 @Component({
   selector: 'app-curso-management',
@@ -12,6 +13,7 @@ import { CursoService } from '../../../../services/curso.service';
 })
 export class CursoManagementComponent implements OnInit {
   private cursoService = inject(CursoService);
+  private apiService = inject(ApiService);
   private fb = inject(FormBuilder);
 
   // Listas de datos
@@ -19,11 +21,13 @@ export class CursoManagementComponent implements OnInit {
   tiposCurso = signal<any[]>([]);
   horarios = signal<any[]>([]);
   dias = signal<any[]>([]);
+  tecnicosDisponibles = signal<any[]>([]);
 
   // Control de UI
   activeTab = signal<'cursos' | 'maestros'>('cursos');
   showCursoModal = signal(false);
   showMaestroModal = signal(false);
+  showTecnicosModal = signal(false);
   maestroType = signal<'tipo' | 'horario'>('tipo');
   isEditing = signal(false);
   selectedId = signal<number | null>(null);
@@ -67,6 +71,7 @@ export class CursoManagementComponent implements OnInit {
     this.loadTiposCurso();
     this.loadHorarios();
     this.loadDias();
+    this.loadTecnicos();
   }
 
   loadCursos() {
@@ -81,11 +86,50 @@ export class CursoManagementComponent implements OnInit {
   loadDias() {
     this.cursoService.getDias().subscribe(data => this.dias.set(data));
   }
+  loadTecnicos() {
+    this.apiService.getTecnicos().subscribe(data => this.tecnicosDisponibles.set(data));
+  }
 
   // --- Ver Detalles ---
   openDetails(curso: any) {
     this.selectedCursoDetails.set(curso);
     this.showDetailsModal.set(true);
+  }
+
+  // --- Gestión de Técnicos en Curso ---
+  openTecnicosModal(curso: any) {
+    this.selectedCursoDetails.set(curso);
+    this.showTecnicosModal.set(true);
+  }
+
+  isTecnicoAsignado(tecnicoId: number): boolean {
+    const curso = this.selectedCursoDetails();
+    if (!curso || !curso.tecnicos) return false;
+    return curso.tecnicos.some((t: any) => t.id_tecnico === tecnicoId);
+  }
+
+  toggleTecnicoAsignacion(tecnicoId: number) {
+    const curso = this.selectedCursoDetails();
+    const asignacion = curso.tecnicos.find((t: any) => t.id_tecnico === tecnicoId);
+
+    if (asignacion) {
+      this.cursoService.quitarTecnico(asignacion.id).subscribe(() => {
+        this.refreshCursoData();
+      });
+    } else {
+      const data = { id_curso: curso.id, id_tecnico: tecnicoId };
+      this.cursoService.asignarTecnico(data).subscribe(() => {
+        this.refreshCursoData();
+      });
+    }
+  }
+
+  refreshCursoData() {
+    this.cursoService.getCursos().subscribe(data => {
+      this.cursos.set(data);
+      const updatedCurso = data.find(c => c.id === this.selectedCursoDetails().id);
+      if (updatedCurso) this.selectedCursoDetails.set(updatedCurso);
+    });
   }
 
   // --- Gestión de Cursos ---

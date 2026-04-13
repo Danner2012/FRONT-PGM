@@ -106,8 +106,8 @@
                             <td>{{ est.celular }}</td>
                             <td>{{ est.fecha_registro | date:'dd/MM/yyyy' }}</td>
                             <td class="text-end">
-                                <button class="btn btn-link btn-sm text-primary" (click)="openStudentModal(est)">
-                                    <i class="bi bi-pencil-square"></i> Editar
+                                <button class="btn btn-action btn-edit" (click)="openStudentModal(est)" title="Editar">
+                                    <i class="bi bi-pencil-square"></i>
                                 </button>
                             </td>
                         </tr>

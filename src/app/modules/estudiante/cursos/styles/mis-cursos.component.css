@@ -1,0 +1,57 @@
+.courses-container {
+    padding: 1rem;
+}
+
+.curso-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 20px;
+    background: #fff;
+}
+
+.curso-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.12) !important;
+}
+
+.card-header-gradient {
+    position: relative;
+    height: 140px;
+}
+
+.card-header-gradient.confirmado {
+    background: linear-gradient(135deg, #00b09b, #96c93d);
+}
+
+.card-header-gradient.pendiente {
+    background: linear-gradient(135deg, #f83600, #fe8c00);
+}
+
+.card-header-gradient.cancelado {
+    background: linear-gradient(135deg, #606c88, #3f4c6b);
+}
+
+.info-row i {
+    font-size: 1.1rem;
+    width: 20px;
+}
+
+.bg-success-subtle { background-color: #e6fffa !important; }
+.text-success { color: #2d3748 !important; }
+.bg-warning-subtle { background-color: #fffaf0 !important; }
+.text-warning { color: #dd6b20 !important; }
+
+.animate-fade-in {
+    animation: fadeIn 0.6s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.empty-state {
+    padding: 3rem;
+    background: #f8fafc;
+    border-radius: 30px;
+    border: 2px dashed #e2e8f0;
+}

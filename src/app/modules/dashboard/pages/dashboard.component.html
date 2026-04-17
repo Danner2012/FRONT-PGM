@@ -83,6 +83,13 @@
           </a>
         </li>
 
+        <li class="mb-1" *ngIf="isEstudiante()">
+          <a routerLink="/dashboard/mis-cursos" routerLinkActive="active" class="nav-link-pro" title="Mis Cursos">
+            <i class="bi bi-mortarboard-fill"></i> 
+            <span *ngIf="!isCollapsed()">Mis Cursos</span>
+          </a>
+        </li>
+
         <!-- Sección Asistente Técnico IA (Solo Estudiantes) -->
         
         <li class="mb-1" *ngIf="isEstudiante()">

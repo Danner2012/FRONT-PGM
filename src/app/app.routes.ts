@@ -9,6 +9,8 @@ import { CursoManagementComponent } from './modules/administrador/cursos/pages/c
 import { InscripcionManagementComponent } from './modules/administrador/inscripciones/pages/inscripcion-management.component';
 import { authGuard } from './guards/auth.guard';
 
+import { MisCursosComponent } from './modules/estudiante/cursos/pages/mis-cursos.component';
+
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { 
@@ -18,6 +20,7 @@ export const routes: Routes = [
     children: [
       { path: 'inicio', component: DashboardHomeComponent },
       { path: 'diagnostico-fallas', component: DiagnosticoFallasComponent },
+      { path: 'mis-cursos', component: MisCursosComponent },
       { path: 'tecnicos', component: TecnicoManagementComponent },
       { path: 'estudiantes', component: EstudianteManagementComponent },
       { path: 'cursos', component: CursoManagementComponent },

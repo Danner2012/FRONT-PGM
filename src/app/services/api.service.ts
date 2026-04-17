@@ -66,6 +66,10 @@ export class ApiService {
     return this.http.get<any[]>(`${this.apiUrl}inscripciones/`);
   }
 
+  getMisCursos(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}inscripciones/mis-cursos/`);
+  }
+
   createInscripcion(data: any): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}inscripciones/`, data);
   }

@@ -55,7 +55,12 @@
                                 <span class="badge bg-light text-dark border">{{ curso.tipo_nombre }}</span>
                             </td>
                             <td class="text-center fw-bold">
-                                <span class="badge bg-dark rounded-pill">{{ curso.cupo_maximo }}</span>
+                                <div class="d-flex flex-column align-items-center">
+                                    <span class="badge" [ngClass]="curso.cupo_disponible > 0 ? 'bg-success' : 'bg-danger'">
+                                        {{ curso.cupo_disponible }} disp.
+                                    </span>
+                                    <small class="text-muted mt-1" style="font-size: 0.7rem;">de {{ curso.cupo_maximo }}</small>
+                                </div>
                             </td>
                             <td class="text-center fw-bold">Bs. {{ curso.precio }}</td>
                             <td>

@@ -30,6 +30,7 @@ export class InscripcionManagementComponent implements OnInit {
   inscripcionForm: FormGroup = this.fb.group({
     id_estudiante: ['', [Validators.required]],
     id_curso: ['', [Validators.required]],
+    metodo_pago: ['Fisico', [Validators.required]],
     estado: ['pendiente', [Validators.required]]
   });
 

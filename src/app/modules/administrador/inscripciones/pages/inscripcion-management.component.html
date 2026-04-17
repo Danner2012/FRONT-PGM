@@ -29,6 +29,7 @@
                             <th class="text-center" style="width: 60px;">#</th>
                             <th>Estudiante</th>
                             <th>Curso Inscrito</th>
+                            <th>Pago</th>
                             <th>Fecha Inscripción</th>
                             <th class="text-center">Estado</th>
                             <th class="text-end" style="width: 150px;">Acciones</th>
@@ -45,6 +46,14 @@
                                 <div class="fw-bold text-primary">{{ inscripcion.curso_detalle?.nombre }}</div>
                                 <div class="text-muted small">
                                     <i class="bi bi-cash me-1"></i>Bs. {{ inscripcion.curso_detalle?.precio }}
+                                </div>
+                            </td>
+                            <td>
+                                <div *ngIf="inscripcion.pago_detalle as pago">
+                                    <span class="badge" [ngClass]="pago.estado === 'pagado' ? 'bg-success' : 'bg-warning text-dark'">
+                                        {{ pago.metodo }} - {{ pago.estado | titlecase }}
+                                    </span>
+                                    <div class="small text-muted mt-1">Monto: Bs. {{ pago.monto }}</div>
                                 </div>
                             </td>
                             <td>{{ inscripcion.fecha_inscripcion | date:'dd/MM/yyyy HH:mm' }}</td>
@@ -146,6 +155,14 @@
                             <option *ngFor="let curso of cursos()" [value]="curso.id">
                                 {{ curso.nombre }} (Bs. {{ curso.precio }}) - Cupo Global: {{ curso.cupo_maximo }}
                             </option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">Método de Pago</label>
+                        <select class="form-select" formControlName="metodo_pago">
+                            <option value="Fisico">Pago Físico (Efectivo)</option>
+                            <option value="QR">Pago por QR</option>
                         </select>
                     </div>
 

@@ -28,7 +28,7 @@
                         <tr>
                             <th class="text-center" style="width: 60px;">#</th>
                             <th>Estudiante</th>
-                            <th>Curso / Horario</th>
+                            <th>Curso Inscrito</th>
                             <th>Fecha Inscripción</th>
                             <th class="text-center">Estado</th>
                             <th class="text-end" style="width: 150px;">Acciones</th>
@@ -42,10 +42,9 @@
                                 <div class="text-muted small">CI: {{ inscripcion.estudiante_detalle?.ci }}</div>
                             </td>
                             <td>
-                                <div class="fw-bold text-primary">{{ inscripcion.curso_horario_detalle?.curso_nombre }}</div>
+                                <div class="fw-bold text-primary">{{ inscripcion.curso_detalle?.nombre }}</div>
                                 <div class="text-muted small">
-                                    <i class="bi bi-calendar-event me-1"></i>{{ inscripcion.curso_horario_detalle?.dia_nombre }} 
-                                    <i class="bi bi-clock ms-2 me-1"></i>{{ inscripcion.curso_horario_detalle?.horario_detalle }}
+                                    <i class="bi bi-cash me-1"></i>Bs. {{ inscripcion.curso_detalle?.precio }}
                                 </div>
                             </td>
                             <td>{{ inscripcion.fecha_inscripcion | date:'dd/MM/yyyy HH:mm' }}</td>
@@ -141,16 +140,12 @@
                     </div>
 
                     <div class="col-12">
-                        <label class="form-label small fw-bold">Curso y Horario</label>
-                        <select class="form-select" formControlName="id_curso_horario">
-                            <option value="">Seleccione un curso y horario...</option>
-                            <ng-container *ngFor="let curso of cursos()">
-                                <optgroup [label]="curso.nombre">
-                                    <option *ngFor="let ch of curso.horarios" [value]="ch.id">
-                                        {{ ch.dia_nombre }} - {{ ch.horario_detalle }} (Cupo: {{ ch.cupo_maximo }})
-                                    </option>
-                                </optgroup>
-                            </ng-container>
+                        <label class="form-label small fw-bold">Curso</label>
+                        <select class="form-select" formControlName="id_curso">
+                            <option value="">Seleccione un curso...</option>
+                            <option *ngFor="let curso of cursos()" [value]="curso.id">
+                                {{ curso.nombre }} (Bs. {{ curso.precio }}) - Cupo Global: {{ curso.cupo_maximo }}
+                            </option>
                         </select>
                     </div>
 

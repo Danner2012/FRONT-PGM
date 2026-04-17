@@ -23,6 +23,7 @@
                             <th class="text-center" style="width: 60px;">#</th>
                             <th>Información del Curso</th>
                             <th>Tipo</th>
+                            <th class="text-center">Cupo</th>
                             <th class="text-center">Precio</th>
                             <th>Vigencia</th>
                             <th>Días/Horarios</th>
@@ -52,6 +53,9 @@
                             </td>
                             <td>
                                 <span class="badge bg-light text-dark border">{{ curso.tipo_nombre }}</span>
+                            </td>
+                            <td class="text-center fw-bold">
+                                <span class="badge bg-dark rounded-pill">{{ curso.cupo_maximo }}</span>
                             </td>
                             <td class="text-center fw-bold">Bs. {{ curso.precio }}</td>
                             <td>
@@ -89,10 +93,6 @@
                                                         <option value="">Seleccione...</option>
                                                         <option *ngFor="let h of horarios()" [value]="h.id">{{ h.nombre }} ({{h.hora_inicio}})</option>
                                                     </select>
-                                                </div>
-                                                <div>
-                                                    <label class="form-label small fw-bold">Cupo Máximo</label>
-                                                    <input type="number" class="form-control form-control-sm" formControlName="cupo_maximo">
                                                 </div>
                                                 <div class="d-flex gap-2 pt-2">
                                                     <button type="submit" class="btn btn-primary btn-sm flex-grow-1" [disabled]="horarioAsignacionForm.invalid">Guardar</button>
@@ -215,7 +215,6 @@
                         <tr>
                             <th>Día</th>
                             <th>Horario</th>
-                            <th>Cupo</th>
                             <th>Acción</th>
                         </tr>
                     </thead>
@@ -223,7 +222,6 @@
                         <tr *ngFor="let h of curso.horarios">
                             <td class="fw-bold text-primary">{{ h.dia_nombre }}</td>
                             <td>{{ h.horario_detalle }}</td>
-                            <td><span class="badge bg-dark rounded-pill">{{ h.cupo_maximo }}</span></td>
                             <td>
                                 <button class="btn btn-link text-danger p-0" (click)="quitarHorario(h.id); showDetailsModal.set(false)">
                                     <i class="bi bi-trash"></i>
@@ -273,15 +271,19 @@
                     <label class="form-label small fw-bold">Descripción</label>
                     <textarea class="form-control" formControlName="descripcion" rows="3"></textarea>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <label class="form-label small fw-bold">Inversión (Bs.)</label>
                     <input type="number" class="form-control" formControlName="precio">
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
+                    <label class="form-label small fw-bold">Cupo Global</label>
+                    <input type="number" class="form-control" formControlName="cupo_maximo">
+                </div>
+                <div class="col-md-3">
                     <label class="form-label small fw-bold">Fecha de Inicio</label>
                     <input type="date" class="form-control" formControlName="fecha_inicio">
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <label class="form-label small fw-bold">Fecha de Fin</label>
                     <input type="date" class="form-control" formControlName="fecha_fin">
                 </div>

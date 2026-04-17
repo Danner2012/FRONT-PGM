@@ -43,13 +43,13 @@ export class CursoManagementComponent implements OnInit {
     id_tipo: ['', [Validators.required]],
     fecha_inicio: ['', [Validators.required]],
     fecha_fin: ['', [Validators.required]],
+    cupo_maximo: [20, [Validators.required, Validators.min(1)]],
     estado: [true]
   });
 
   horarioAsignacionForm: FormGroup = this.fb.group({
     id_dia: ['', [Validators.required]],
-    id_horario: ['', [Validators.required]],
-    cupo_maximo: [20, [Validators.required, Validators.min(1)]]
+    id_horario: ['', [Validators.required]]
   });
 
   tipoForm: FormGroup = this.fb.group({
@@ -173,7 +173,7 @@ export class CursoManagementComponent implements OnInit {
       this.showAsignarForm.set(null);
     } else {
       this.showAsignarForm.set(id);
-      this.horarioAsignacionForm.reset({ cupo_maximo: 20 });
+      this.horarioAsignacionForm.reset();
     }
   }
 
@@ -183,7 +183,7 @@ export class CursoManagementComponent implements OnInit {
     this.cursoService.asignarHorario(data).subscribe({
       next: () => {
         this.loadCursos();
-        this.horarioAsignacionForm.reset({ cupo_maximo: 20 });
+        this.horarioAsignacionForm.reset();
       },
       error: (err) => alert(err.error.error || 'Error al asignar horario')
     });

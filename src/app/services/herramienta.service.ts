@@ -29,11 +29,15 @@ export class HerramientaService {
   }
 
   updateHerramienta(id: number, data: FormData): Observable<any> {
-    return this.http.put<any>(`${this.apiUrl}/herramientas/${id}/`, data);
+    return this.http.patch<any>(`${this.apiUrl}/herramientas/${id}/`, data);
   }
 
   deleteHerramienta(id: number): Observable<any> {
     return this.http.delete<any>(`${this.apiUrl}/herramientas/${id}/`);
+  }
+
+  toggleStatus(id: number): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/herramientas/${id}/toggle-status/`, {});
   }
 
   // Modelos 3D

@@ -1,4 +1,4 @@
-import { Component, OnInit, CUSTOM_ELEMENTS_SCHEMA, signal, inject } from '@angular/core';
+import { Component, OnInit, CUSTOM_ELEMENTS_SCHEMA, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { HerramientaService } from '../../../../services/herramienta.service';
@@ -49,12 +49,32 @@ export class HerramientaManagementComponent implements OnInit {
     this.loadData();
   }
 
-  loadData() {
-    this.herramientaService.getHerramientas().subscribe(data => this.herramientas = data);
-    this.herramientaService.getCategorias().subscribe(data => this.categorias = data);
+  loadData(): void {
+    this.herramientaService.getHerramientas().subscribe({
+      next: (data) => this.herramientas = data,
+      error: (err) => console.error('Error cargando herramientas', err)
+    });
+    this.herramientaService.getCategorias().subscribe({
+      next: (data) => this.categorias = data,
+      error: (err) => console.error('Error cargando categorías', err)
+    });
   }
 
-  openModal() {
+  /**
+   * Cambia el estado (Activo/Inactivo) de una herramienta
+   */
+  public toggleStatus(id: number): void {
+    this.herramientaService.toggleStatus(id).subscribe({
+      next: () => {
+        this.loadData();
+      },
+      error: () => {
+        alert('Error al cambiar el estado de la herramienta');
+      }
+    });
+  }
+
+  openModal(): void {
     this.showModal = true;
     this.showViewModal = false;
     this.editingId = null;
@@ -66,13 +86,13 @@ export class HerramientaManagementComponent implements OnInit {
     this.rotX = 0; this.rotY = 0; this.rotZ = 0;
   }
 
-  closeModal() {
+  closeModal(): void {
     this.showModal = false;
     this.showViewModal = false;
     this.selectedHerramienta = null;
   }
 
-  viewHerramienta(h: any) {
+  viewHerramienta(h: any): void {
     this.selectedHerramienta = h;
     this.showViewModal = true;
     this.showModal = false;
@@ -92,7 +112,7 @@ export class HerramientaManagementComponent implements OnInit {
     }
   }
 
-  onFile3DSelected(event: any) {
+  onFile3DSelected(event: any): void {
     const file = event.target.files[0];
     if (file) {
       this.selectedFile3D = file;
@@ -100,26 +120,26 @@ export class HerramientaManagementComponent implements OnInit {
     }
   }
 
-  onImageSelected(event: any) {
+  onImageSelected(event: any): void {
     const file = event.target.files[0];
     if (file) {
       this.selectedPreviewImg = file;
     }
   }
 
-  getCameraOrbit() {
+  getCameraOrbit(): string {
     return `${this.rotX}deg ${this.rotY}deg ${this.rotZ}m`;
   }
 
-  getScale() {
+  getScale(): string {
     return `${this.scaleValue} ${this.scaleValue} ${this.scaleValue}`;
   }
 
-  saveHerramienta() {
+  saveHerramienta(): void {
     if (this.herramientaForm.invalid) return;
 
     const user = this.authService.currentUser();
-    const adminId = user?.perfil_id || user?.id; // Intento de fallback
+    const adminId = user?.perfil_id || user?.id;
 
     if (!adminId) {
       alert('Error: No se pudo identificar su perfil de administrador.');
@@ -159,7 +179,7 @@ export class HerramientaManagementComponent implements OnInit {
     }
   }
 
-  upload3D(herramientaId: number) {
+  upload3D(herramientaId: number): void {
     const formData = new FormData();
     formData.append('archivo', this.selectedFile3D!);
     formData.append('escala', this.scaleValue.toString());
@@ -179,13 +199,7 @@ export class HerramientaManagementComponent implements OnInit {
     });
   }
 
-  deleteHerramienta(id: number) {
-    if (confirm('¿Estás seguro de eliminar esta herramienta?')) {
-      this.herramientaService.deleteHerramienta(id).subscribe(() => this.loadData());
-    }
-  }
-
-  editHerramienta(h: any) {
+  editHerramienta(h: any): void {
     this.editingId = h.id;
     this.showModal = true;
     this.showViewModal = false;

@@ -1,123 +1,205 @@
-/* Estilos base del modal unificado */
+/* Estructura Base y Modal */
 .modal-overlay {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(10px);
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(15, 23, 42, 0.7);
+    backdrop-filter: blur(8px);
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 1050;
+    z-index: 2000;
     padding: 1.5rem;
 }
 
 .modal-content-custom {
     background: white;
-    padding: 2.5rem;
-    border-radius: 2.5rem;
+    border-radius: 2rem;
     width: 100%;
-    max-width: 600px;
-    max-height: 92vh;
-    overflow-y: auto;
+    max-width: 950px; /* Tamaño equilibrado */
+    max-height: 90vh;
+    padding: 2rem;
     position: relative;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    overflow: hidden; /* El scroll será interno */
+    display: flex;
+    flex-direction: column;
 }
 
-.modal-content-custom.modal-xl {
-    max-width: 1200px;
+.modal-compact {
+    max-width: 900px;
 }
 
-/* Efecto de la tarjeta de herramienta */
-.card-img-top {
+/* Header del Modal */
+.modal-header-custom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.icon-box-sm {
+    width: 40px; height: 40px;
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.2rem;
+}
+
+.btn-close-circle {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    border: none;
+    background: #f1f5f9;
+    color: #64748b;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.2s;
+}
+.btn-close-circle:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+    transform: rotate(90deg);
+}
+
+/* Tarjetas (Catalog) */
+.tool-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+}
+.tool-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1) !important;
+}
+
+.card-img-container {
+    height: 220px;
     position: relative;
     overflow: hidden;
 }
 
-.card-overlay {
+.tool-img {
+    width: 100%; height: 100%;
+    object-fit: contain;
+    padding: 1rem;
+}
+
+.category-pill-overlay {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(13, 110, 253, 0.8);
+    bottom: 10px;
+    left: 10px;
+    z-index: 2;
+}
+.category-pill {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(4px);
+    color: #0f172a;
+    font-weight: 700;
+    font-size: 0.65rem;
+    padding: 0.4rem 0.8rem;
+    border-radius: 50px;
+    border: 1px solid rgba(0,0,0,0.05);
+}
+
+.card-hover-overlay {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(13, 110, 253, 0.85);
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     opacity: 0;
-    transition: opacity 0.3s ease;
-    gap: 10px;
+    transition: all 0.3s;
 }
-
-.card:hover .card-overlay {
+.tool-card:hover .card-hover-overlay {
     opacity: 1;
 }
 
-/* Estilos del Visor Interactivo (Vista de Detalle) */
-.viewer-main-container {
-    background: radial-gradient(circle at center, #2c3e50 0%, #000 100%);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+.view-btn-circle {
+    width: 50px; height: 50px;
+    background: white;
+    color: #0d6efd;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transform: scale(0.8);
+    transition: all 0.3s;
+}
+.tool-card:hover .view-btn-circle {
+    transform: scale(1);
 }
 
-.backdrop-blur {
-    backdrop-filter: blur(5px);
+/* Visores 3D */
+.main-viewer-box {
+    height: 450px;
+    border-radius: 1.5rem;
+    background: radial-gradient(circle at center, #1e293b 0%, #000 100%);
+    position: sticky;
+    top: 0;
 }
 
-.info-card {
-    transition: transform 0.2s ease;
-}
-
-.info-card:hover {
-    transform: translateX(5px);
-}
-
-.text-truncate-2 {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-
-/* Visor de Realidad Aumentada */
-.ar-btn {
-    background-color: white;
-    border-radius: 20px;
-    padding: 10px 20px;
-    position: absolute;
-    bottom: 20px;
-    right: 20px;
-    border: none;
-    font-weight: bold;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-}
-
-/* Editor 3D Pane */
-.config-3d-pane {
-    background-color: #f8fafc !important;
-}
-
-.viewer-wrapper {
+.editor-viewer-box {
+    height: 300px;
     background: #000;
-    box-shadow: inset 0 0 30px rgba(0,0,0,0.8);
 }
 
-/* Botones flotantes en tarjetas */
-.btn-edit-h:hover { background-color: #cfe2ff !important; }
-.btn-delete-h:hover { background-color: #f8d7da !important; }
-
-.hover-up {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+.detail-scroll {
+    max-height: 450px;
+    overflow-y: auto;
+    padding-right: 12px;
 }
 
-.hover-up:hover {
-    transform: translateY(-10px);
+/* Estilos de información en vista detalle */
+.info-group {
+    background: #f8fafc;
+    padding: 1.25rem;
+    border-radius: 1rem;
+    border: 1px solid #e2e8f0;
+    margin-bottom: 1rem;
 }
 
-model-viewer {
-    width: 100%;
-    height: 100%;
-    --progress-bar-color: #0d6efd;
+.info-group.security {
+    background: #fff1f2;
+    border-color: #fecdd3;
 }
+
+.info-group.usage {
+    background: #f0f9ff;
+    border-color: #bae6fd;
+}
+
+.info-text {
+    font-size: 0.9rem;
+    color: #475569;
+    margin-bottom: 0;
+    white-space: pre-line; /* Mantiene saltos de línea si los hay */
+}
+
+
+.btn-action-mini {
+    width: 28px; height: 28px;
+    border-radius: 8px;
+    border: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 0.8rem;
+    transition: all 0.2s;
+}
+.btn-action-mini.edit { background: #f0f7ff; color: #0d6efd; }
+
+.btn-toggle-on {
+    background: #ecfdf5;
+    color: #10b981;
+}
+
+.btn-toggle-off {
+    background: #fef2f2;
+    color: #ef4444;
+}
+
+.btn-action-mini:hover { transform: scale(1.1); }

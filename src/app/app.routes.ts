@@ -25,6 +25,10 @@ export const routes: Routes = [
       { path: 'estudiantes', component: EstudianteManagementComponent },
       { path: 'cursos', component: CursoManagementComponent },
       { path: 'inscripciones', component: InscripcionManagementComponent },
+      { 
+        path: 'herramientas', 
+        loadComponent: () => import('./modules/administrador/herramientas/pages/herramienta-management.component').then(m => m.HerramientaManagementComponent) 
+      },
       { path: '', redirectTo: 'inicio', pathMatch: 'full' }
     ]
   },

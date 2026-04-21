@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CursoService } from '../../../../services/curso.service';
 import { ApiService } from '../../../../services/api.service';
+import { AuthService } from '../../../../services/auth.service';
 
 @Component({
   selector: 'app-curso-management',
@@ -14,6 +15,7 @@ import { ApiService } from '../../../../services/api.service';
 export class CursoManagementComponent implements OnInit {
   private cursoService = inject(CursoService);
   private apiService = inject(ApiService);
+  private authService = inject(AuthService);
   private fb = inject(FormBuilder);
 
   // Listas de datos

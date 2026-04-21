@@ -1,0 +1,123 @@
+/* Estilos base del modal unificado */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(10px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1050;
+    padding: 1.5rem;
+}
+
+.modal-content-custom {
+    background: white;
+    padding: 2.5rem;
+    border-radius: 2.5rem;
+    width: 100%;
+    max-width: 600px;
+    max-height: 92vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.modal-content-custom.modal-xl {
+    max-width: 1200px;
+}
+
+/* Efecto de la tarjeta de herramienta */
+.card-img-top {
+    position: relative;
+    overflow: hidden;
+}
+
+.card-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(13, 110, 253, 0.8);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    gap: 10px;
+}
+
+.card:hover .card-overlay {
+    opacity: 1;
+}
+
+/* Estilos del Visor Interactivo (Vista de Detalle) */
+.viewer-main-container {
+    background: radial-gradient(circle at center, #2c3e50 0%, #000 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.backdrop-blur {
+    backdrop-filter: blur(5px);
+}
+
+.info-card {
+    transition: transform 0.2s ease;
+}
+
+.info-card:hover {
+    transform: translateX(5px);
+}
+
+.text-truncate-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Visor de Realidad Aumentada */
+.ar-btn {
+    background-color: white;
+    border-radius: 20px;
+    padding: 10px 20px;
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    border: none;
+    font-weight: bold;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+/* Editor 3D Pane */
+.config-3d-pane {
+    background-color: #f8fafc !important;
+}
+
+.viewer-wrapper {
+    background: #000;
+    box-shadow: inset 0 0 30px rgba(0,0,0,0.8);
+}
+
+/* Botones flotantes en tarjetas */
+.btn-edit-h:hover { background-color: #cfe2ff !important; }
+.btn-delete-h:hover { background-color: #f8d7da !important; }
+
+.hover-up {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hover-up:hover {
+    transform: translateY(-10px);
+}
+
+model-viewer {
+    width: 100%;
+    height: 100%;
+    --progress-bar-color: #0d6efd;
+}

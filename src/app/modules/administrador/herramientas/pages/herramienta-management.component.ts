@@ -27,8 +27,11 @@ export class HerramientaManagementComponent implements OnInit {
   editingId: number | null = null;
   selectedHerramienta: any = null; 
 
-  // Estados para el visor 3D
-  selectedFile3D: File | null = null;
+  // Estados para el visor 3D y multimodelo
+  modelosActuales: any[] = []; 
+  modelosNuevos: any[] = [];   
+  activeModelIdx = 0;          
+  
   selectedPreviewImg: File | null = null;
   previewUrl3D: string | null = null;
   scaleValue = 1.0;
@@ -60,9 +63,6 @@ export class HerramientaManagementComponent implements OnInit {
     });
   }
 
-  /**
-   * Cambia el estado (Activo/Inactivo) de una herramienta
-   */
   public toggleStatus(id: number): void {
     this.herramientaService.toggleStatus(id).subscribe({
       next: () => {
@@ -79,8 +79,11 @@ export class HerramientaManagementComponent implements OnInit {
     this.showViewModal = false;
     this.editingId = null;
     this.herramientaForm.reset();
+    
+    this.modelosActuales = [];
+    this.modelosNuevos = [];
+    this.activeModelIdx = 0;
     this.previewUrl3D = null;
-    this.selectedFile3D = null;
     this.selectedPreviewImg = null;
     this.scaleValue = 1.0;
     this.rotX = 0; this.rotY = 0; this.rotZ = 0;
@@ -96,9 +99,14 @@ export class HerramientaManagementComponent implements OnInit {
     this.selectedHerramienta = h;
     this.showViewModal = true;
     this.showModal = false;
-    
-    if (h.modelos_3d && h.modelos_3d.length > 0) {
-      const model = h.modelos_3d[0];
+    this.modelosActuales = h.modelos_3d || [];
+    this.activeModelIdx = 0;
+    this.updatePreviewFromCurrent();
+  }
+
+  updatePreviewFromCurrent(): void {
+    if (this.modelosActuales.length > 0) {
+      const model = this.modelosActuales[this.activeModelIdx];
       this.previewUrl3D = model.archivo.startsWith('http') 
         ? model.archivo 
         : `http://localhost:8000${model.archivo}`;
@@ -112,11 +120,82 @@ export class HerramientaManagementComponent implements OnInit {
     }
   }
 
+  nextModel(): void {
+    const total = this.modelosActuales.length + this.modelosNuevos.length;
+    if (total === 0) return;
+    this.activeModelIdx = (this.activeModelIdx + 1) % total;
+    this.refreshActivePreview();
+  }
+
+  prevModel(): void {
+    const total = this.modelosActuales.length + this.modelosNuevos.length;
+    if (total === 0) return;
+    this.activeModelIdx = (this.activeModelIdx - 1 + total) % total;
+    this.refreshActivePreview();
+  }
+
+  refreshActivePreview(): void {
+    const nActuales = this.modelosActuales.length;
+    if (this.activeModelIdx < nActuales) {
+      this.updatePreviewFromCurrent();
+    } else {
+      const idxNuevo = this.activeModelIdx - nActuales;
+      const m = this.modelosNuevos[idxNuevo];
+      this.previewUrl3D = m.previewUrl;
+      this.scaleValue = m.escala;
+      this.rotX = m.rotX; this.rotY = m.rotY; this.rotZ = m.rotZ;
+    }
+  }
+
   onFile3DSelected(event: any): void {
     const file = event.target.files[0];
     if (file) {
-      this.selectedFile3D = file;
-      this.previewUrl3D = URL.createObjectURL(file);
+      const nuevo = {
+        archivo: file,
+        previewUrl: URL.createObjectURL(file),
+        escala: 1.0,
+        rotX: 0, rotY: 0, rotZ: 0,
+        nombre_identificador: `Modelo ${this.modelosActuales.length + this.modelosNuevos.length + 1}`
+      };
+      this.modelosNuevos.push(nuevo);
+      this.activeModelIdx = this.modelosActuales.length + this.modelosNuevos.length - 1;
+      this.refreshActivePreview();
+      event.target.value = '';
+    }
+  }
+
+  removeActiveModel(): void {
+    const nActuales = this.modelosActuales.length;
+    if (this.activeModelIdx < nActuales) {
+      const m = this.modelosActuales[this.activeModelIdx];
+      if (confirm(`¿Seguro que desea eliminar el modelo "${m.nombre_identificador}"?`)) {
+        this.herramientaService.deleteModelo3D(m.id).subscribe({
+          next: () => {
+            this.modelosActuales.splice(this.activeModelIdx, 1);
+            this.activeModelIdx = 0;
+            this.refreshActivePreview();
+          },
+          error: () => alert('Error al eliminar el modelo de la base de datos')
+        });
+      }
+    } else {
+      this.modelosNuevos.splice(this.activeModelIdx - nActuales, 1);
+      this.activeModelIdx = 0;
+      this.refreshActivePreview();
+    }
+  }
+
+  syncActiveConfig(): void {
+    const nActuales = this.modelosActuales.length;
+    if (this.activeModelIdx >= nActuales) {
+      const idxNuevo = this.activeModelIdx - nActuales;
+      const m = this.modelosNuevos[idxNuevo];
+      m.escala = this.scaleValue;
+      m.rotX = this.rotX; m.rotY = this.rotY; m.rotZ = this.rotZ;
+    } else {
+      const m = this.modelosActuales[this.activeModelIdx];
+      m.escala = this.scaleValue;
+      m.rotacion_default = `${this.rotX} ${this.rotY} ${this.rotZ}`;
     }
   }
 
@@ -133,6 +212,7 @@ export class HerramientaManagementComponent implements OnInit {
 
   saveHerramienta(): void {
     if (this.herramientaForm.invalid) return;
+    this.syncActiveConfig();
 
     const user = this.authService.currentUser();
     const adminId = user?.perfil_id || user?.id;
@@ -153,46 +233,44 @@ export class HerramientaManagementComponent implements OnInit {
     
     if (this.selectedPreviewImg) formData.append('imagen_previa', this.selectedPreviewImg);
 
-    const successCallback = (res: any) => {
-      if (this.selectedFile3D) {
-        this.upload3D(this.editingId || res.id);
-      } else {
+    const afterSave = (herramientaId: number) => {
+      const subirPromesas = this.modelosNuevos.map(m => {
+        const fd = new FormData();
+        fd.append('archivo', m.archivo);
+        fd.append('escala', m.escala.toString());
+        fd.append('nombre_identificador', m.nombre_identificador);
+        fd.append('rotacion_default', `${m.rotX} ${m.rotY} ${m.rotZ}`);
+        return this.herramientaService.subirModelo3D(herramientaId, fd).toPromise();
+      });
+
+      const updatePromesas = this.modelosActuales.map(m => {
+        return this.herramientaService.updateConfig3D(m.id, {
+          escala: m.escala,
+          rotacion_default: m.rotacion_default
+        }).toPromise();
+      });
+
+      Promise.all([...subirPromesas, ...updatePromesas]).then(() => {
         this.loadData();
         this.closeModal();
-      }
+      }).catch(() => {
+        alert('Herramienta guardada, pero hubo errores con algunos modelos 3D.');
+        this.loadData();
+        this.closeModal();
+      });
     };
 
     if (this.editingId) {
       this.herramientaService.updateHerramienta(this.editingId, formData).subscribe({
-        next: successCallback,
+        next: () => afterSave(this.editingId!),
         error: () => alert('Error al actualizar herramienta')
       });
     } else {
       this.herramientaService.createHerramienta(formData).subscribe({
-        next: successCallback,
+        next: (res) => afterSave(res.id),
         error: () => alert('Error al crear herramienta')
       });
     }
-  }
-
-  upload3D(herramientaId: number): void {
-    const formData = new FormData();
-    formData.append('archivo', this.selectedFile3D!);
-    formData.append('escala', this.scaleValue.toString());
-    formData.append('nombre_identificador', 'Modelo Principal');
-    formData.append('rotacion_default', `${this.rotX} ${this.rotY} ${this.rotZ}`);
-    
-    this.herramientaService.subirModelo3D(herramientaId, formData).subscribe({
-      next: () => {
-        this.loadData();
-        this.closeModal();
-      },
-      error: () => {
-        alert('Error al subir modelo 3D');
-        this.loadData();
-        this.closeModal();
-      }
-    });
   }
 
   editHerramienta(h: any): void {
@@ -207,18 +285,9 @@ export class HerramientaManagementComponent implements OnInit {
       info_importante: h.info_importante
     });
     
-    if (h.modelos_3d && h.modelos_3d.length > 0) {
-      const model = h.modelos_3d[0];
-      this.previewUrl3D = model.archivo.startsWith('http') 
-        ? model.archivo 
-        : `http://localhost:8000${model.archivo}`;
-      this.scaleValue = model.escala;
-      const rot = (model.rotacion_default || '0 0 0').split(' ');
-      this.rotX = parseFloat(rot[0] || '0');
-      this.rotY = parseFloat(rot[1] || '0');
-      this.rotZ = parseFloat(rot[2] || '0');
-    } else {
-      this.previewUrl3D = null;
-    }
+    this.modelosActuales = JSON.parse(JSON.stringify(h.modelos_3d || []));
+    this.modelosNuevos = [];
+    this.activeModelIdx = 0;
+    this.refreshActivePreview();
   }
 }

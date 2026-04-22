@@ -48,4 +48,8 @@ export class HerramientaService {
   updateConfig3D(modeloId: number, config: any): Observable<any> {
     return this.http.patch<any>(`${this.apiUrl}/modelos-3d/${modeloId}/`, config);
   }
+
+  deleteModelo3D(modeloId: number): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}/modelos-3d/${modeloId}/`);
+  }
 }

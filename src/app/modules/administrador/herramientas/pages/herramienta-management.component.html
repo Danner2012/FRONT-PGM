@@ -80,7 +80,14 @@
 
       <div class="row g-4">
         <div class="col-md-7">
-          <div class="main-viewer-box bg-dark shadow-inner">
+          <div class="main-viewer-box bg-dark shadow-inner position-relative">
+            <!-- Navegación entre modelos -->
+            <div class="model-nav-controls" *ngIf="modelosActuales.length > 1">
+              <button class="nav-btn prev" (click)="prevModel()"><i class="bi bi-chevron-left"></i></button>
+              <div class="model-counter">{{ activeModelIdx + 1 }} / {{ modelosActuales.length }}</div>
+              <button class="nav-btn next" (click)="nextModel()"><i class="bi bi-chevron-right"></i></button>
+            </div>
+
             <app-three-viewer 
               *ngIf="previewUrl3D"
               [src]="previewUrl3D"
@@ -119,82 +126,134 @@
     </div>
   </div>
 
-  <!-- MODAL DE EDICIÓN -->
+  <!-- MODAL DE EDICIÓN / REGISTRO -->
   <div class="modal-overlay" *ngIf="showModal">
-    <div class="modal-content-custom modal-compact">
-      <div class="modal-header-custom border-bottom mb-3 pb-3">
-        <h5 class="fw-bold mb-0 text-dark">{{ editingId ? 'Editar' : 'Registrar Nueva' }} Herramienta</h5>
+    <div class="modal-content-custom modal-wide">
+      <div class="modal-header-custom border-bottom mb-4 pb-3">
+        <div class="d-flex align-items-center gap-3">
+          <div>
+            <h5 class="fw-bold mb-0 text-dark">{{ editingId ? 'Editar Herramienta' : 'Registrar Nueva Herramienta' }}</h5>
+            <p class="text-muted small mb-0">Complete la información técnica y suba el modelo 3D</p>
+          </div>
+        </div>
         <button class="btn-close-circle" (click)="closeModal()"><i class="bi bi-x-lg"></i></button>
       </div>
 
-      <form [formGroup]="herramientaForm" (ngSubmit)="saveHerramienta()">
-        <div class="row g-3">
-          <div class="col-md-5">
-            <div class="row g-2">
-              <div class="col-12">
-                <label class="form-label small fw-bold mb-1">Nombre</label>
-                <input type="text" class="form-control form-control-sm rounded-3" formControlName="nombre">
+      <form [formGroup]="herramientaForm" (ngSubmit)="saveHerramienta()" class="form-scroll">
+        <div class="row g-4">
+          <!-- Columna Izquierda: Información General -->
+          <div class="col-lg-7">
+            <div class="row g-3">
+              <div class="col-md-7">
+                <label class="form-label small fw-bold mb-1 text-dark">Nombre de la Herramienta</label>
+                <input type="text" class="form-control rounded-3 shadow-sm" formControlName="nombre">
               </div>
-              <div class="col-12">
-                <label class="form-label small fw-bold mb-1">Categoría</label>
-                <select class="form-select form-select-sm rounded-3" formControlName="id_categoria">
+              <div class="col-md-5">
+                <label class="form-label small fw-bold mb-1 text-dark">Categoría</label>
+                <select class="form-select rounded-3 shadow-sm" formControlName="id_categoria">
+                  <option value="" disabled selected>Seleccione...</option>
                   <option *ngFor="let cat of categorias" [value]="cat.id">{{ cat.nombre }}</option>
                 </select>
               </div>
+
               <div class="col-12">
-                <label class="form-label small fw-bold mb-1">Imagen (JPG/PNG)</label>
-                <input type="file" class="form-control form-control-sm rounded-3" (change)="onImageSelected($event)" accept="image/*">
+                <label class="form-label small fw-bold mb-1 text-dark">Descripción General</label>
+                <textarea class="form-control rounded-3 shadow-sm" formControlName="descripcion" rows="4"></textarea>
               </div>
+
+              <div class="col-md-6">
+                <label class="form-label small fw-bold mb-1 text-primary"><i class="bi bi-play-circle me-1"></i>Modo de Uso</label>
+                <textarea class="form-control rounded-3 shadow-sm border-primary-subtle" formControlName="uso" rows="5"></textarea>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold mb-1 text-danger"><i class="bi bi-shield-exclamation me-1"></i>Seguridad e Información Crítica</label>
+                <textarea class="form-control rounded-3 shadow-sm border-danger-subtle" formControlName="info_importante" rows="5"></textarea>
+              </div>
+
               <div class="col-12">
-                <label class="form-label small fw-bold mb-1">Descripción</label>
-                <textarea class="form-control form-control-sm rounded-3" formControlName="descripcion" rows="2"></textarea>
-              </div>
-              <div class="col-6">
-                <label class="form-label small fw-bold mb-1">Uso</label>
-                <textarea class="form-control form-control-sm rounded-3" formControlName="uso" rows="2"></textarea>
-              </div>
-              <div class="col-6">
-                <label class="form-label small fw-bold mb-1">Seguridad</label>
-                <textarea class="form-control form-control-sm rounded-3" formControlName="info_importante" rows="2"></textarea>
+                <label class="form-label small fw-bold mb-1 text-dark">Imagen de Portada (Opcional)</label>
+                <div class="input-group">
+                  <span class="input-group-text bg-light border-end-0"><i class="bi bi-image"></i></span>
+                  <input type="file" class="form-control rounded-end-3 shadow-sm border-start-0" (change)="onImageSelected($event)" accept="image/*">
+                </div>
               </div>
             </div>
           </div>
 
-          <div class="col-md-7 border-start ps-4">
-            <label class="form-label small fw-bold text-primary mb-2">Modelo Interactivo (.GLB)</label>
-            <input type="file" class="form-control form-control-sm rounded-pill mb-3" (change)="onFile3DSelected($event)" accept=".glb">
-            
-            <div class="editor-viewer-box bg-dark rounded-4 overflow-hidden mb-3">
-              <app-three-viewer 
-                *ngIf="previewUrl3D"
-                [src]="previewUrl3D"
-                [rotation]="getRotation()"
-                [scale]="scaleValue"
-                [autoRotate]="false">
-              </app-three-viewer>
-            </div>
-
-            <div class="row g-2 align-items-center" *ngIf="previewUrl3D">
-              <div class="col-5">
-                <label class="x-small fw-bold text-muted">ESCALA: {{ scaleValue }}x</label>
-                <input type="range" class="form-range" min="0.1" max="3" step="0.1" [(ngModel)]="scaleValue" [ngModelOptions]="{standalone: true}">
+          <!-- Columna Derecha: Modelo 3D -->
+          <div class="col-lg-5">
+            <div class="bg-light p-4 rounded-4 border h-100">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <label class="form-label small fw-bold text-primary mb-0 d-flex align-items-center">
+                  <i class="bi bi-box-seam fs-5 me-2"></i> Modelos 3D
+                </label>
+                <div class="d-flex gap-2">
+                  <button type="button" class="btn btn-outline-danger btn-sm rounded-circle p-1" 
+                          *ngIf="previewUrl3D" (click)="removeActiveModel()" title="Eliminar modelo actual">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                  <label class="btn btn-primary btn-sm rounded-pill px-3 mb-0" style="cursor: pointer;">
+                    <i class="bi bi-plus-lg me-1"></i> Añadir
+                    <input type="file" class="d-none" (change)="onFile3DSelected($event)" accept=".glb">
+                  </label>
+                </div>
               </div>
-              <div class="col-7">
-                <div class="input-group input-group-sm">
-                  <span class="input-group-text bg-transparent border-0 x-small fw-bold">ROT:</span>
-                  <input type="number" class="form-control bg-light border-0 text-center" [(ngModel)]="rotX" [ngModelOptions]="{standalone: true}">
-                  <input type="number" class="form-control bg-light border-0 text-center" [(ngModel)]="rotY" [ngModelOptions]="{standalone: true}">
-                  <input type="number" class="form-control bg-light border-0 text-center" [(ngModel)]="rotZ" [ngModelOptions]="{standalone: true}">
+              
+              <div class="editor-viewer-box bg-dark rounded-4 shadow-lg overflow-hidden mb-3 border border-dark position-relative">
+                <!-- Navegación Editor -->
+                <div class="model-nav-controls small" *ngIf="(modelosActuales.length + modelosNuevos.length) > 1">
+                  <button type="button" class="nav-btn prev" (click)="prevModel()"><i class="bi bi-chevron-left"></i></button>
+                  <div class="model-counter">
+                    {{ activeModelIdx + 1 }} / {{ modelosActuales.length + modelosNuevos.length }}
+                    <span class="badge bg-primary ms-1" *ngIf="activeModelIdx >= modelosActuales.length">NUEVO</span>
+                  </div>
+                  <button type="button" class="nav-btn next" (click)="nextModel()"><i class="bi bi-chevron-right"></i></button>
+                </div>
+
+                <app-three-viewer 
+                  *ngIf="previewUrl3D"
+                  [src]="previewUrl3D"
+                  [rotation]="getRotation()"
+                  [scale]="scaleValue"
+                  [autoRotate]="false">
+                </app-three-viewer>
+                <div *ngIf="!previewUrl3D" class="h-100 d-flex flex-column align-items-center justify-content-center text-white-50 p-4 text-center">
+                  <i class="bi bi-cloud-arrow-up fs-1 mb-2"></i>
+                  <p class="small mb-0">Suba un archivo para previsualizar</p>
+                </div>
+              </div>
+
+              <div class="row g-2" *ngIf="previewUrl3D">
+                <div class="col-12 mb-2">
+                  <div class="d-flex justify-content-between">
+                    <label class="x-small fw-bold text-muted uppercase">Escala Visual: {{ scaleValue }}x</label>
+                  </div>
+                  <input type="range" class="form-range" min="0.1" max="3" step="0.1" [(ngModel)]="scaleValue" [ngModelOptions]="{standalone: true}" (change)="syncActiveConfig()">
+                </div>
+                <div class="col-12">
+                  <label class="x-small fw-bold text-muted d-block mb-1">POSICIÓN DE CÁMARA (ANGULOS / ZOOM)</label>
+                  <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-white border-end-0 text-muted">X</span>
+                    <input type="number" class="form-control border-start-0 me-1 rounded-end" [(ngModel)]="rotX" [ngModelOptions]="{standalone: true}" (change)="syncActiveConfig()">
+                    <span class="input-group-text bg-white border-end-0 text-muted">Y</span>
+                    <input type="number" class="form-control border-start-0 me-1 rounded-end" [(ngModel)]="rotY" [ngModelOptions]="{standalone: true}" (change)="syncActiveConfig()">
+                    <span class="input-group-text bg-white border-end-0 text-muted">Z</span>
+                    <input type="number" class="form-control border-start-0 rounded-end" [(ngModel)]="rotZ" [ngModelOptions]="{standalone: true}" (change)="syncActiveConfig()">
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
-          <button type="button" class="btn btn-light rounded-pill px-4 btn-sm" (click)="closeModal()">CANCELAR</button>
-          <button type="submit" class="btn btn-primary rounded-pill px-5 btn-sm shadow-sm fw-bold" [disabled]="herramientaForm.invalid">
-            <i class="bi bi-save2 me-2"></i> GUARDAR CAMBIOS
+        <!-- Footer fijo al final del scroll -->
+        <div class="d-flex justify-content-end gap-3 mt-4 pt-3 border-top pb-2">
+          <button type="button" class="btn btn-link text-decoration-none text-muted fw-bold" (click)="closeModal()">
+            DESCARTAR
+          </button>
+          <button type="submit" class="btn btn-primary rounded-pill px-5 shadow-sm fw-bold d-flex align-items-center gap-2" [disabled]="herramientaForm.invalid">
+            <i class="bi bi-check2-circle fs-5"></i>
+            <span>{{ editingId ? 'ACTUALIZAR HERRAMIENTA' : 'GUARDAR HERRAMIENTA' }}</span>
           </button>
         </div>
       </form>

@@ -53,41 +53,47 @@ export class ThreeViewerComponent implements OnInit, OnChanges, OnDestroy {
     if (this.animationId) {
       cancelAnimationFrame(this.animationId);
     }
-    this.renderer.dispose();
+    if (this.renderer) {
+      this.renderer.dispose();
+    }
   }
 
   private initThree(): void {
     const width = this.rendererContainer.nativeElement.clientWidth || 300;
     const height = this.rendererContainer.nativeElement.clientHeight || 300;
 
-    // Escena
     this.scene = new THREE.Scene();
-    this.scene.background = new THREE.Color(0x212529); // Color oscuro para coincidir con tu UI
+    this.scene.background = new THREE.Color(0x212529);
 
-    // Cámara
     this.camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
-    this.camera.position.set(0, 0, 5);
 
-    // Renderizador
     this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     this.renderer.setSize(width, height);
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.rendererContainer.nativeElement.appendChild(this.renderer.domElement);
 
-    // Luces
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+    // Iluminación de estudio
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
     this.scene.add(ambientLight);
 
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-    directionalLight.position.set(5, 5, 5);
-    this.scene.add(directionalLight);
+    const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1);
+    hemiLight.position.set(0, 20, 0);
+    this.scene.add(hemiLight);
 
-    // Controles
+    const dirLight = new THREE.DirectionalLight(0xffffff, 1);
+    dirLight.position.set(5, 5, 5);
+    this.scene.add(dirLight);
+
+    const backLight = new THREE.DirectionalLight(0xffffff, 0.5);
+    backLight.position.set(-5, 5, -5);
+    this.scene.add(backLight);
+
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
     this.controls.enableDamping = true;
+    this.controls.dampingFactor = 0.05;
     this.controls.autoRotate = this.autoRotate;
+    this.controls.autoRotateSpeed = 2.0;
 
-    // Resize listener
     window.addEventListener('resize', this.onWindowResize.bind(this));
   }
 
@@ -99,20 +105,36 @@ export class ThreeViewerComponent implements OnInit, OnChanges, OnDestroy {
     const loader = new GLTFLoader();
     loader.load(url, (gltf) => {
       this.model = gltf.scene;
+      
+      // Aplicar transformaciones iniciales
       this.updateScale();
       this.updateRotation();
       
-      // Centrar el modelo
+      // Calcular encuadre
       const box = new THREE.Box3().setFromObject(this.model);
       const center = box.getCenter(new THREE.Vector3());
-      this.model.position.sub(center);
+      const size = box.getSize(new THREE.Vector3());
       
+      // Centrar el modelo en (0,0,0)
+      this.model.position.sub(center);
       this.scene.add(this.model);
 
-      // Ajustar cámara para ver el modelo
-      const size = box.getSize(new THREE.Vector3());
+      // Calcular distancia ideal de cámara
       const maxDim = Math.max(size.x, size.y, size.z);
-      this.camera.position.z = maxDim * 2.5;
+      const fov = this.camera.fov * (Math.PI / 180);
+      let cameraZ = Math.abs(maxDim / 2 / Math.tan(fov / 2));
+      
+      cameraZ *= 1.3; // Factor de zoom (1.3 es un punto dulce para que se vea grande pero no cortado)
+      
+      this.camera.position.set(0, maxDim * 0.2, cameraZ);
+      this.camera.lookAt(0, 0, 0);
+      
+      // Configurar límites de zoom para el usuario
+      this.controls.minDistance = maxDim * 0.5;
+      this.controls.maxDistance = cameraZ * 3;
+      this.controls.target.set(0, 0, 0);
+      this.controls.update();
+
     }, undefined, (error) => {
       console.error('Error cargando el modelo 3D', error);
     });
@@ -126,7 +148,6 @@ export class ThreeViewerComponent implements OnInit, OnChanges, OnDestroy {
 
   private updateRotation(): void {
     if (this.model) {
-      // Convertir grados a radianes
       this.model.rotation.set(
         THREE.MathUtils.degToRad(this.rotation.x),
         THREE.MathUtils.degToRad(this.rotation.y),
@@ -136,6 +157,7 @@ export class ThreeViewerComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private onWindowResize(): void {
+    if (!this.rendererContainer) return;
     const width = this.rendererContainer.nativeElement.clientWidth;
     const height = this.rendererContainer.nativeElement.clientHeight;
     this.camera.aspect = width / height;

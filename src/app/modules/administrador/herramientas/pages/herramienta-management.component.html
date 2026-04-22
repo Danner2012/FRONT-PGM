@@ -67,60 +67,78 @@
     </div>
   </div>
 
-  <!-- MODAL DE VISUALIZACIÓN -->
+  <!-- MODAL DE VISUALIZACIÓN INMERSIVA -->
   <div class="modal-overlay" *ngIf="showViewModal && selectedHerramienta">
-    <div class="modal-content-custom modal-compact view-mode">
-      <div class="modal-header-custom border-bottom mb-3 pb-3">
+    <div class="modal-content-custom modal-inmersive view-mode">
+      <!-- Header Flotante -->
+      <div class="inmersive-header d-flex justify-content-between align-items-start p-4">
         <div>
-          <span class="text-primary small fw-bold">{{ selectedHerramienta.categoria_info?.nombre }}</span>
-          <h5 class="fw-bold mb-0 text-dark">{{ selectedHerramienta.nombre }}</h5>
+          <span class="badge bg-primary rounded-pill mb-2 px-3">{{ selectedHerramienta.categoria_info?.nombre }}</span>
+          <h3 class="fw-bold mb-0 text-white shadow-text">{{ selectedHerramienta.nombre }}</h3>
         </div>
-        <button class="btn-close-circle" (click)="closeModal()"><i class="bi bi-x-lg"></i></button>
+        <button class="btn-close-circle glass" (click)="closeModal()"><i class="bi bi-x-lg"></i></button>
       </div>
 
-      <div class="row g-4">
-        <div class="col-md-7">
-          <div class="main-viewer-box bg-dark shadow-inner position-relative">
-            <!-- Navegación entre modelos -->
-            <div class="model-nav-controls" *ngIf="modelosActuales.length > 1">
-              <button class="nav-btn prev" (click)="prevModel()"><i class="bi bi-chevron-left"></i></button>
-              <div class="model-counter">{{ activeModelIdx + 1 }} / {{ modelosActuales.length }}</div>
-              <button class="nav-btn next" (click)="nextModel()"><i class="bi bi-chevron-right"></i></button>
-            </div>
+      <div class="main-viewer-box bg-dark inmersive-box">
+        <!-- Navegación entre modelos (Carrusel) -->
+        <div class="model-nav-controls" *ngIf="modelosActuales.length > 1">
+          <button class="nav-btn prev" (click)="prevModel()"><i class="bi bi-chevron-left"></i></button>
+          <div class="model-counter">{{ activeModelIdx + 1 }} / {{ modelosActuales.length }}</div>
+          <button class="nav-btn next" (click)="nextModel()"><i class="bi bi-chevron-right"></i></button>
+        </div>
 
-            <app-three-viewer 
-              *ngIf="previewUrl3D"
-              [src]="previewUrl3D"
-              [rotation]="getRotation()"
-              [scale]="scaleValue"
-              [autoRotate]="true">
-            </app-three-viewer>
-            <div *ngIf="!previewUrl3D" class="d-flex flex-column align-items-center justify-content-center h-100 text-white-50">
-              <i class="bi bi-slash-circle fs-2 mb-2"></i>
-              <p class="small">Sin modelo 3D</p>
+        <!-- Visor 3D de Fondo -->
+        <app-three-viewer 
+          *ngIf="previewUrl3D"
+          [src]="previewUrl3D"
+          [rotation]="getRotation()"
+          [scale]="scaleValue"
+          [autoRotate]="true">
+        </app-three-viewer>
+
+        <!-- HUD IZQUIERDO: Información General -->
+        <div class="hud-container left gap-3 p-4">
+          <div class="hud-card glass-panel fade-in-left" 
+               [class.expanded]="activeHUD === 'desc'"
+               (click)="activeHUD = (activeHUD === 'desc' ? null : 'desc')"
+               style="animation-delay: 0.1s;">
+            <label class="hud-label text-info"><i class="bi bi-info-circle me-2"></i>DESCRIPCIÓN</label>
+            <div class="hud-content">{{ selectedHerramienta.descripcion }}</div>
+            <div class="hud-tap-hint" *ngIf="activeHUD !== 'desc'">
+              <i class="bi bi-hand-index-thumb me-1"></i> Toca para expandir
+            </div>
+          </div>
+
+          <div class="hud-card glass-panel usage fade-in-left" 
+               [class.expanded]="activeHUD === 'uso'"
+               (click)="activeHUD = (activeHUD === 'uso' ? null : 'uso')"
+               style="animation-delay: 0.2s;">
+            <label class="hud-label text-primary"><i class="bi bi-play-circle me-2"></i>MODO DE USO</label>
+            <div class="hud-content">{{ selectedHerramienta.uso }}</div>
+            <div class="hud-tap-hint" *ngIf="activeHUD !== 'uso'">
+              <i class="bi bi-hand-index-thumb me-1"></i> Toca para expandir
             </div>
           </div>
         </div>
-        <div class="col-md-5">
-          <div class="detail-scroll">
-            <div class="info-group mb-3">
-              <label class="form-label small fw-bold text-muted">Descripción</label>
-              <p class="info-text text-muted">{{ selectedHerramienta.descripcion }}</p>
-            </div>
-            <div class="info-group mb-3 p-3 bg-light rounded-4 border">
-              <label class="form-label small fw-bold text-dark">Modo de Uso</label>
-              <p class="info-text mb-0">{{ selectedHerramienta.uso }}</p>
-            </div>
-            <div class="info-group p-3 bg-danger-subtle rounded-4 border border-danger-subtle">
-              <label class="form-label small fw-bold text-danger">Seguridad</label>
-              <p class="info-text mb-0">{{ selectedHerramienta.info_importante }}</p>
-            </div>
-            <div class="mt-4">
-              <button class="btn btn-primary w-100 rounded-pill py-2 shadow-sm" (click)="editHerramienta(selectedHerramienta)">
-                <i class="bi bi-pencil-square me-2"></i> Editar Datos
-              </button>
+
+        <!-- HUD DERECHO: Información Crítica -->
+        <div class="hud-container right p-4">
+          <div class="hud-card glass-panel security fade-in-right" 
+               [class.expanded]="activeHUD === 'seg'"
+               (click)="activeHUD = (activeHUD === 'seg' ? null : 'seg')"
+               style="animation-delay: 0.3s;">
+            <label class="hud-label text-danger"><i class="bi bi-shield-exclamation me-2"></i>SEGURIDAD</label>
+            <div class="hud-content">{{ selectedHerramienta.info_importante }}</div>
+            <div class="hud-tap-hint" *ngIf="activeHUD !== 'seg'">
+              <i class="bi bi-hand-index-thumb me-1"></i> Toca para expandir
             </div>
           </div>
+        </div>
+
+        <!-- Placeholder si no hay 3D -->
+        <div *ngIf="!previewUrl3D" class="d-flex flex-column align-items-center justify-content-center h-100 text-white-50">
+          <i class="bi bi-slash-circle fs-1 mb-2"></i>
+          <p>Este componente no tiene un modelo 3D asignado</p>
         </div>
       </div>
     </div>

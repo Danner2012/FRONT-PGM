@@ -37,6 +37,9 @@ export class HerramientaManagementComponent implements OnInit {
   scaleValue = 1.0;
   rotX = 0; rotY = 0; rotZ = 0;
 
+  // Control de paneles HUD
+  activeHUD: string | null = null;
+
   constructor() {
     this.herramientaForm = this.fb.group({
       nombre: ['', Validators.required],

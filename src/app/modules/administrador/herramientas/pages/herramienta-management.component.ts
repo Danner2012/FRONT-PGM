@@ -1,4 +1,4 @@
-import { Component, OnInit, CUSTOM_ELEMENTS_SCHEMA, inject } from '@angular/core';
+import { Component, OnInit, CUSTOM_ELEMENTS_SCHEMA, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { HerramientaService } from '../../../../services/herramienta.service';
@@ -101,7 +101,7 @@ export class HerramientaManagementComponent implements OnInit {
     this.showModal = false;
     this.modelosActuales = h.modelos_3d || [];
     this.activeModelIdx = 0;
-    this.updatePreviewFromCurrent();
+    this.refreshActivePreview();
   }
 
   updatePreviewFromCurrent(): void {
@@ -123,6 +123,7 @@ export class HerramientaManagementComponent implements OnInit {
   nextModel(): void {
     const total = this.modelosActuales.length + this.modelosNuevos.length;
     if (total === 0) return;
+    this.syncActiveConfig();
     this.activeModelIdx = (this.activeModelIdx + 1) % total;
     this.refreshActivePreview();
   }
@@ -130,6 +131,7 @@ export class HerramientaManagementComponent implements OnInit {
   prevModel(): void {
     const total = this.modelosActuales.length + this.modelosNuevos.length;
     if (total === 0) return;
+    this.syncActiveConfig();
     this.activeModelIdx = (this.activeModelIdx - 1 + total) % total;
     this.refreshActivePreview();
   }
@@ -189,13 +191,18 @@ export class HerramientaManagementComponent implements OnInit {
     const nActuales = this.modelosActuales.length;
     if (this.activeModelIdx >= nActuales) {
       const idxNuevo = this.activeModelIdx - nActuales;
-      const m = this.modelosNuevos[idxNuevo];
-      m.escala = this.scaleValue;
-      m.rotX = this.rotX; m.rotY = this.rotY; m.rotZ = this.rotZ;
+      if (this.modelosNuevos[idxNuevo]) {
+        this.modelosNuevos[idxNuevo].escala = this.scaleValue;
+        this.modelosNuevos[idxNuevo].rotX = this.rotX;
+        this.modelosNuevos[idxNuevo].rotY = this.rotY;
+        this.modelosNuevos[idxNuevo].rotZ = this.rotZ;
+      }
     } else {
       const m = this.modelosActuales[this.activeModelIdx];
-      m.escala = this.scaleValue;
-      m.rotacion_default = `${this.rotX} ${this.rotY} ${this.rotZ}`;
+      if (m) {
+        m.escala = this.scaleValue;
+        m.rotacion_default = `${this.rotX} ${this.rotY} ${this.rotZ}`;
+      }
     }
   }
 

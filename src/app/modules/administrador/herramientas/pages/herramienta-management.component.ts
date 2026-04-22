@@ -3,12 +3,12 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { HerramientaService } from '../../../../services/herramienta.service';
 import { AuthService } from '../../../../services/auth.service';
-import '@google/model-viewer';
+import { ThreeViewerComponent } from '../components/three-viewer/three-viewer.component';
 
 @Component({
   selector: 'app-herramienta-management',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, ThreeViewerComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './herramienta-management.component.html',
   styleUrls: ['./herramienta-management.component.css']
@@ -127,12 +127,8 @@ export class HerramientaManagementComponent implements OnInit {
     }
   }
 
-  getCameraOrbit(): string {
-    return `${this.rotX}deg ${this.rotY}deg ${this.rotZ}m`;
-  }
-
-  getScale(): string {
-    return `${this.scaleValue} ${this.scaleValue} ${this.scaleValue}`;
+  getRotation(): { x: number, y: number, z: number } {
+    return { x: this.rotX, y: this.rotY, z: this.rotZ };
   }
 
   saveHerramienta(): void {

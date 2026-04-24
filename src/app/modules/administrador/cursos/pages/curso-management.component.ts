@@ -1,6 +1,6 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { CursoService } from '../../../../services/curso.service';
 import { ApiService } from '../../../../services/api.service';
 import { AuthService } from '../../../../services/auth.service';
@@ -8,7 +8,7 @@ import { AuthService } from '../../../../services/auth.service';
 @Component({
   selector: 'app-curso-management',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule],
   templateUrl: './curso-management.component.html',
   styleUrls: ['../styles/curso-management.component.css']
 })
@@ -24,6 +24,58 @@ export class CursoManagementComponent implements OnInit {
   horarios = signal<any[]>([]);
   dias = signal<any[]>([]);
   tecnicosDisponibles = signal<any[]>([]);
+
+  // Signals para Filtros
+  filterNombre = signal<string>('');
+  filterTipo = signal<string>('todos');
+  filterEstado = signal<string>('todos');
+  filterFechaInicio = signal<string>('');
+  filterFechaFin = signal<string>('');
+
+  // Lógica de Filtrado Computada
+  filteredCursos = computed(() => {
+    let data = this.cursos();
+
+    // Filtrar por Nombre
+    if (this.filterNombre()) {
+      const search = this.filterNombre().toLowerCase();
+      data = data.filter(c => c.nombre.toLowerCase().includes(search));
+    }
+
+    // Filtrar por Tipo
+    if (this.filterTipo() !== 'todos') {
+      data = data.filter(c => c.id_tipo?.toString() === this.filterTipo());
+    }
+
+    // Filtrar por Estado (activo/inactivo)
+    if (this.filterEstado() !== 'todos') {
+      const targetEstado = this.filterEstado() === 'activo';
+      data = data.filter(c => c.estado === targetEstado);
+    }
+
+    // Filtrar por Fecha de Inicio (desde)
+    if (this.filterFechaInicio()) {
+      const start = new Date(this.filterFechaInicio());
+      data = data.filter(c => new Date(c.fecha_inicio) >= start);
+    }
+
+    // Filtrar por Fecha de Fin (hasta)
+    if (this.filterFechaFin()) {
+      const end = new Date(this.filterFechaFin());
+      end.setHours(23, 59, 59);
+      data = data.filter(c => new Date(c.fecha_fin) <= end);
+    }
+
+    return data;
+  });
+
+  clearFilters() {
+    this.filterNombre.set('');
+    this.filterTipo.set('todos');
+    this.filterEstado.set('todos');
+    this.filterFechaInicio.set('');
+    this.filterFechaFin.set('');
+  }
 
   // Control de UI
   activeTab = signal<'cursos' | 'maestros'>('cursos');

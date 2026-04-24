@@ -64,11 +64,19 @@
                             </td>
                             <td class="text-end">
                                 <div class="d-flex justify-content-end gap-2">
-                                    <button class="btn btn-outline-danger btn-sm rounded-pill" (click)="cancelInscripcion(inscripcion)" title="Cancelar">
-                                        <i class="bi bi-x-circle"></i>
+                                    <button 
+                                        class="action-btn btn-cancel" 
+                                        (click)="cancelInscripcion(inscripcion)" 
+                                        [disabled]="inscripcion.estado !== 'pendiente' || inscripcion.pago_detalle?.estado === 'pagado'"
+                                        [title]="inscripcion.estado === 'cancelado' ? 'Ya está cancelado' : (inscripcion.pago_detalle?.estado === 'pagado' ? 'No se puede cancelar un pago realizado' : 'Anular Registro')">
+                                        <i class="bi bi-ban"></i>
                                     </button>
-                                    <button class="btn btn-outline-success btn-sm rounded-pill" (click)="confirmInscripcion(inscripcion)" title="Confirmar">
-                                        <i class="bi bi-check-circle"></i>
+                                    <button 
+                                        class="action-btn btn-confirm" 
+                                        (click)="confirmInscripcion(inscripcion)" 
+                                        [disabled]="inscripcion.estado !== 'pendiente'"
+                                        [title]="inscripcion.estado === 'pendiente' ? 'Confirmar Pago y Cupo' : 'Ya está procesado'">
+                                        <i class="bi bi-shield-check"></i>
                                     </button>
                                 </div>
                             </td>
@@ -167,10 +175,10 @@
                     </div>
 
                     <div class="col-md-6">
-                        <label class="form-label small fw-bold">Estado Inicial</label>
+                        <label class="form-label small fw-bold">Estado de Admisión</label>
                         <select class="form-select" formControlName="estado">
-                            <option value="pendiente">Pendiente</option>
-                            <option value="confirmado">Confirmado</option>
+                            <option value="pendiente">Pendiente (Sin Pago / Lista Espera)</option>
+                            <option value="confirmado">Confirmado (Pagado / Con Cupo)</option>
                         </select>
                     </div>
                 </div>

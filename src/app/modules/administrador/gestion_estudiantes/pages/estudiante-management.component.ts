@@ -25,8 +25,8 @@ export class EstudianteManagementComponent implements OnInit {
     apellido_materno: ['', [Validators.required]],
     ci: ['', [Validators.required]],
     celular: ['', [Validators.required]],
-    correo: ['', [Validators.required, Validators.email]],
-    password: [''] // Solo requerido al crear
+    correo: [''], // Se generará automáticamente
+    password: [''] // Se generará automáticamente
   });
 
   ngOnInit() {
@@ -54,14 +54,10 @@ export class EstudianteManagementComponent implements OnInit {
         celular: estudiante.celular,
         correo: estudiante.correo
       });
-      // La contraseña no se edita aquí por seguridad
-      this.estudianteForm.get('password')?.clearValidators();
     } else {
       this.selectedEstudianteId.set(null);
       this.estudianteForm.reset();
-      this.estudianteForm.get('password')?.setValidators([Validators.required, Validators.minLength(8)]);
     }
-    this.estudianteForm.get('password')?.updateValueAndValidity();
   }
 
   closeModal() {
@@ -72,11 +68,11 @@ export class EstudianteManagementComponent implements OnInit {
   saveEstudiante() {
     if (this.estudianteForm.invalid) return;
 
-    const data = this.estudianteForm.value;
+    const data = { ...this.estudianteForm.value };
     
     if (this.isEditing()) {
-      // Si estamos editando, quitamos la contraseña del objeto si está vacía
-      if (!data.password) delete data.password;
+      // Al editar, mantenemos el correo actual (no se edita en el form)
+      delete data.password; // No permitimos cambiar password desde aquí
       
       this.apiService.updateEstudiante(this.selectedEstudianteId()!, data).subscribe({
         next: () => {
@@ -86,6 +82,10 @@ export class EstudianteManagementComponent implements OnInit {
         error: (err) => alert('Error al actualizar: ' + JSON.stringify(err.error))
       });
     } else {
+      // AUTOMATIZACIÓN: Generar cuenta basada en CI
+      data.correo = `${data.ci}@celucentro.com`;
+      data.password = data.ci;
+
       this.apiService.createEstudiante(data).subscribe({
         next: () => {
           this.loadEstudiantes();

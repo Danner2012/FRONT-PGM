@@ -101,19 +101,19 @@
                     </div>
                     <div class="col-md-12">
                         <label class="form-label small fw-bold">Celular</label>
-                        <input type="text" class="form-control" formControlName="celular" >
-                    </div>
-                    
-                    <hr class="my-4 opacity-10">
-                    
-                    <div class="col-12">
-                        <label class="form-label small fw-bold">Correo Electrónico (Usuario)</label>
-                        <input type="email" class="form-control" formControlName="correo">
+                        <input type="text" class="form-control" formControlName="celular" placeholder="Número de contacto">
                     </div>
                     
                     <div class="col-12" *ngIf="!isEditing()">
-                        <label class="form-label small fw-bold">Contraseña</label>
-                        <input type="password" class="form-control" formControlName="password">
+                        <div class="p-3 rounded-4 border bg-light">
+                            <div class="d-flex align-items-center gap-2 text-primary fw-bold small mb-1">
+                                <i class="bi bi-info-circle-fill"></i>
+                                Generación Automática de Cuenta
+                            </div>
+                            <p class="text-muted small mb-0">
+                                Al registrar al estudiante, su cuenta se creará automáticamente con el <b>CI</b> como usuario (correo) y contraseña.
+                            </p>
+                        </div>
                     </div>
                 </div>
 

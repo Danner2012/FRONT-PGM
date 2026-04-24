@@ -10,9 +10,48 @@
     </button>
   </div>
 
+  <!-- BARRA DE FILTROS (Estilo consistente) -->
+  <div class="filters-bar animate-fade-in mb-4" style="background: white; padding: 1.25rem; border-radius: 15px; box-shadow: 0 2px 12px rgba(0,0,0,0.03); border: 1px solid #edf2f7;">
+    <div class="row g-2 align-items-end">
+        <div class="col-md-3">
+            <div class="filter-group d-flex flex-column gap-1">
+                <label class="filter-label small fw-bold text-muted uppercase" style="font-size: 0.7rem;">Buscar Herramienta</label>
+                <div class="search-input-group position-relative">
+                    <i class="bi bi-search position-absolute" style="left: 10px; top: 50%; transform: translateY(-50%); color: #a0aec0;"></i>
+                    <input type="text" class="filter-control w-100" style="padding-left: 2.2rem; border-radius: 10px; border: 1px solid #e2e8f0; padding: 0.5rem 0.75rem; background: #f8fafc;" placeholder="Nombre..." [ngModel]="filterNombre()" (ngModelChange)="filterNombre.set($event)">
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="filter-group d-flex flex-column gap-1">
+                <label class="filter-label small fw-bold text-muted uppercase" style="font-size: 0.7rem;">Categoría</label>
+                <select class="filter-control w-100" style="border-radius: 10px; border: 1px solid #e2e8f0; padding: 0.5rem 0.75rem; background: #f8fafc;" [ngModel]="filterCategoria()" (ngModelChange)="filterCategoria.set($event)">
+                    <option value="todos">Todas las categorías</option>
+                    <option *ngFor="let cat of categorias()" [value]="cat.id">{{ cat.nombre }}</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="filter-group d-flex flex-column gap-1">
+                <label class="filter-label small fw-bold text-muted uppercase" style="font-size: 0.7rem;">Estado</label>
+                <select class="filter-control w-100" style="border-radius: 10px; border: 1px solid #e2e8f0; padding: 0.5rem 0.75rem; background: #f8fafc;" [ngModel]="filterEstado()" (ngModelChange)="filterEstado.set($event)">
+                    <option value="todos">Todos</option>
+                    <option value="activo">Activos</option>
+                    <option value="inactivo">Inactivos</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-auto">
+            <button class="btn-clear-icon" style="background: #fff5f5; border: 1px solid #feb2b2; color: #e53e3e; width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer;" (click)="clearFilters()" title="Limpiar Filtros">
+                <i class="bi bi-eraser-fill"></i>
+            </button>
+        </div>
+    </div>
+  </div>
+
   <!-- Grilla de Herramientas -->
   <div class="row g-4">
-    <div class="col-md-4 col-xl-3" *ngFor="let h of herramientas">
+    <div class="col-md-4 col-xl-3" *ngFor="let h of filteredHerramientas()">
       <!-- Añadimos clase inactiva si h.estado es false -->
       <div class="card h-100 border-0 shadow-sm tool-card rounded-4 overflow-hidden" 
            [class.opacity-50]="!h.estado"
@@ -170,7 +209,7 @@
                 <label class="form-label small fw-bold mb-1 text-dark">Categoría</label>
                 <select class="form-select rounded-3 shadow-sm" formControlName="id_categoria">
                   <option value="" disabled selected>Seleccione...</option>
-                  <option *ngFor="let cat of categorias" [value]="cat.id">{{ cat.nombre }}</option>
+                  <option *ngFor="let cat of categorias()" [value]="cat.id">{{ cat.nombre }}</option>
                 </select>
               </div>
 

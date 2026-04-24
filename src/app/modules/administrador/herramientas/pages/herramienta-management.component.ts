@@ -1,4 +1,4 @@
-import { Component, OnInit, CUSTOM_ELEMENTS_SCHEMA, inject, signal } from '@angular/core';
+import { Component, OnInit, CUSTOM_ELEMENTS_SCHEMA, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { HerramientaService } from '../../../../services/herramienta.service';
@@ -18,8 +18,38 @@ export class HerramientaManagementComponent implements OnInit {
   private herramientaService = inject(HerramientaService);
   private authService = inject(AuthService);
 
-  herramientas: any[] = [];
-  categorias: any[] = [];
+  // Signals de Datos
+  herramientas = signal<any[]>([]);
+  categorias = signal<any[]>([]);
+
+  // Signals de Filtrado
+  filterNombre = signal<string>('');
+  filterCategoria = signal<string>('todos');
+  filterEstado = signal<string>('todos');
+
+  // Lógica de Filtrado Reactiva
+  filteredHerramientas = computed(() => {
+    let data = this.herramientas();
+    if (this.filterNombre()) {
+      const s = this.filterNombre().toLowerCase();
+      data = data.filter(h => h.nombre.toLowerCase().includes(s));
+    }
+    if (this.filterCategoria() !== 'todos') {
+      data = data.filter(h => h.id_categoria?.toString() === this.filterCategoria());
+    }
+    if (this.filterEstado() !== 'todos') {
+      const active = this.filterEstado() === 'activo';
+      data = data.filter(h => h.estado === active);
+    }
+    return data;
+  });
+
+  clearFilters() {
+    this.filterNombre.set('');
+    this.filterCategoria.set('todos');
+    this.filterEstado.set('todos');
+  }
+
   herramientaForm: FormGroup;
   
   showModal = false;
@@ -57,11 +87,11 @@ export class HerramientaManagementComponent implements OnInit {
 
   loadData(): void {
     this.herramientaService.getHerramientas().subscribe({
-      next: (data) => this.herramientas = data,
+      next: (data) => this.herramientas.set(data),
       error: (err) => console.error('Error cargando herramientas', err)
     });
     this.herramientaService.getCategorias().subscribe({
-      next: (data) => this.categorias = data,
+      next: (data) => this.categorias.set(data),
       error: (err) => console.error('Error cargando categorías', err)
     });
   }

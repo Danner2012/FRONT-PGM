@@ -1,12 +1,12 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { ApiService } from '../../../../services/api.service';
 
 @Component({
   selector: 'app-inscripcion-management',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule],
   templateUrl: './inscripcion-management.component.html',
   styleUrls: ['../styles/inscripcion-management.component.css']
 })
@@ -14,14 +14,67 @@ export class InscripcionManagementComponent implements OnInit {
   private apiService = inject(ApiService);
   private fb = inject(FormBuilder);
 
-  // Listas
+  // Listas base
   inscripciones = signal<any[]>([]);
   estudiantes = signal<any[]>([]);
   cursos = signal<any[]>([]);
 
+  // Signals para Filtros
+  filterStatus = signal<string>('todos');
+  filterCurso = signal<string>('todos');
+  filterSearch = signal<string>('');
+  filterDateStart = signal<string>('');
+  filterDateEnd = signal<string>('');
+
+  // Lógica de Filtrado Computada
+  filteredInscripciones = computed(() => {
+    let data = this.inscripciones();
+
+    // Filtrar por Estado
+    if (this.filterStatus() !== 'todos') {
+      data = data.filter(i => i.estado === this.filterStatus());
+    }
+
+    // Filtrar por Curso
+    if (this.filterCurso() !== 'todos') {
+      data = data.filter(i => i.id_curso?.toString() === this.filterCurso());
+    }
+
+    // Filtrar por Búsqueda (Estudiante / CI)
+    if (this.filterSearch()) {
+      const search = this.filterSearch().toLowerCase();
+      data = data.filter(i => 
+        i.estudiante_detalle?.nombre_completo.toLowerCase().includes(search) ||
+        i.estudiante_detalle?.ci.includes(search)
+      );
+    }
+
+    // Filtrar por Fechas
+    if (this.filterDateStart()) {
+      const start = new Date(this.filterDateStart());
+      data = data.filter(i => new Date(i.fecha_inscripcion) >= start);
+    }
+    if (this.filterDateEnd()) {
+      const end = new Date(this.filterDateEnd());
+      end.setHours(23, 59, 59); // Final del día
+      data = data.filter(i => new Date(i.fecha_inscripcion) <= end);
+    }
+
+    return data;
+  });
+
   // UI Control
   activeTab = signal<'inscripciones' | 'estudiantes'>('inscripciones');
   showModal = signal(false);
+  
+  clearFilters() {
+    this.filterStatus.set('todos');
+    this.filterCurso.set('todos');
+    this.filterSearch.set('');
+    this.filterDateStart.set('');
+    this.filterDateEnd.set('');
+  }
+
   showStudentModal = signal(false);
   isEditing = signal(false);
   selectedId = signal<number | null>(null);

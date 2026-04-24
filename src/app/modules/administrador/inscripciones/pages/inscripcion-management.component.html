@@ -19,6 +19,58 @@
         </button>
     </div>
 
+    <!-- BARRA DE FILTROS -->
+    <div *ngIf="activeTab() === 'inscripciones'" class="filters-bar animate-fade-in">
+        <div class="row g-2 align-items-end">
+            <div class="col-md-2">
+                <div class="filter-group">
+                    <label class="filter-label">Búsqueda (Nombre/CI)</label>
+                    <div class="search-input-group">
+                        <i class="bi bi-search"></i>
+                        <input type="text" class="filter-control" placeholder="Buscar..." [ngModel]="filterSearch()" (ngModelChange)="filterSearch.set($event)">
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="filter-group">
+                    <label class="filter-label">Estado</label>
+                    <select class="filter-control" [ngModel]="filterStatus()" (ngModelChange)="filterStatus.set($event)">
+                        <option value="todos">Todos</option>
+                        <option value="pendiente">Pendientes</option>
+                        <option value="confirmado">Confirmados</option>
+                        <option value="cancelado">Cancelados</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-2.5" style="flex: 1.2;">
+                <div class="filter-group">
+                    <label class="filter-label">Curso</label>
+                    <select class="filter-control" [ngModel]="filterCurso()" (ngModelChange)="filterCurso.set($event)">
+                        <option value="todos">Todos los cursos</option>
+                        <option *ngFor="let c of cursos()" [value]="c.id">{{ c.nombre }}</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="filter-group">
+                    <label class="filter-label">Desde</label>
+                    <input type="date" class="filter-control" [ngModel]="filterDateStart()" (ngModelChange)="filterDateStart.set($event)">
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="filter-group">
+                    <label class="filter-label">Hasta</label>
+                    <input type="date" class="filter-control" [ngModel]="filterDateEnd()" (ngModelChange)="filterDateEnd.set($event)">
+                </div>
+            </div>
+            <div class="col-auto">
+                <button class="btn-clear-icon" (click)="clearFilters()" title="Limpiar Filtros">
+                    <i class="bi bi-eraser-fill"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- TAB: INSCRIPCIONES -->
     <div *ngIf="activeTab() === 'inscripciones'" class="animate-fade-in">
         <div class="card card-custom overflow-hidden">
@@ -36,7 +88,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr *ngFor="let inscripcion of inscripciones(); let i = index">
+                        <tr *ngFor="let inscripcion of filteredInscripciones(); let i = index">
                             <td class="text-center fw-bold">{{ i + 1 }}</td>
                             <td>
                                 <div class="fw-bold">{{ inscripcion.estudiante_detalle?.nombre_completo }}</div>

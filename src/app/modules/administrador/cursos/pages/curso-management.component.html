@@ -73,12 +73,13 @@
                         <tr>
                             <th class="text-center" style="width: 60px;">#</th>
                             <th>Información del Curso</th>
-                            <th>Tipo</th>
+                            <th>Categoría</th>
                             <th class="text-center">Cupo</th>
                             <th class="text-center">Precio</th>
+                            <th class="text-center">Estado</th>
                             <th>Vigencia</th>
                             <th>Días/Horarios</th>
-                            <th class="text-end" style="width: 180px;">Acciones</th>
+                            <th class="text-end" style="width: 220px;">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -114,6 +115,11 @@
                                 </div>
                             </td>
                             <td class="text-center fw-bold">Bs. {{ curso.precio }}</td>
+                            <td class="text-center">
+                                <span [class]="curso.estado ? 'badge-activo' : 'badge-inactivo'">
+                                    {{ curso.estado ? 'Activo' : 'Inactivo' }}
+                                </span>
+                            </td>
                             <td>
                                 <div class="d-flex flex-column small">
                                     <span><i class="bi bi-calendar-check text-primary me-1"></i> {{ curso.fecha_inicio | date:'dd/MM/yy' }}</span>
@@ -161,6 +167,13 @@
                             </td>
                             <td class="text-end">
                                 <div class="d-flex justify-content-end gap-2">
+                                    <button 
+                                        class="btn btn-action" 
+                                        [ngClass]="curso.estado ? 'btn-status-active' : 'btn-status-inactive'" 
+                                        (click)="toggleCursoEstado(curso)" 
+                                        [title]="curso.estado ? 'Desactivar Curso' : 'Activar Curso'">
+                                        <i [class]="curso.estado ? 'bi bi-toggle-on' : 'bi bi-toggle-off'"></i>
+                                    </button>
                                     <button class="btn btn-action btn-assign" (click)="openTecnicosModal(curso)" title="Asignar Técnicos">
                                         <i class="bi bi-person-gear"></i>
                                     </button>

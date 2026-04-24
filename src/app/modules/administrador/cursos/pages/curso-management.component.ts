@@ -303,4 +303,14 @@ export class CursoManagementComponent implements OnInit {
       this.cursoService.deleteHorario(id).subscribe(() => this.loadHorarios());
     }
   }
+
+  toggleCursoEstado(curso: any) {
+    const nuevoEstado = !curso.estado;
+    this.cursoService.updateCurso(curso.id, { ...curso, estado: nuevoEstado }).subscribe({
+      next: () => {
+        this.loadCursos();
+      },
+      error: (err) => alert('Error al cambiar estado: ' + JSON.stringify(err.error))
+    });
+  }
 }

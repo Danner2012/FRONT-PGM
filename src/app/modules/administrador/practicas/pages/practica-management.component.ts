@@ -88,6 +88,21 @@ export class PracticaManagementComponent implements OnInit {
     this.loadData();
   }
 
+  showError(err: any, defaultMsg: string) {
+    console.error(err);
+    let errorDetail = '';
+    if (err.error) {
+      if (typeof err.error === 'string') {
+        errorDetail = err.error;
+      } else if (typeof err.error === 'object') {
+        errorDetail = Object.entries(err.error)
+          .map(([key, value]) => `${key}: ${Array.isArray(value) ? value.join(', ') : JSON.stringify(value)}`)
+          .join('\n');
+      }
+    }
+    Swal.fire('Error', errorDetail || defaultMsg, 'error');
+  }
+
   clearFilters() {
     this.filterTitulo.set('');
     this.filterCurso.set('todos');
@@ -120,9 +135,12 @@ export class PracticaManagementComponent implements OnInit {
       confirmButtonText: `Sí, ${accion}`
     }).then((result: any) => {
       if (result.isConfirmed) {
-        this.practicaService.toggleStatus(practica.id).subscribe(() => {
-          Swal.fire('Actualizado', `La práctica ha sido ${accion}da`, 'success');
-          this.loadData();
+        this.practicaService.toggleStatus(practica.id).subscribe({
+          next: () => {
+            Swal.fire('Actualizado', `La práctica ha sido ${accion}da`, 'success');
+            this.loadData();
+          },
+          error: (err) => this.showError(err, `No se pudo ${accion} la práctica`)
         });
       }
     });
@@ -159,7 +177,8 @@ export class PracticaManagementComponent implements OnInit {
           Swal.fire('Éxito', 'Práctica actualizada correctamente', 'success');
           this.loadData();
           this.showPracticaModal.set(false);
-        }
+        },
+        error: (err) => this.showError(err, 'No se pudo actualizar la práctica')
       });
     } else {
       this.practicaService.createPractica(this.practicaForm).subscribe({
@@ -167,7 +186,8 @@ export class PracticaManagementComponent implements OnInit {
           Swal.fire('Éxito', 'Práctica creada correctamente', 'success');
           this.loadData();
           this.showPracticaModal.set(false);
-        }
+        },
+        error: (err) => this.showError(err, 'No se pudo crear la práctica')
       });
     }
   }
@@ -183,9 +203,12 @@ export class PracticaManagementComponent implements OnInit {
       confirmButtonText: 'Sí, desactivar'
     }).then((result: any) => {
       if (result.isConfirmed) {
-        this.practicaService.deletePractica(id).subscribe(() => {
-          Swal.fire('Desactivada', 'La práctica ha sido desactivada', 'success');
-          this.loadData();
+        this.practicaService.deletePractica(id).subscribe({
+          next: () => {
+            Swal.fire('Desactivada', 'La práctica ha sido desactivada', 'success');
+            this.loadData();
+          },
+          error: (err) => this.showError(err, 'No se pudo desactivar la práctica')
         });
       }
     });
@@ -198,20 +221,26 @@ export class PracticaManagementComponent implements OnInit {
   tipoPracticaForm = { nombre: '' };
 
   saveTipoRecurso() {
-    this.practicaService.createTipoRecurso(this.tipoForm).subscribe(() => {
-      Swal.fire('Éxito', 'Tipo de recurso creado', 'success');
-      this.loadData();
-      this.showTipoModal.set(false);
-      this.tipoForm.nombre = '';
+    this.practicaService.createTipoRecurso(this.tipoForm).subscribe({
+      next: () => {
+        Swal.fire('Éxito', 'Tipo de recurso creado', 'success');
+        this.loadData();
+        this.showTipoModal.set(false);
+        this.tipoForm.nombre = '';
+      },
+      error: (err) => this.showError(err, 'No se pudo crear el tipo de recurso')
     });
   }
 
   saveTipoPractica() {
-    this.practicaService.createTipoPractica(this.tipoPracticaForm).subscribe(() => {
-      Swal.fire('Éxito', 'Tipo de práctica creado', 'success');
-      this.loadData();
-      this.showTipoPracticaModal.set(false);
-      this.tipoPracticaForm.nombre = '';
+    this.practicaService.createTipoPractica(this.tipoPracticaForm).subscribe({
+      next: () => {
+        Swal.fire('Éxito', 'Tipo de práctica creado', 'success');
+        this.loadData();
+        this.showTipoPracticaModal.set(false);
+        this.tipoPracticaForm.nombre = '';
+      },
+      error: (err) => this.showError(err, 'No se pudo crear el tipo de práctica')
     });
   }
 
@@ -229,9 +258,7 @@ export class PracticaManagementComponent implements OnInit {
             Swal.fire('Eliminado', 'El tipo de recurso ha sido eliminado', 'success');
             this.loadData();
           },
-          error: () => {
-            Swal.fire('Error', 'No se puede eliminar porque está en uso', 'error');
-          }
+          error: (err) => this.showError(err, 'No se puede eliminar porque está en uso')
         });
       }
     });
@@ -251,9 +278,7 @@ export class PracticaManagementComponent implements OnInit {
             Swal.fire('Eliminado', 'El tipo de práctica ha sido eliminado', 'success');
             this.loadData();
           },
-          error: () => {
-            Swal.fire('Error', 'No se puede eliminar porque está en uso', 'error');
-          }
+          error: (err) => this.showError(err, 'No se puede eliminar porque está en uso')
         });
       }
     });
@@ -288,7 +313,11 @@ export class PracticaManagementComponent implements OnInit {
 
   saveRecurso() {
     const formData = new FormData();
-    formData.append('id_practica', this.recursoForm.id_practica!.toString());
+    if (!this.recursoForm.id_practica) {
+      Swal.fire('Error', 'No se ha especificado la práctica', 'error');
+      return;
+    }
+    formData.append('id_practica', this.recursoForm.id_practica.toString());
     formData.append('id_tipo_recurso', this.recursoForm.id_tipo_recurso);
     formData.append('titulo', this.recursoForm.titulo);
     formData.append('descripcion', this.recursoForm.descripcion);
@@ -306,10 +335,7 @@ export class PracticaManagementComponent implements OnInit {
             this.showViewResourcesModal.set(true);
           }
         },
-        error: (err) => {
-          console.error(err);
-          Swal.fire('Error', 'No se pudo actualizar el recurso.', 'error');
-        }
+        error: (err) => this.showError(err, 'No se pudo actualizar el recurso')
       });
     } else {
       this.practicaService.createRecurso(formData).subscribe({
@@ -318,10 +344,7 @@ export class PracticaManagementComponent implements OnInit {
           this.loadData();
           this.showRecursoModal.set(false);
         },
-        error: (err) => {
-          console.error(err);
-          Swal.fire('Error', 'No se pudo añadir el recurso. Verifique los datos.', 'error');
-        }
+        error: (err) => this.showError(err, 'No se pudo añadir el recurso')
       });
     }
   }
@@ -358,10 +381,7 @@ export class PracticaManagementComponent implements OnInit {
             this.showViewResourcesModal.set(true);
           }
         },
-        error: (err) => {
-          console.error(err);
-          Swal.fire('Error', 'No se pudo actualizar el requerimiento.', 'error');
-        }
+        error: (err) => this.showError(err, 'No se pudo actualizar el requerimiento')
       });
     } else {
       this.practicaService.createPracticaHerramienta(this.phForm).subscribe({
@@ -370,10 +390,7 @@ export class PracticaManagementComponent implements OnInit {
           this.loadData();
           this.showHerramientaModal.set(false);
         },
-        error: (err) => {
-          console.error(err);
-          Swal.fire('Error', 'No se pudo asignar la herramienta.', 'error');
-        }
+        error: (err) => this.showError(err, 'No se pudo asignar la herramienta')
       });
     }
   }
@@ -387,9 +404,12 @@ export class PracticaManagementComponent implements OnInit {
       confirmButtonText: 'Sí, eliminar'
     }).then((result) => {
       if (result.isConfirmed) {
-        this.practicaService.deletePracticaHerramienta(phId).subscribe(() => {
-          Swal.fire('Eliminado', 'Herramienta quitada de la práctica', 'success');
-          this.loadData();
+        this.practicaService.deletePracticaHerramienta(phId).subscribe({
+          next: () => {
+            Swal.fire('Eliminado', 'Herramienta quitada de la práctica', 'success');
+            this.loadData();
+          },
+          error: (err) => this.showError(err, 'No se pudo quitar la herramienta')
         });
       }
     });
@@ -404,9 +424,12 @@ export class PracticaManagementComponent implements OnInit {
       confirmButtonText: 'Sí, eliminar'
     }).then((result) => {
       if (result.isConfirmed) {
-        this.practicaService.deleteRecurso(recursoId).subscribe(() => {
-          Swal.fire('Eliminado', 'Recurso eliminado', 'success');
-          this.loadData();
+        this.practicaService.deleteRecurso(recursoId).subscribe({
+          next: () => {
+            Swal.fire('Eliminado', 'Recurso eliminado', 'success');
+            this.loadData();
+          },
+          error: (err) => this.showError(err, 'No se pudo eliminar el recurso')
         });
       }
     });

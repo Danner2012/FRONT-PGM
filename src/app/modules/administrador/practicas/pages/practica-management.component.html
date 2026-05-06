@@ -320,6 +320,10 @@
                     <input type="text" class="form-control" name="r_titulo" [(ngModel)]="recursoForm.titulo" required>
                 </div>
                 <div class="mb-3">
+                    <label class="small fw-bold">Descripción</label>
+                    <textarea class="form-control" name="r_descripcion" [(ngModel)]="recursoForm.descripcion" required rows="2"></textarea>
+                </div>
+                <div class="mb-3">
                     <label class="small fw-bold">URL</label>
                     <input type="url" class="form-control" name="url_externa" [(ngModel)]="recursoForm.url_externa">
                 </div>

@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } 
 import { HerramientaService } from '../../../../services/herramienta.service';
 import { AuthService } from '../../../../services/auth.service';
 import { ThreeViewerComponent } from '../components/three-viewer/three-viewer.component';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-herramienta-management',
@@ -85,6 +86,21 @@ export class HerramientaManagementComponent implements OnInit {
     this.loadData();
   }
 
+  showError(err: any, defaultMsg: string) {
+    console.error(err);
+    let errorDetail = '';
+    if (err.error) {
+      if (typeof err.error === 'string') {
+        errorDetail = err.error;
+      } else if (typeof err.error === 'object') {
+        errorDetail = Object.entries(err.error)
+          .map(([key, value]) => `${key}: ${Array.isArray(value) ? value.join(', ') : JSON.stringify(value)}`)
+          .join('\n');
+      }
+    }
+    Swal.fire('Error', errorDetail || defaultMsg, 'error');
+  }
+
   loadData(): void {
     this.herramientaService.getHerramientas().subscribe({
       next: (data) => this.herramientas.set(data),
@@ -101,9 +117,7 @@ export class HerramientaManagementComponent implements OnInit {
       next: () => {
         this.loadData();
       },
-      error: () => {
-        alert('Error al cambiar el estado de la herramienta');
-      }
+      error: (err) => this.showError(err, 'Error al cambiar el estado de la herramienta')
     });
   }
 
@@ -203,16 +217,25 @@ export class HerramientaManagementComponent implements OnInit {
     const nActuales = this.modelosActuales.length;
     if (this.activeModelIdx < nActuales) {
       const m = this.modelosActuales[this.activeModelIdx];
-      if (confirm(`¿Seguro que desea eliminar el modelo "${m.nombre_identificador}"?`)) {
-        this.herramientaService.deleteModelo3D(m.id).subscribe({
-          next: () => {
-            this.modelosActuales.splice(this.activeModelIdx, 1);
-            this.activeModelIdx = 0;
-            this.refreshActivePreview();
-          },
-          error: () => alert('Error al eliminar el modelo de la base de datos')
-        });
-      }
+      Swal.fire({
+        title: '¿Eliminar modelo?',
+        text: `¿Seguro que desea eliminar el modelo "${m.nombre_identificador}"?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, eliminar'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          this.herramientaService.deleteModelo3D(m.id).subscribe({
+            next: () => {
+              this.modelosActuales.splice(this.activeModelIdx, 1);
+              this.activeModelIdx = 0;
+              this.refreshActivePreview();
+              Swal.fire('Eliminado', 'Modelo eliminado correctamente', 'success');
+            },
+            error: (err) => this.showError(err, 'Error al eliminar el modelo de la base de datos')
+          });
+        }
+      });
     } else {
       this.modelosNuevos.splice(this.activeModelIdx - nActuales, 1);
       this.activeModelIdx = 0;
@@ -258,7 +281,7 @@ export class HerramientaManagementComponent implements OnInit {
     const adminId = user?.perfil_id || user?.id;
 
     if (!adminId) {
-      alert('Error: No se pudo identificar su perfil de administrador.');
+      Swal.fire('Error', 'No se pudo identificar su perfil de administrador.', 'error');
       return;
     }
 
@@ -291,10 +314,11 @@ export class HerramientaManagementComponent implements OnInit {
       });
 
       Promise.all([...subirPromesas, ...updatePromesas]).then(() => {
+        Swal.fire('Éxito', 'Herramienta guardada correctamente', 'success');
         this.loadData();
         this.closeModal();
-      }).catch(() => {
-        alert('Herramienta guardada, pero hubo errores con algunos modelos 3D.');
+      }).catch((err) => {
+        this.showError(err, 'Herramienta guardada, pero hubo errores con algunos modelos 3D.');
         this.loadData();
         this.closeModal();
       });
@@ -303,12 +327,12 @@ export class HerramientaManagementComponent implements OnInit {
     if (this.editingId) {
       this.herramientaService.updateHerramienta(this.editingId, formData).subscribe({
         next: () => afterSave(this.editingId!),
-        error: () => alert('Error al actualizar herramienta')
+        error: (err) => this.showError(err, 'Error al actualizar herramienta')
       });
     } else {
       this.herramientaService.createHerramienta(formData).subscribe({
         next: (res) => afterSave(res.id),
-        error: () => alert('Error al crear herramienta')
+        error: (err) => this.showError(err, 'Error al crear herramienta')
       });
     }
   }

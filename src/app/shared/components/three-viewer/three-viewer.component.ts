@@ -1,6 +1,6 @@
 import { Component, ElementRef, Input, OnChanges, OnDestroy, OnInit, ViewChild, SimpleChanges, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ThreeEngineService } from '../../../../../services/three-engine.service';
+import { ThreeEngineService } from '../../../services/three-engine.service';
 
 @Component({
   selector: 'app-three-viewer',

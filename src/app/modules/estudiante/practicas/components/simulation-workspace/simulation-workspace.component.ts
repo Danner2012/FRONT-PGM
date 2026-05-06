@@ -1,13 +1,15 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PracticaService } from '../../../../../services/practica.service';
+import { ThreeViewerComponent } from '../../../../../shared/components/three-viewer/three-viewer.component';
 import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-simulation-workspace',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ThreeViewerComponent],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './simulation-workspace.component.html',
   styleUrls: ['./simulation-workspace.component.css']
 })
@@ -24,6 +26,16 @@ export class SimulationWorkspaceComponent implements OnInit {
   cameraActive = signal(false);
   availableCameras = signal<MediaDeviceInfo[]>([]);
   selectedCameraId = signal<string>('');
+
+  // Estados para el visor 3D
+  showViewModal = false;
+  selectedHerramienta: any = null;
+  modelosActuales: any[] = [];
+  activeModelIdx = 0;
+  previewUrl3D: string | null = null;
+  scaleValue = 1.0;
+  rotX = 0; rotY = 0; rotZ = 0;
+  activeHUD: string | null = null;
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
@@ -139,5 +151,58 @@ export class SimulationWorkspaceComponent implements OnInit {
     const videoExtensions = ['.mp4', '.webm', '.ogg', '.mkv', '.avi', '.mov'];
     return videoExtensions.some(ext => url.toLowerCase().endsWith(ext)) || 
            (recurso.tipo_recurso_nombre && recurso.tipo_recurso_nombre.toLowerCase().includes('video'));
+  }
+
+  // Métodos para el visor 3D
+  viewHerramienta(h: any): void {
+    this.selectedHerramienta = h;
+    this.showViewModal = true;
+    this.modelosActuales = h.modelos_3d || [];
+    this.activeModelIdx = 0;
+    this.refreshActivePreview();
+  }
+
+  closeModal(): void {
+    this.showViewModal = false;
+    this.selectedHerramienta = null;
+    this.activeHUD = null;
+  }
+
+  updatePreviewFromCurrent(): void {
+    if (this.modelosActuales.length > 0) {
+      const model = this.modelosActuales[this.activeModelIdx];
+      this.previewUrl3D = model.archivo.startsWith('http') 
+        ? model.archivo 
+        : `http://localhost:8000${model.archivo}`;
+      this.scaleValue = model.escala;
+      const rot = (model.rotacion_default || '0 0 0').split(' ');
+      this.rotX = parseFloat(rot[0] || '0');
+      this.rotY = parseFloat(rot[1] || '0');
+      this.rotZ = parseFloat(rot[2] || '0');
+    } else {
+      this.previewUrl3D = null;
+    }
+  }
+
+  nextModel(): void {
+    const total = this.modelosActuales.length;
+    if (total === 0) return;
+    this.activeModelIdx = (this.activeModelIdx + 1) % total;
+    this.refreshActivePreview();
+  }
+
+  prevModel(): void {
+    const total = this.modelosActuales.length;
+    if (total === 0) return;
+    this.activeModelIdx = (this.activeModelIdx - 1 + total) % total;
+    this.refreshActivePreview();
+  }
+
+  refreshActivePreview(): void {
+    this.updatePreviewFromCurrent();
+  }
+
+  getRotation(): { x: number, y: number, z: number } {
+    return { x: this.rotX, y: this.rotY, z: this.rotZ };
   }
 }

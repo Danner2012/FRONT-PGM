@@ -34,14 +34,26 @@
                             <h6 class="fw-bold m-0"><i class="bi bi-toolbox me-2 text-warning"></i>Caja de Herramientas</h6>
                             <span class="badge bg-light text-muted border small">{{ practica()?.herramientas?.length }} items</span>
                         </div>
-                        <div class="tool-grid-compact">
-                            <div class="tool-item-mini" *ngFor="let h of practica()?.herramientas">
-                                <div class="tool-icon-mini">
-                                    <i class="bi bi-wrench"></i>
-                                </div>
-                                <div class="tool-content-mini">
-                                    <div class="tool-name-mini text-truncate" [title]="h.herramienta_nombre">{{ h.herramienta_nombre }}</div>
-                                    <div class="tool-qty-mini">Cantidad: {{ h.cantidad_requerida }}</div>
+                        <div class="tool-scroll-horizontal pb-2">
+                            <div class="tool-item-container" *ngFor="let h of practica()?.herramientas">
+                                <div class="card h-100 border-0 shadow-sm tool-card-simulation rounded-3 overflow-hidden" (click)="viewHerramienta(h)">
+                                    <div class="card-img-container-mini bg-light position-relative">
+                                        <img *ngIf="h.imagen_previa" [src]="h.imagen_previa" class="tool-img-mini" alt="Preview">
+                                        <div *ngIf="!h.imagen_previa" class="no-img-placeholder-mini d-flex align-items-center justify-content-center">
+                                            <i class="bi bi-tools opacity-25 fs-4"></i>
+                                        </div>
+                                        <div class="card-hover-overlay-mini">
+                                            <i class="bi bi-view-stacked fs-5"></i>
+                                        </div>
+                                    </div>
+                                    <div class="card-body p-2 text-center">
+                                        <div class="tool-name-mini text-truncate fw-bold" [title]="h.herramienta_nombre" style="font-size: 0.75rem;">
+                                            {{ h.herramienta_nombre }}
+                                        </div>
+                                        <div class="tool-qty-mini text-muted" style="font-size: 0.65rem;">
+                                            Cant: {{ h.cantidad_requerida }}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -126,6 +138,83 @@
                 </div>
             </div>
         </aside>
+    </div>
+
+    <!-- MODAL DE VISUALIZACIÓN INMERSIVA (3D) -->
+    <div class="modal-overlay" *ngIf="showViewModal && selectedHerramienta">
+        <div class="modal-content-custom modal-inmersive view-mode">
+            <!-- Header Flotante -->
+            <div class="inmersive-header d-flex justify-content-between align-items-start p-4">
+                <div>
+                    <h3 class="fw-bold mb-0 text-white shadow-text">{{ selectedHerramienta.herramienta_nombre }}</h3>
+                    <p class="text-white-50 small mb-0">Visualización de Herramienta en 3D</p>
+                </div>
+                <button class="btn-close-circle glass" (click)="closeModal()"><i class="bi bi-x-lg"></i></button>
+            </div>
+
+            <div class="main-viewer-box bg-dark inmersive-box">
+                <!-- Navegación entre modelos (Carrusel) -->
+                <div class="model-nav-controls" *ngIf="modelosActuales.length > 1">
+                    <button class="nav-btn prev" (click)="prevModel()"><i class="bi bi-chevron-left"></i></button>
+                    <div class="model-counter">{{ activeModelIdx + 1 }} / {{ modelosActuales.length }}</div>
+                    <button class="nav-btn next" (click)="nextModel()"><i class="bi bi-chevron-right"></i></button>
+                </div>
+
+                <!-- Visor 3D de Fondo -->
+                <app-three-viewer 
+                    *ngIf="previewUrl3D"
+                    [src]="previewUrl3D"
+                    [rotation]="getRotation()"
+                    [scale]="scaleValue"
+                    [autoRotate]="true">
+                </app-three-viewer>
+
+                <!-- HUD IZQUIERDO: Información General -->
+                <div class="hud-container left gap-3 p-4">
+                    <div class="hud-card glass-panel fade-in-left" 
+                         [class.expanded]="activeHUD === 'desc'"
+                         (click)="activeHUD = (activeHUD === 'desc' ? null : 'desc')"
+                         style="animation-delay: 0.1s;">
+                        <label class="hud-label text-info"><i class="bi bi-info-circle me-2"></i>DESCRIPCIÓN</label>
+                        <div class="hud-content">{{ selectedHerramienta.descripcion_herramienta }}</div>
+                        <div class="hud-tap-hint" *ngIf="activeHUD !== 'desc'">
+                            <i class="bi bi-hand-index-thumb me-1"></i> Toca para expandir
+                        </div>
+                    </div>
+
+                    <div class="hud-card glass-panel usage fade-in-left" 
+                         [class.expanded]="activeHUD === 'uso'"
+                         (click)="activeHUD = (activeHUD === 'uso' ? null : 'uso')"
+                         style="animation-delay: 0.2s;">
+                        <label class="hud-label text-primary"><i class="bi bi-play-circle me-2"></i>MODO DE USO</label>
+                        <div class="hud-content">{{ selectedHerramienta.uso_herramienta }}</div>
+                        <div class="hud-tap-hint" *ngIf="activeHUD !== 'uso'">
+                            <i class="bi bi-hand-index-thumb me-1"></i> Toca para expandir
+                        </div>
+                    </div>
+                </div>
+
+                <!-- HUD DERECHO: Información Crítica -->
+                <div class="hud-container right p-4">
+                    <div class="hud-card glass-panel security fade-in-right" 
+                         [class.expanded]="activeHUD === 'seg'"
+                         (click)="activeHUD = (activeHUD === 'seg' ? null : 'seg')"
+                         style="animation-delay: 0.3s;">
+                        <label class="hud-label text-danger"><i class="bi bi-shield-exclamation me-2"></i>SEGURIDAD</label>
+                        <div class="hud-content">{{ selectedHerramienta.seguridad_herramienta }}</div>
+                        <div class="hud-tap-hint" *ngIf="activeHUD !== 'seg'">
+                            <i class="bi bi-hand-index-thumb me-1"></i> Toca para expandir
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Placeholder si no hay 3D -->
+                <div *ngIf="!previewUrl3D" class="d-flex flex-column align-items-center justify-content-center h-100 text-white-50">
+                    <i class="bi bi-slash-circle fs-1 mb-2"></i>
+                    <p>Esta herramienta no tiene un modelo 3D asignado</p>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 

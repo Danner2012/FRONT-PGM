@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { HerramientaService } from '../../../../services/herramienta.service';
 import { AuthService } from '../../../../services/auth.service';
-import { ThreeViewerComponent } from '../components/three-viewer/three-viewer.component';
+import { ThreeViewerComponent } from '../../../../shared/components/three-viewer/three-viewer.component';
 import Swal from 'sweetalert2';
 
 @Component({

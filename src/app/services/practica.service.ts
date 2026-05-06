@@ -44,6 +44,10 @@ export class PracticaService {
     return this.http.post<any>(`${this.apiUrl}tipos-recurso/`, data);
   }
 
+  deleteTipoRecurso(id: number): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}tipos-recurso/${id}/`);
+  }
+
   createRecurso(data: FormData): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}recursos-practica/`, data);
   }

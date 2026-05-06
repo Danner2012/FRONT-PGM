@@ -1,0 +1,230 @@
+.management-container {
+    padding: 1.5rem;
+    animation: fadeIn 0.4s ease-out;
+}
+
+.card-custom {
+    background: #ffffff;
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+}
+
+.table-custom thead th {
+    background: #f8f9fa;
+    color: #495057;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+    padding: 1rem;
+    border-bottom: 2px solid #edf2f7;
+}
+
+.table-custom tbody td {
+    padding: 1rem;
+    vertical-align: middle;
+    color: #4a5568;
+    border-bottom: 1px solid #edf2f7;
+    font-size: 0.85rem;
+}
+
+/* Badges de Estado */
+.badge-activo {
+    background-color: #d4edda;
+    color: #155724;
+    padding: 0.4em 0.8em;
+    border-radius: 20px;
+}
+
+.badge-inactivo {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 0.4em 0.8em;
+    border-radius: 20px;
+}
+
+/* Barra de Filtros */
+.filters-bar {
+    background: #ffffff;
+    padding: 1.25rem;
+    border-radius: 15px;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.03);
+    border: 1px solid #edf2f7;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.filter-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #718096;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.filter-control {
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.85rem;
+    color: #2d3748;
+    background-color: #f8fafc;
+    transition: all 0.2s;
+    width: 100%;
+}
+
+.filter-control:focus {
+    outline: none;
+    border-color: #3182ce;
+    background-color: #ffffff;
+    box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
+}
+
+.search-input-group {
+    position: relative;
+    width: 100%;
+}
+
+.search-input-group i {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #a0aec0;
+}
+
+.search-input-group .filter-control {
+    padding-left: 2.2rem;
+}
+
+/* Botones de Acción (Corrección de Colores e Iconos) */
+.btn-action {
+    width: 35px;
+    height: 35px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    border: none;
+    transition: all 0.2s;
+    font-size: 1.1rem;
+    cursor: pointer;
+}
+
+.btn-edit {
+    background-color: #ebf8ff;
+    color: #3182ce;
+}
+
+.btn-edit:hover {
+    background-color: #3182ce;
+    color: white;
+}
+
+.btn-details {
+    background-color: #f0fff4;
+    color: #38a169;
+}
+
+.btn-details:hover {
+    background-color: #38a169;
+    color: white;
+}
+
+.btn-assign {
+    background-color: #fffaf0;
+    color: #dd6b20;
+}
+
+.btn-assign:hover {
+    background-color: #dd6b20;
+    color: white;
+}
+
+.btn-status-active {
+    background-color: #f0fff4;
+    color: #38a169;
+}
+
+.btn-status-active:hover {
+    background-color: #38a169;
+    color: white;
+}
+
+.btn-status-inactive {
+    background-color: #fff5f5;
+    color: #e53e3e;
+}
+
+.btn-status-inactive:hover {
+    background-color: #e53e3e;
+    color: white;
+}
+
+/* Pestañas (Tabs) */
+.tabs-container {
+    background: #f8f9fa;
+    padding: 0.4rem;
+    border-radius: 50px;
+    display: inline-flex;
+    gap: 0.4rem;
+}
+
+.tab-btn {
+    border: none;
+    padding: 0.5rem 1.5rem;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all 0.2s;
+    background: transparent;
+    color: #718096;
+}
+
+.tab-btn.active {
+    background: white;
+    color: #3182ce;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+}
+
+/* Modal Overlay (Corrección de la Ventana Flotante) */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+}
+
+.modal-content-custom {
+    background: white;
+    width: 90%;
+    max-width: 600px;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+.animate-fade-in {
+    animation: fadeIn 0.4s ease-out;
+}
+
+.animate-slide-up {
+    animation: slideUp 0.3s ease-out;
+}

@@ -29,6 +29,10 @@ export const routes: Routes = [
         path: 'herramientas', 
         loadComponent: () => import('./modules/administrador/herramientas/pages/herramienta-management.component').then(m => m.HerramientaManagementComponent) 
       },
+      { 
+        path: 'practicas', 
+        loadComponent: () => import('./modules/administrador/practicas/pages/practica-management.component').then(m => m.PracticaManagementComponent) 
+      },
       { path: '', redirectTo: 'inicio', pathMatch: 'full' }
     ]
   },

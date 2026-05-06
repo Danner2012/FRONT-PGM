@@ -30,20 +30,64 @@
                     <p class="description-text">{{ practica()?.descripcion }}</p>
                     
                     <div class="mt-4" *ngIf="practica()?.herramientas?.length">
-                        <h6 class="fw-bold mb-3"><i class="bi bi-tools me-2 text-warning"></i>Herramientas Requeridas</h6>
-                        <div class="row g-3">
-                            <div class="col-md-6" *ngFor="let h of practica()?.herramientas">
-                                <div class="tool-card">
-                                    <div class="tool-icon">
-                                        <i class="bi bi-wrench"></i>
-                                    </div>
-                                    <div class="tool-info">
-                                        <div class="fw-bold">{{ h.herramienta_nombre }}</div>
-                                        <div class="text-muted small">Cantidad: x{{ h.cantidad_requerida }}</div>
-                                    </div>
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <h6 class="fw-bold m-0"><i class="bi bi-toolbox me-2 text-warning"></i>Caja de Herramientas</h6>
+                            <span class="badge bg-light text-muted border small">{{ practica()?.herramientas?.length }} items</span>
+                        </div>
+                        <div class="tool-grid-compact">
+                            <div class="tool-item-mini" *ngFor="let h of practica()?.herramientas">
+                                <div class="tool-icon-mini">
+                                    <i class="bi bi-wrench"></i>
+                                </div>
+                                <div class="tool-content-mini">
+                                    <div class="tool-name-mini text-truncate" [title]="h.herramienta_nombre">{{ h.herramienta_nombre }}</div>
+                                    <div class="tool-qty-mini">Cantidad: {{ h.cantidad_requerida }}</div>
                                 </div>
                             </div>
                         </div>
+                    </div>
+
+                    <!-- CAMPO DE CÁMARA (NUEVO) -->
+                    <div class="mt-4">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <h6 class="fw-bold m-0"><i class="bi bi-camera-video me-2 text-primary"></i>Cámara del Dispositivo</h6>
+                            <div class="d-flex gap-2 align-items-center">
+                                <!-- Selector de Cámara -->
+                                <select *ngIf="availableCameras().length > 1" 
+                                        class="form-select form-select-sm rounded-pill px-3 shadow-none border-primary-subtle"
+                                        style="width: 180px; font-size: 0.7rem;"
+                                        [value]="selectedCameraId()"
+                                        (change)="onCameraChange(cameraSelect.value)"
+                                        #cameraSelect>
+                                    <option *ngFor="let cam of availableCameras()" [value]="cam.deviceId">
+                                        {{ cam.label || 'Cámara ' + cam.deviceId.slice(0,5) }}
+                                    </option>
+                                </select>
+
+                                <button class="btn btn-xs rounded-pill px-3" 
+                                        [class.btn-primary]="!cameraActive()" 
+                                        [class.btn-danger]="cameraActive()"
+                                        (click)="toggleCamera()">
+                                    <i class="bi" [class.bi-camera]="!cameraActive()" [class.bi-camera-off]="cameraActive()"></i>
+                                    {{ cameraActive() ? 'Apagar Cámara' : 'Encender Cámara' }}
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="camera-field bg-dark rounded-4 overflow-hidden position-relative" style="height: 250px;">
+                            <video id="cameraFeed" autoplay playsinline class="w-100 h-100 object-fit-cover" [class.d-none]="!cameraActive()"></video>
+                            
+                            <div *ngIf="!cameraActive()" class="d-flex flex-column align-items-center justify-content-center h-100 text-white-50 opacity-50">
+                                <i class="bi bi-camera display-4 mb-2"></i>
+                                <p class="small">Cámara desactivada</p>
+                            </div>
+
+                            <!-- Overlay de cámara -->
+                            <div *ngIf="cameraActive()" class="position-absolute top-0 end-0 m-3">
+                                <span class="badge bg-danger rounded-pill pulse-badge">● LIVE</span>
+                            </div>
+                        </div>
+                        <p class="text-muted extra-small mt-2 italic"><i class="bi bi-info-circle me-1"></i>Usa la cámara para mostrar tu avance físico al técnico o capturar evidencia.</p>
                     </div>
                 </div>
             </div>

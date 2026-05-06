@@ -71,7 +71,6 @@ export class PracticaManagementComponent implements OnInit {
     id_curso: '',
     titulo: '',
     descripcion: '',
-    orden: 1,
     estado: true
   };
 
@@ -85,8 +84,7 @@ export class PracticaManagementComponent implements OnInit {
     titulo: '',
     descripcion: '',
     url_externa: '',
-    archivo: null as File | null,
-    orden: 1
+    archivo: null as File | null
   };
 
   // Gestión de Herramientas
@@ -107,6 +105,12 @@ export class PracticaManagementComponent implements OnInit {
 
   ngOnInit() {
     this.loadData();
+  }
+
+  clearFilters() {
+    this.filterTitulo.set('');
+    this.filterCurso.set('todos');
+    this.filterEstado.set('todos');
   }
 
   loadData() {
@@ -136,7 +140,7 @@ export class PracticaManagementComponent implements OnInit {
     } else {
       this.isEditing.set(false);
       this.selectedPractica.set(null);
-      this.practicaForm = { id_curso: '', titulo: '', descripcion: '', orden: this.practicas().length + 1, estado: true };
+      this.practicaForm = { id_curso: '', titulo: '', descripcion: '', estado: true };
     }
     this.showPracticaModal.set(true);
   }
@@ -231,15 +235,14 @@ export class PracticaManagementComponent implements OnInit {
         titulo: recurso.titulo,
         descripcion: recurso.descripcion,
         url_externa: recurso.url_externa || '',
-        archivo: null,
-        orden: recurso.orden
+        archivo: null
       };
       // Cerrar el modal de vista para que no se solape con el de edición
       this.showViewResourcesModal.set(false);
     } else {
       this.isEditingRecurso.set(false);
       this.selectedRecursoId.set(null);
-      this.recursoForm = { id_practica: practicaId, id_tipo_recurso: '', titulo: '', descripcion: '', url_externa: '', archivo: null, orden: 1 };
+      this.recursoForm = { id_practica: practicaId, id_tipo_recurso: '', titulo: '', descripcion: '', url_externa: '', archivo: null };
     }
     this.showRecursoModal.set(true);
   }
@@ -254,7 +257,6 @@ export class PracticaManagementComponent implements OnInit {
     formData.append('id_tipo_recurso', this.recursoForm.id_tipo_recurso);
     formData.append('titulo', this.recursoForm.titulo);
     formData.append('descripcion', this.recursoForm.descripcion);
-    formData.append('orden', this.recursoForm.orden.toString());
     if (this.recursoForm.url_externa) formData.append('url_externa', this.recursoForm.url_externa);
     if (this.recursoForm.archivo) formData.append('archivo_local', this.recursoForm.archivo);
 

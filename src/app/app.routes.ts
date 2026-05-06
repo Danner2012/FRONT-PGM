@@ -10,6 +10,7 @@ import { InscripcionManagementComponent } from './modules/administrador/inscripc
 import { authGuard } from './guards/auth.guard';
 
 import { MisCursosComponent } from './modules/estudiante/cursos/pages/mis-cursos.component';
+import { MisPracticasComponent } from './modules/estudiante/practicas/pages/mis-practicas.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -21,6 +22,7 @@ export const routes: Routes = [
       { path: 'inicio', component: DashboardHomeComponent },
       { path: 'diagnostico-fallas', component: DiagnosticoFallasComponent },
       { path: 'mis-cursos', component: MisCursosComponent },
+      { path: 'mis-practicas', component: MisPracticasComponent },
       { path: 'tecnicos', component: TecnicoManagementComponent },
       { path: 'estudiantes', component: EstudianteManagementComponent },
       { path: 'cursos', component: CursoManagementComponent },

@@ -1,0 +1,78 @@
+.practicas-container {
+    padding: 1.5rem;
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.search-box {
+    min-width: 300px;
+}
+
+.search-box .input-group-text {
+    border-radius: 20px 0 0 20px;
+}
+
+.search-box .form-control {
+    border-radius: 0 20px 20px 0;
+}
+
+.card {
+    border-radius: 15px;
+}
+
+.table thead th {
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    color: #6c757d;
+    border-top: none;
+}
+
+.table tbody tr {
+    transition: all 0.2s ease;
+}
+
+.table tbody tr:hover {
+    background-color: rgba(0, 123, 255, 0.02);
+}
+
+.badge {
+    padding: 0.5em 0.8em;
+    font-weight: 500;
+}
+
+.empty-state {
+    padding: 2rem;
+}
+
+.btn-outline-primary {
+    border-width: 1.5px;
+}
+
+.bg-primary-subtle {
+    background-color: #e7f1ff !important;
+}
+
+.bg-success-subtle {
+    background-color: #d1e7dd !important;
+}
+
+.bg-danger-subtle {
+    background-color: #f8d7da !important;
+}
+
+.bg-info-subtle {
+    background-color: #cff4fc !important;
+}
+
+.bg-secondary-subtle {
+    background-color: #e2e3e5 !important;
+}

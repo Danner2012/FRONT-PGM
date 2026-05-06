@@ -15,6 +15,10 @@ export class PracticaService {
     return this.http.get<any[]>(`${this.apiUrl}practicas/`);
   }
 
+  getMisPracticas(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}practicas/mis_practicas/`);
+  }
+
   getPractica(id: number): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}practicas/${id}/`);
   }

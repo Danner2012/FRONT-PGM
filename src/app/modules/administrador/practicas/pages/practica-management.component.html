@@ -45,6 +45,11 @@
                     </select>
                 </div>
             </div>
+            <div class="col-auto">
+                <button class="btn-clear-icon" (click)="clearFilters()" title="Limpiar Filtros">
+                    <i class="bi bi-eraser-fill"></i>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -201,13 +206,9 @@
                             <option *ngFor="let c of cursos()" [value]="c.id">{{ c.nombre }}</option>
                         </select>
                     </div>
-                    <div class="col-md-9">
+                    <div class="col-12">
                         <label class="form-label small fw-bold">Título de la Práctica</label>
                         <input type="text" class="form-control rounded-4 shadow-none" name="titulo" [(ngModel)]="practicaForm.titulo" required placeholder="Ej. Introducción al Desarmado">
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label small fw-bold">Nro. Orden</label>
-                        <input type="number" class="form-control rounded-4 shadow-none" name="orden" [(ngModel)]="practicaForm.orden" required>
                     </div>
                     <div class="col-12">
                         <label class="form-label small fw-bold">Descripción / Instrucciones</label>

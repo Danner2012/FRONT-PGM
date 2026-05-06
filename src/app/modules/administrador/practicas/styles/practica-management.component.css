@@ -103,6 +103,27 @@
     padding-left: 2.2rem;
 }
 
+.btn-clear-icon {
+    background: #fff5f5;
+    border: 1px solid #feb2b2;
+    color: #e53e3e;
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.btn-clear-icon:hover {
+    background: #e53e3e;
+    color: white;
+    border-color: #e53e3e;
+    transform: rotate(90deg);
+}
+
 /* Botones de Acción (Corrección de Colores e Iconos) */
 .btn-action {
     width: 35px;

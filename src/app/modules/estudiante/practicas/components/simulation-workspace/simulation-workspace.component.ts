@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PracticaService } from '../../../../../services/practica.service';
@@ -21,6 +21,42 @@ export class SimulationWorkspaceComponent implements OnInit {
   practica = signal<any>(null);
   isLoading = signal(true);
   
+  // Filtros de Recursos
+  searchTerm = signal<string>('');
+  selectedType = signal<string>('all');
+
+  // Extraer tipos de recursos únicos de la práctica actual
+  resourceTypes = computed(() => {
+    const p = this.practica();
+    if (!p || !p.recursos) return [];
+    
+    const types = p.recursos.map((r: any) => r.tipo_recurso_nombre);
+    return [...new Set(types)].filter(t => !!t); // Solo tipos únicos y no nulos
+  });
+
+  filteredRecursos = computed(() => {
+    const p = this.practica();
+    if (!p || !p.recursos) return [];
+    
+    let resources = p.recursos;
+
+    // Filtro por búsqueda
+    if (this.searchTerm()) {
+      const term = this.searchTerm().toLowerCase();
+      resources = resources.filter((r: any) => 
+        r.titulo.toLowerCase().includes(term) || 
+        (r.tipo_recurso_nombre && r.tipo_recurso_nombre.toLowerCase().includes(term))
+      );
+    }
+
+    // Filtro por tipo dinámico
+    if (this.selectedType() !== 'all') {
+      resources = resources.filter((r: any) => r.tipo_recurso_nombre === this.selectedType());
+    }
+
+    return resources;
+  });
+
   // Gestión de Cámara
   stream: MediaStream | null = null;
   cameraActive = signal(false);

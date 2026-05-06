@@ -74,8 +74,8 @@
                             </div>
                         </div>
                         
-                        <div class="camera-field bg-dark rounded-4 overflow-hidden position-relative" style="height: 250px;">
-                            <video id="cameraFeed" autoplay playsinline class="w-100 h-100 object-fit-cover" [class.d-none]="!cameraActive()"></video>
+                        <div class="camera-field bg-dark rounded-4 overflow-hidden position-relative">
+                            <video id="cameraFeed" autoplay playsinline class="w-100 h-auto object-fit-contain" [class.d-none]="!cameraActive()"></video>
                             
                             <div *ngIf="!cameraActive()" class="d-flex flex-column align-items-center justify-content-center h-100 text-white-50 opacity-50">
                                 <i class="bi bi-camera display-4 mb-2"></i>

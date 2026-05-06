@@ -66,7 +66,10 @@ export class SimulationWorkspaceComponent implements OnInit {
 
       const constraints = {
         video: {
-          deviceId: this.selectedCameraId() ? { exact: this.selectedCameraId() } : undefined
+          deviceId: this.selectedCameraId() ? { exact: this.selectedCameraId() } : undefined,
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+          aspectRatio: { ideal: 1.7777777778 } // 16:9
         }
       };
 

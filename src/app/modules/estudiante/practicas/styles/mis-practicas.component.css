@@ -1,78 +1,168 @@
-.practicas-container {
+.management-container {
     padding: 1.5rem;
+    animation: fadeIn 0.4s ease-out;
 }
 
-.animate-fade-in {
-    animation: fadeIn 0.5s ease-in-out;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.search-box {
-    min-width: 300px;
-}
-
-.search-box .input-group-text {
-    border-radius: 20px 0 0 20px;
-}
-
-.search-box .form-control {
-    border-radius: 0 20px 20px 0;
-}
-
-.card {
+.card-custom {
+    background: #ffffff;
+    border: none;
     border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
 }
 
-.table thead th {
+.table-custom thead th {
+    background: #f8f9fa;
+    color: #495057;
     font-weight: 600;
     text-transform: uppercase;
     font-size: 0.75rem;
-    letter-spacing: 0.05em;
-    color: #6c757d;
-    border-top: none;
+    letter-spacing: 0.5px;
+    padding: 1rem;
+    border-bottom: 2px solid #edf2f7;
 }
 
-.table tbody tr {
-    transition: all 0.2s ease;
+.table-custom tbody td {
+    padding: 1rem;
+    vertical-align: middle;
+    color: #4a5568;
+    border-bottom: 1px solid #edf2f7;
+    font-size: 0.85rem;
 }
 
-.table tbody tr:hover {
-    background-color: rgba(0, 123, 255, 0.02);
+/* Badges de Estado */
+.badge-activo {
+    background-color: #d4edda;
+    color: #155724;
+    padding: 0.4em 0.8em;
+    border-radius: 20px;
 }
 
-.badge {
-    padding: 0.5em 0.8em;
-    font-weight: 500;
+.badge-inactivo {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 0.4em 0.8em;
+    border-radius: 20px;
+}
+
+/* Barra de Filtros */
+.filters-bar {
+    background: #ffffff;
+    padding: 1.25rem;
+    border-radius: 15px;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.03);
+    border: 1px solid #edf2f7;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.filter-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #718096;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.filter-control {
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.85rem;
+    color: #2d3748;
+    background-color: #f8fafc;
+    transition: all 0.2s;
+    width: 100%;
+}
+
+.filter-control:focus {
+    outline: none;
+    border-color: #3182ce;
+    background-color: #ffffff;
+    box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
+}
+
+.search-input-group {
+    position: relative;
+    width: 100%;
+}
+
+.search-input-group i {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #a0aec0;
+}
+
+.search-input-group .filter-control {
+    padding-left: 2.2rem;
+}
+
+.btn-clear-icon {
+    background: #fff5f5;
+    border: 1px solid #feb2b2;
+    color: #e53e3e;
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.btn-clear-icon:hover {
+    background: #e53e3e;
+    color: white;
+    border-color: #e53e3e;
+    transform: rotate(90deg);
+}
+
+/* Botones de Acción */
+.btn-action {
+    width: 35px;
+    height: 35px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    border: none;
+    transition: all 0.2s;
+    font-size: 1.1rem;
+    cursor: pointer;
+}
+
+.btn-view {
+    background-color: #f0fff4;
+    color: #38a169;
+}
+
+.btn-view:hover {
+    background-color: #38a169;
+    color: white;
 }
 
 .empty-state {
-    padding: 2rem;
-}
-
-.btn-outline-primary {
-    border-width: 1.5px;
+    padding: 3rem;
+    text-align: center;
 }
 
 .bg-primary-subtle {
     background-color: #e7f1ff !important;
 }
 
-.bg-success-subtle {
-    background-color: #d1e7dd !important;
-}
-
-.bg-danger-subtle {
-    background-color: #f8d7da !important;
-}
-
 .bg-info-subtle {
     background-color: #cff4fc !important;
 }
 
-.bg-secondary-subtle {
-    background-color: #e2e3e5 !important;
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.animate-fade-in {
+    animation: fadeIn 0.4s ease-out;
 }

@@ -15,17 +15,36 @@ export class MisPracticasComponent implements OnInit {
 
   practicas = signal<any[]>([]);
   isLoading = signal(true);
+  
+  // Filtros
   filterText = signal('');
+  filterCurso = signal('todos');
+  filterEstado = signal('todos');
 
-  // Prácticas filtradas por el texto de búsqueda
+  // Cursos únicos para el filtro
+  cursosDisponibles = computed(() => {
+    const nombres = this.practicas().map(p => ({ id: p.id_curso, nombre: p.curso_nombre }));
+    // Eliminar duplicados por ID
+    return Array.from(new Map(nombres.map(c => [c.id, c])).values());
+  });
+
+  // Prácticas filtradas
   filteredPracticas = computed(() => {
-    const text = this.filterText().toLowerCase();
-    if (!text) return this.practicas();
-    return this.practicas().filter(p => 
-      p.titulo.toLowerCase().includes(text) || 
-      p.curso_nombre.toLowerCase().includes(text) ||
-      p.descripcion.toLowerCase().includes(text)
-    );
+    return this.practicas().filter(p => {
+      const text = this.filterText().toLowerCase();
+      const matchText = !text || 
+                        p.titulo.toLowerCase().includes(text) || 
+                        p.curso_nombre.toLowerCase().includes(text) ||
+                        p.descripcion.toLowerCase().includes(text);
+      
+      const matchCurso = this.filterCurso() === 'todos' || p.id_curso.toString() === this.filterCurso();
+      
+      const matchEstado = this.filterEstado() === 'todos' || 
+                         (this.filterEstado() === 'activo' && p.estado) || 
+                         (this.filterEstado() === 'inactivo' && !p.estado);
+
+      return matchText && matchCurso && matchEstado;
+    });
   });
 
   ngOnInit() {
@@ -44,6 +63,12 @@ export class MisPracticasComponent implements OnInit {
         this.isLoading.set(false);
       }
     });
+  }
+
+  clearFilters() {
+    this.filterText.set('');
+    this.filterCurso.set('todos');
+    this.filterEstado.set('todos');
   }
 
   getSeverity(estado: boolean): string {

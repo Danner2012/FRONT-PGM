@@ -353,3 +353,21 @@
 .animate-slide-up {
     animation: slideUp 0.3s ease-out;
 }
+
+.video-preview-container {
+    border: 1px solid #2d3748;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.video-preview-container video:focus {
+    outline: none;
+}
+
+.extra-small {
+    font-size: 0.65rem;
+    text-decoration: none;
+}
+
+.extra-small:hover {
+    text-decoration: underline;
+}

@@ -151,6 +151,33 @@ export class PracticaManagementComponent implements OnInit {
     this.showViewResourcesModal.set(true);
   }
 
+  viewResource(recurso: any) {
+    const url = this.getResourceUrl(recurso);
+    if (url) {
+      window.open(url, '_blank');
+    } else {
+      Swal.fire('Info', 'Este recurso no tiene un archivo o enlace asociado', 'info');
+    }
+  }
+
+  getResourceUrl(recurso: any): string | null {
+    if (recurso.url_externa) return recurso.url_externa;
+    if (recurso.archivo_local) {
+      return recurso.archivo_local.startsWith('http') 
+        ? recurso.archivo_local 
+        : `http://localhost:8000${recurso.archivo_local}`;
+    }
+    return null;
+  }
+
+  isVideo(recurso: any): boolean {
+    const url = this.getResourceUrl(recurso);
+    if (!url) return false;
+    const videoExtensions = ['.mp4', '.webm', '.ogg', '.mkv', '.avi', '.mov'];
+    return videoExtensions.some(ext => url.toLowerCase().endsWith(ext)) || 
+           (recurso.tipo_recurso_nombre && recurso.tipo_recurso_nombre.toLowerCase().includes('video'));
+  }
+
   openPracticaModal(practica?: any) {
     if (practica) {
       this.isEditing.set(true);

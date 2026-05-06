@@ -14,17 +14,18 @@ export class MisPracticasComponent implements OnInit {
   private practicaService = inject(PracticaService);
 
   practicas = signal<any[]>([]);
+  tiposPractica = signal<any[]>([]);
   isLoading = signal(true);
   
   // Filtros
   filterText = signal('');
   filterCurso = signal('todos');
+  filterTipoPractica = signal('todos');
   filterEstado = signal('todos');
 
   // Cursos únicos para el filtro
   cursosDisponibles = computed(() => {
     const nombres = this.practicas().map(p => ({ id: p.id_curso, nombre: p.curso_nombre }));
-    // Eliminar duplicados por ID
     return Array.from(new Map(nombres.map(c => [c.id, c])).values());
   });
 
@@ -39,16 +40,19 @@ export class MisPracticasComponent implements OnInit {
       
       const matchCurso = this.filterCurso() === 'todos' || p.id_curso.toString() === this.filterCurso();
       
+      const matchTipo = this.filterTipoPractica() === 'todos' || p.id_tipo_practica?.toString() === this.filterTipoPractica();
+      
       const matchEstado = this.filterEstado() === 'todos' || 
                          (this.filterEstado() === 'activo' && p.estado) || 
                          (this.filterEstado() === 'inactivo' && !p.estado);
 
-      return matchText && matchCurso && matchEstado;
+      return matchText && matchCurso && matchTipo && matchEstado;
     });
   });
 
   ngOnInit() {
     this.loadMisPracticas();
+    this.loadTipos();
   }
 
   loadMisPracticas() {
@@ -65,9 +69,17 @@ export class MisPracticasComponent implements OnInit {
     });
   }
 
+  loadTipos() {
+    this.practicaService.getTiposPractica().subscribe({
+      next: (data) => this.tiposPractica.set(data),
+      error: (err) => console.error('Error cargando tipos:', err)
+    });
+  }
+
   clearFilters() {
     this.filterText.set('');
     this.filterCurso.set('todos');
+    this.filterTipoPractica.set('todos');
     this.filterEstado.set('todos');
   }
 

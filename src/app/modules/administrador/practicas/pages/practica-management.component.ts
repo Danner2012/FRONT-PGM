@@ -18,6 +18,7 @@ export class PracticaManagementComponent implements OnInit {
   cursos = signal<any[]>([]);
   herramientas = signal<any[]>([]);
   tiposRecurso = signal<any[]>([]);
+  tiposPractica = signal<any[]>([]);
   
   activeTab = signal<'practicas' | 'maestros'>('practicas');
   
@@ -37,27 +38,6 @@ export class PracticaManagementComponent implements OnInit {
     });
   });
 
-  // ... (modales y resto de propiedades)
-
-  togglePracticaStatus(practica: any) {
-    const accion = practica.estado ? 'desactivar' : 'activar';
-    Swal.fire({
-      title: `¿Desea ${accion} esta práctica?`,
-      text: `La práctica quedará como ${practica.estado ? 'inactiva' : 'activa'} en el sistema`,
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: practica.estado ? '#e53e3e' : '#38a169',
-      confirmButtonText: `Sí, ${accion}`
-    }).then((result: any) => {
-      if (result.isConfirmed) {
-        this.practicaService.toggleStatus(practica.id).subscribe(() => {
-          Swal.fire('Actualizado', `La práctica ha sido ${accion}da`, 'success');
-          this.loadData();
-        });
-      }
-    });
-  }
-
   // Modales
   showPracticaModal = signal(false);
   isEditing = signal(false);
@@ -69,6 +49,7 @@ export class PracticaManagementComponent implements OnInit {
 
   practicaForm = {
     id_curso: '',
+    id_tipo_practica: '',
     titulo: '',
     descripcion: '',
     estado: true
@@ -125,6 +106,26 @@ export class PracticaManagementComponent implements OnInit {
     this.apiService.getCursos().subscribe(data => this.cursos.set(data));
     this.herramientaService.getHerramientas().subscribe(data => this.herramientas.set(data));
     this.practicaService.getTiposRecurso().subscribe(data => this.tiposRecurso.set(data));
+    this.practicaService.getTiposPractica().subscribe(data => this.tiposPractica.set(data));
+  }
+
+  togglePracticaStatus(practica: any) {
+    const accion = practica.estado ? 'desactivar' : 'activar';
+    Swal.fire({
+      title: `¿Desea ${accion} esta práctica?`,
+      text: `La práctica quedará como ${practica.estado ? 'inactiva' : 'activa'} en el sistema`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: practica.estado ? '#e53e3e' : '#38a169',
+      confirmButtonText: `Sí, ${accion}`
+    }).then((result: any) => {
+      if (result.isConfirmed) {
+        this.practicaService.toggleStatus(practica.id).subscribe(() => {
+          Swal.fire('Actualizado', `La práctica ha sido ${accion}da`, 'success');
+          this.loadData();
+        });
+      }
+    });
   }
 
   openViewResourcesModal(practica: any) {
@@ -136,11 +137,17 @@ export class PracticaManagementComponent implements OnInit {
     if (practica) {
       this.isEditing.set(true);
       this.selectedPractica.set(practica);
-      this.practicaForm = { ...practica };
+      this.practicaForm = { 
+        id_curso: practica.id_curso,
+        id_tipo_practica: practica.id_tipo_practica,
+        titulo: practica.titulo,
+        descripcion: practica.descripcion,
+        estado: practica.estado
+      };
     } else {
       this.isEditing.set(false);
       this.selectedPractica.set(null);
-      this.practicaForm = { id_curso: '', titulo: '', descripcion: '', estado: true };
+      this.practicaForm = { id_curso: '', id_tipo_practica: '', titulo: '', descripcion: '', estado: true };
     }
     this.showPracticaModal.set(true);
   }
@@ -184,9 +191,11 @@ export class PracticaManagementComponent implements OnInit {
     });
   }
 
-  // Maestros: Tipos de Recurso
+  // Maestros: Tipos de Recurso y Práctica
   showTipoModal = signal(false);
+  showTipoPracticaModal = signal(false);
   tipoForm = { nombre: '' };
+  tipoPracticaForm = { nombre: '' };
 
   saveTipoRecurso() {
     this.practicaService.createTipoRecurso(this.tipoForm).subscribe(() => {
@@ -194,6 +203,15 @@ export class PracticaManagementComponent implements OnInit {
       this.loadData();
       this.showTipoModal.set(false);
       this.tipoForm.nombre = '';
+    });
+  }
+
+  saveTipoPractica() {
+    this.practicaService.createTipoPractica(this.tipoPracticaForm).subscribe(() => {
+      Swal.fire('Éxito', 'Tipo de práctica creado', 'success');
+      this.loadData();
+      this.showTipoPracticaModal.set(false);
+      this.tipoPracticaForm.nombre = '';
     });
   }
 
@@ -206,14 +224,31 @@ export class PracticaManagementComponent implements OnInit {
       confirmButtonText: 'Sí, eliminar'
     }).then((result) => {
       if (result.isConfirmed) {
-        // Nota: Asumiendo que el servicio tiene un método genérico para borrar o que deleteRecurso
-        // no es lo mismo que borrar el TIPO. Revisando practica.service.ts no veo deleteTipoRecurso.
-        // Pero basándome en los otros, debería existir o ser manejado. 
-        // Si no existe, lo usaré como deleteRecurso pero para el endpoint de tipos si estuviera expuesto.
-        // Por seguridad, usaré la estructura estándar de DRF si el servicio lo permite.
         this.practicaService.deleteTipoRecurso(id).subscribe({
           next: () => {
             Swal.fire('Eliminado', 'El tipo de recurso ha sido eliminado', 'success');
+            this.loadData();
+          },
+          error: () => {
+            Swal.fire('Error', 'No se puede eliminar porque está en uso', 'error');
+          }
+        });
+      }
+    });
+  }
+
+  removeTipoPractica(id: number) {
+    Swal.fire({
+      title: '¿Eliminar tipo de práctica?',
+      text: "Esta acción no se puede deshacer",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, eliminar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.practicaService.deleteTipoPractica(id).subscribe({
+          next: () => {
+            Swal.fire('Eliminado', 'El tipo de práctica ha sido eliminado', 'success');
             this.loadData();
           },
           error: () => {

@@ -44,6 +44,18 @@ export class PracticaService {
     return this.http.get<any[]>(`${this.apiUrl}tipos-recurso/`);
   }
 
+  getTiposPractica(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}tipos-practica/`);
+  }
+
+  createTipoPractica(data: any): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}tipos-practica/`, data);
+  }
+
+  deleteTipoPractica(id: number): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}tipos-practica/${id}/`);
+  }
+
   createTipoRecurso(data: any): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}tipos-recurso/`, data);
   }

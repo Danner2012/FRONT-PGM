@@ -7,7 +7,7 @@
     <!-- BARRA DE FILTROS -->
     <div class="filters-bar animate-fade-in">
         <div class="row g-2 align-items-end">
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <div class="filter-group">
                     <label class="filter-label">Título o Descripción</label>
                     <div class="search-input-group">
@@ -27,9 +27,18 @@
             </div>
             <div class="col-md-3">
                 <div class="filter-group">
+                    <label class="filter-label">Tipo de Práctica</label>
+                    <select class="filter-control shadow-none" [ngModel]="filterTipoPractica()" (ngModelChange)="filterTipoPractica.set($event)">
+                        <option value="todos">Todos los Tipos</option>
+                        <option *ngFor="let t of tiposPractica()" [value]="t.id">{{ t.nombre }}</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="filter-group">
                     <label class="filter-label">Estado</label>
                     <select class="filter-control shadow-none" [ngModel]="filterEstado()" (ngModelChange)="filterEstado.set($event)">
-                        <option value="todos">Todos los Estados</option>
+                        <option value="todos">Todos</option>
                         <option value="activo">Disponibles</option>
                         <option value="inactivo">No disponibles</option>
                     </select>
@@ -60,6 +69,7 @@
                             <th class="text-center" style="width: 60px;">#</th>
                             <th>Información de la Práctica</th>
                             <th>Curso</th>
+                            <th class="text-center">Tipo</th>
                             <th>Herramientas</th>
                             <th class="text-center">Estado</th>
                             <th class="text-end" style="width: 150px;">Acciones</th>
@@ -88,6 +98,12 @@
                                     {{ item.curso_nombre }}
                                 </span>
                             </td>
+                            <td class="text-center">
+                                <span class="badge bg-light text-primary border border-primary-subtle" style="font-size: 0.7rem; font-weight: 600;">
+                                    <i class="bi bi-tag-fill me-1"></i>
+                                    {{ item.tipo_practica_nombre || 'Sin Categoría' }}
+                                </span>
+                            </td>
                             <td>
                                 <div class="d-flex flex-wrap gap-1">
                                     <span *ngFor="let h of item.herramientas" class="badge bg-info-subtle text-info border border-info-subtle" style="font-size: 0.7rem;">
@@ -110,7 +126,7 @@
 
                         <!-- Sin Resultados -->
                         <tr *ngIf="filteredPracticas().length === 0">
-                            <td colspan="6" class="text-center py-5">
+                            <td colspan="7" class="text-center py-5">
                                 <div class="empty-state">
                                     <i class="bi bi-wrench-adjustable display-4 text-muted opacity-25"></i>
                                     <h5 class="mt-3 fw-bold">No se encontraron prácticas</h5>

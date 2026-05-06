@@ -148,6 +148,48 @@
     color: white;
 }
 
+.btn-simulation {
+    background-color: #f0fff4;
+    color: #38a169;
+}
+
+.btn-simulation:hover {
+    background-color: #38a169;
+    color: white;
+}
+
+/* Estilos de Contenido (Badges Grandes) */
+.content-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.8rem;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    transition: transform 0.2s;
+}
+
+.content-badge:hover {
+    transform: translateY(-2px);
+}
+
+.content-badge i {
+    font-size: 1.1rem;
+}
+
+.badge-multimedia {
+    background-color: #f0f7ff;
+    color: #007bff;
+    border: 1px solid #cce5ff;
+}
+
+.badge-tools {
+    background-color: #fff9f0;
+    color: #f6ad55;
+    border: 1px solid #feebc8;
+}
+
 .empty-state {
     padding: 3rem;
     text-align: center;

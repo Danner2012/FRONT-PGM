@@ -31,9 +31,12 @@ export const routes: Routes = [
         path: 'herramientas', 
         loadComponent: () => import('./modules/administrador/herramientas/pages/herramienta-management.component').then(m => m.HerramientaManagementComponent) 
       },
-      { 
-        path: 'practicas', 
+      { path: 'practicas', 
         loadComponent: () => import('./modules/administrador/practicas/pages/practica-management.component').then(m => m.PracticaManagementComponent) 
+      },
+      { 
+        path: 'practicas/simulacion/:id', 
+        loadComponent: () => import('./modules/estudiante/practicas/components/simulation-workspace/simulation-workspace.component').then(m => m.SimulationWorkspaceComponent) 
       },
       { path: '', redirectTo: 'inicio', pathMatch: 'full' }
     ]

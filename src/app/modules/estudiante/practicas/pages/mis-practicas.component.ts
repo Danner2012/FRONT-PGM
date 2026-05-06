@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { PracticaService } from '../../../../services/practica.service';
 
 @Component({
@@ -12,6 +13,7 @@ import { PracticaService } from '../../../../services/practica.service';
 })
 export class MisPracticasComponent implements OnInit {
   private practicaService = inject(PracticaService);
+  private router = inject(Router);
 
   practicas = signal<any[]>([]);
   tiposPractica = signal<any[]>([]);
@@ -85,5 +87,9 @@ export class MisPracticasComponent implements OnInit {
 
   getSeverity(estado: boolean): string {
     return estado ? 'success' : 'danger';
+  }
+
+  startSimulation(practica: any) {
+    this.router.navigate(['/dashboard/practicas/simulacion', practica.id]);
   }
 }

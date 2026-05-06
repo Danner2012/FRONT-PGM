@@ -68,11 +68,10 @@
                         <tr>
                             <th class="text-center" style="width: 60px;">#</th>
                             <th>Información de la Práctica</th>
-                            <th>Curso</th>
-                            <th class="text-center">Tipo</th>
-                            <th>Herramientas</th>
+                            <th>Descripción</th>
+                            <th class="text-center">Contenido</th>
                             <th class="text-center">Estado</th>
-                            <th class="text-end" style="width: 150px;">Acciones</th>
+                            <th class="text-end" style="width: 120px;">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -88,28 +87,28 @@
                                     </div>
                                     <div class="ms-2">
                                         <div class="fw-semibold">{{ item.titulo }}</div>
-                                        <div class="text-muted small text-truncate" style="max-width: 250px;">{{ item.descripcion }}</div>
+                                        <div class="small text-muted text-uppercase fw-bold d-flex gap-2" style="font-size: 0.65rem;">
+                                            <span><i class="bi bi-journal-bookmark me-1"></i> {{ item.curso_nombre }}</span>
+                                            <span class="text-primary"><i class="bi bi-tag-fill me-1"></i> {{ item.tipo_practica_nombre || 'Sin Tipo' }}</span>
+                                        </div>
                                     </div>
                                 </div>
                             </td>
                             <td>
-                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle" style="font-size: 0.75rem;">
-                                    <i class="bi bi-journal-bookmark me-1"></i>
-                                    {{ item.curso_nombre }}
-                                </span>
+                                <div class="text-muted small" style="max-width: 250px; white-space: normal;">
+                                    {{ item.descripcion }}
+                                </div>
                             </td>
                             <td class="text-center">
-                                <span class="badge bg-light text-primary border border-primary-subtle" style="font-size: 0.7rem; font-weight: 600;">
-                                    <i class="bi bi-tag-fill me-1"></i>
-                                    {{ item.tipo_practica_nombre || 'Sin Categoría' }}
-                                </span>
-                            </td>
-                            <td>
-                                <div class="d-flex flex-wrap gap-1">
-                                    <span *ngFor="let h of item.herramientas" class="badge bg-info-subtle text-info border border-info-subtle" style="font-size: 0.7rem;">
-                                        {{ h.herramienta_nombre }}
-                                    </span>
-                                    <span *ngIf="!item.herramientas?.length" class="text-muted small italic">Sin herramientas</span>
+                                <div class="d-flex justify-content-center gap-3">
+                                    <div class="content-badge badge-multimedia" [title]="'Recursos: ' + (item.recursos?.length || 0)">
+                                        <i class="bi bi-play-circle-fill"></i>
+                                        <span>{{ item.recursos?.length || 0 }}</span>
+                                    </div>
+                                    <div class="content-badge badge-tools" [title]="'Herramientas: ' + (item.herramientas?.length || 0)">
+                                        <i class="bi bi-tools"></i>
+                                        <span>{{ item.herramientas?.length || 0 }}</span>
+                                    </div>
                                 </div>
                             </td>
                             <td class="text-center">
@@ -118,9 +117,16 @@
                                 </span>
                             </td>
                             <td class="text-end">
-                                <button class="btn-action btn-view" title="Ver Detalles">
-                                    <i class="bi bi-eye-fill"></i>
-                                </button>
+                                <div class="d-flex justify-content-end gap-1">
+                                    <button *ngIf="item.tipo_practica_nombre?.toLowerCase() === 'simulación' || item.tipo_practica_nombre?.toLowerCase() === 'simulacion'" 
+                                            class="btn-action btn-simulation" 
+                                            (click)="startSimulation(item)" title="Iniciar Simulación">
+                                        <i class="bi bi-play-circle-fill"></i>
+                                    </button>
+                                    <button class="btn-action btn-view" title="Ver Detalles">
+                                        <i class="bi bi-eye-fill"></i>
+                                    </button>
+                                </div>
                             </td>
                         </tr>
 

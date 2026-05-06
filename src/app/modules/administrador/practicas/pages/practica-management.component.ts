@@ -62,6 +62,10 @@ export class PracticaManagementComponent implements OnInit {
   showPracticaModal = signal(false);
   isEditing = signal(false);
   selectedPractica = signal<any>(null);
+  
+  // Nuevo modal para ver detalles
+  showViewResourcesModal = signal(false);
+  selectedPracticaDetails = signal<any>(null);
 
   practicaForm = {
     id_curso: '',
@@ -73,6 +77,8 @@ export class PracticaManagementComponent implements OnInit {
 
   // Gestión de Recursos
   showRecursoModal = signal(false);
+  isEditingRecurso = signal(false);
+  selectedRecursoId = signal<number | null>(null);
   recursoForm = {
     id_practica: null as number | null,
     id_tipo_recurso: '',
@@ -85,6 +91,8 @@ export class PracticaManagementComponent implements OnInit {
 
   // Gestión de Herramientas
   showHerramientaModal = signal(false);
+  isEditingHerramienta = signal(false);
+  selectedPHId = signal<number | null>(null);
   phForm = {
     id_practica: null as number | null,
     id_herramienta: '',
@@ -102,10 +110,22 @@ export class PracticaManagementComponent implements OnInit {
   }
 
   loadData() {
-    this.practicaService.getPracticas().subscribe(data => this.practicas.set(data));
+    this.practicaService.getPracticas().subscribe(data => {
+      this.practicas.set(data);
+      // Si hay un modal de detalles abierto, actualizar sus datos
+      if (this.showViewResourcesModal() && this.selectedPracticaDetails()) {
+        const updated = data.find(p => p.id === this.selectedPracticaDetails().id);
+        if (updated) this.selectedPracticaDetails.set(updated);
+      }
+    });
     this.apiService.getCursos().subscribe(data => this.cursos.set(data));
     this.herramientaService.getHerramientas().subscribe(data => this.herramientas.set(data));
     this.practicaService.getTiposRecurso().subscribe(data => this.tiposRecurso.set(data));
+  }
+
+  openViewResourcesModal(practica: any) {
+    this.selectedPracticaDetails.set(practica);
+    this.showViewResourcesModal.set(true);
   }
 
   openPracticaModal(practica?: any) {
@@ -173,9 +193,27 @@ export class PracticaManagementComponent implements OnInit {
     });
   }
 
-  // Lógica para Recursos y Herramientas (Omitida por brevedad en este paso, se implementará en el HTML/TS completo)
-  openRecursoModal(practicaId: number) {
-    this.recursoForm = { id_practica: practicaId, id_tipo_recurso: '', titulo: '', descripcion: '', url_externa: '', archivo: null, orden: 1 };
+  // Lógica para Recursos
+  openRecursoModal(practicaId: number, recurso?: any) {
+    if (recurso) {
+      this.isEditingRecurso.set(true);
+      this.selectedRecursoId.set(recurso.id);
+      this.recursoForm = {
+        id_practica: practicaId,
+        id_tipo_recurso: recurso.id_tipo_recurso,
+        titulo: recurso.titulo,
+        descripcion: recurso.descripcion,
+        url_externa: recurso.url_externa || '',
+        archivo: null,
+        orden: recurso.orden
+      };
+      // Cerrar el modal de vista para que no se solape con el de edición
+      this.showViewResourcesModal.set(false);
+    } else {
+      this.isEditingRecurso.set(false);
+      this.selectedRecursoId.set(null);
+      this.recursoForm = { id_practica: practicaId, id_tipo_recurso: '', titulo: '', descripcion: '', url_externa: '', archivo: null, orden: 1 };
+    }
     this.showRecursoModal.set(true);
   }
 
@@ -193,47 +231,120 @@ export class PracticaManagementComponent implements OnInit {
     if (this.recursoForm.url_externa) formData.append('url_externa', this.recursoForm.url_externa);
     if (this.recursoForm.archivo) formData.append('archivo_local', this.recursoForm.archivo);
 
-    this.practicaService.createRecurso(formData).subscribe({
-      next: () => {
-        Swal.fire('Éxito', 'Recurso añadido', 'success');
-        this.loadData();
-        this.showRecursoModal.set(false);
-      },
-      error: (err) => {
-        console.error(err);
-        Swal.fire('Error', 'No se pudo añadir el recurso. Verifique los datos.', 'error');
-      }
-    });
+    if (this.isEditingRecurso()) {
+      this.practicaService.updateRecurso(this.selectedRecursoId()!, formData).subscribe({
+        next: () => {
+          Swal.fire('Éxito', 'Recurso actualizado', 'success');
+          this.loadData();
+          this.showRecursoModal.set(false);
+          // Si cerramos el modal de edición, volvemos a mostrar el de vista con los datos actualizados
+          if (this.selectedPracticaDetails()) {
+            this.showViewResourcesModal.set(true);
+          }
+        },
+        error: (err) => {
+          console.error(err);
+          Swal.fire('Error', 'No se pudo actualizar el recurso.', 'error');
+        }
+      });
+    } else {
+      this.practicaService.createRecurso(formData).subscribe({
+        next: () => {
+          Swal.fire('Éxito', 'Recurso añadido', 'success');
+          this.loadData();
+          this.showRecursoModal.set(false);
+        },
+        error: (err) => {
+          console.error(err);
+          Swal.fire('Error', 'No se pudo añadir el recurso. Verifique los datos.', 'error');
+        }
+      });
+    }
   }
 
-  openHerramientaModal(practicaId: number) {
-    this.phForm = { id_practica: practicaId, id_herramienta: '', cantidad_requerida: 1 };
+  // Lógica para Herramientas
+  openHerramientaModal(practicaId: number, ph?: any) {
+    if (ph) {
+      this.isEditingHerramienta.set(true);
+      this.selectedPHId.set(ph.id);
+      this.phForm = {
+        id_practica: practicaId,
+        id_herramienta: ph.id_herramienta,
+        cantidad_requerida: ph.cantidad_requerida
+      };
+      // Cerrar el modal de vista para evitar solapamiento
+      this.showViewResourcesModal.set(false);
+    } else {
+      this.isEditingHerramienta.set(false);
+      this.selectedPHId.set(null);
+      this.phForm = { id_practica: practicaId, id_herramienta: '', cantidad_requerida: 1 };
+    }
     this.showHerramientaModal.set(true);
   }
 
   savePracticaHerramienta() {
-    this.practicaService.createPracticaHerramienta(this.phForm).subscribe({
-      next: () => {
-        Swal.fire('Éxito', 'Herramienta asignada', 'success');
-        this.loadData();
-        this.showHerramientaModal.set(false);
-      },
-      error: (err) => {
-        console.error(err);
-        Swal.fire('Error', 'No se pudo asignar la herramienta.', 'error');
+    if (this.isEditingHerramienta()) {
+      this.practicaService.updatePracticaHerramienta(this.selectedPHId()!, this.phForm).subscribe({
+        next: () => {
+          Swal.fire('Éxito', 'Requerimiento actualizado', 'success');
+          this.loadData();
+          this.showHerramientaModal.set(false);
+          // Reabrir modal de vista
+          if (this.selectedPracticaDetails()) {
+            this.showViewResourcesModal.set(true);
+          }
+        },
+        error: (err) => {
+          console.error(err);
+          Swal.fire('Error', 'No se pudo actualizar el requerimiento.', 'error');
+        }
+      });
+    } else {
+      this.practicaService.createPracticaHerramienta(this.phForm).subscribe({
+        next: () => {
+          Swal.fire('Éxito', 'Herramienta asignada', 'success');
+          this.loadData();
+          this.showHerramientaModal.set(false);
+        },
+        error: (err) => {
+          console.error(err);
+          Swal.fire('Error', 'No se pudo asignar la herramienta.', 'error');
+        }
+      });
+    }
+  }
+
+  removeHerramienta(phId: number) {
+    Swal.fire({
+      title: '¿Eliminar requerimiento?',
+      text: "Se quitará esta herramienta de la práctica",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, eliminar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.practicaService.deletePracticaHerramienta(phId).subscribe(() => {
+          Swal.fire('Eliminado', 'Herramienta quitada de la práctica', 'success');
+          this.loadData();
+        });
       }
     });
   }
 
-  removeHerramienta(phId: number) {
-    this.practicaService.deletePracticaHerramienta(phId).subscribe(() => {
-      this.loadData();
-    });
-  }
-
   removeRecurso(recursoId: number) {
-    this.practicaService.deleteRecurso(recursoId).subscribe(() => {
-      this.loadData();
+    Swal.fire({
+      title: '¿Eliminar recurso?',
+      text: "El recurso ya no estará disponible para los alumnos",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, eliminar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.practicaService.deleteRecurso(recursoId).subscribe(() => {
+          Swal.fire('Eliminado', 'Recurso eliminado', 'success');
+          this.loadData();
+        });
+      }
     });
   }
 }

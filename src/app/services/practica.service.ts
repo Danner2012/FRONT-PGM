@@ -61,6 +61,10 @@ export class PracticaService {
     return this.http.post<any>(`${this.apiUrl}practica-herramientas/`, data);
   }
 
+  updatePracticaHerramienta(id: number, data: any): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}practica-herramientas/${id}/`, data);
+  }
+
   deletePracticaHerramienta(id: number): Observable<any> {
     return this.http.delete<any>(`${this.apiUrl}practica-herramientas/${id}/`);
   }

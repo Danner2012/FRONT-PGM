@@ -111,7 +111,10 @@
                                         [title]="p.estado ? 'Desactivar Práctica' : 'Activar Práctica'">
                                         <i [class]="p.estado ? 'bi bi-toggle-on' : 'bi bi-toggle-off'"></i>
                                     </button>
-                                    <button class="btn-action btn-details" (click)="openRecursoModal(p.id)" title="Gestionar Recursos">
+                                    <button class="btn-action btn-view" (click)="openViewResourcesModal(p)" title="Ver Recursos y Herramientas">
+                                        <i class="bi bi-eye-fill"></i>
+                                    </button>
+                                    <button class="btn-action btn-multimedia" (click)="openRecursoModal(p.id)" title="Gestionar Recursos">
                                         <i class="bi bi-file-earmark-play"></i>
                                     </button>
                                     <button class="btn-action btn-assign" (click)="openHerramientaModal(p.id)" title="Asignar Herramientas">
@@ -209,7 +212,7 @@
     <div class="modal-overlay" *ngIf="showRecursoModal()">
         <div class="modal-content-custom animate-slide-up" style="max-width: 500px;">
             <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
-                <h5 class="fw-bold mb-0 text-uppercase">Añadir Recurso Multimedia</h5>
+                <h5 class="fw-bold mb-0 text-uppercase">{{ isEditingRecurso() ? 'Editar Recurso' : 'Añadir Recurso Multimedia' }}</h5>
                 <button class="btn-close" (click)="showRecursoModal.set(false)"></button>
             </div>
             
@@ -237,12 +240,13 @@
                     <div class="col-12">
                         <label class="form-label small fw-bold text-success">O Cargar Archivo Local</label>
                         <input type="file" class="form-control rounded-4 border-success-subtle" (change)="onFileSelected($event)">
+                        <div *ngIf="isEditingRecurso()" class="small text-muted mt-1">Deje vacío para mantener el archivo actual.</div>
                     </div>
                 </div>
                 
                 <div class="d-flex justify-content-end gap-2 mt-5">
                     <button type="button" class="btn btn-light rounded-pill px-4" (click)="showRecursoModal.set(false)">Cancelar</button>
-                    <button type="submit" class="btn btn-primary rounded-pill px-4 shadow-sm">Subir Recurso</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4 shadow-sm">{{ isEditingRecurso() ? 'Actualizar' : 'Subir Recurso' }}</button>
                 </div>
             </form>
         </div>
@@ -252,14 +256,14 @@
     <div class="modal-overlay" *ngIf="showHerramientaModal()">
         <div class="modal-content-custom animate-slide-up" style="max-width: 450px;">
             <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
-                <h5 class="fw-bold mb-0 text-uppercase">Requerir Herramientas</h5>
+                <h5 class="fw-bold mb-0 text-uppercase">{{ isEditingHerramienta() ? 'Editar Requerimiento' : 'Requerir Herramientas' }}</h5>
                 <button class="btn-close" (click)="showHerramientaModal.set(false)"></button>
             </div>
             
             <form (ngSubmit)="savePracticaHerramienta()">
                 <div class="mb-3">
                     <label class="form-label small fw-bold">Herramienta del Inventario</label>
-                    <select class="form-select rounded-4 shadow-none" name="id_herramienta" [(ngModel)]="phForm.id_herramienta" required>
+                    <select class="form-select rounded-4 shadow-none" name="id_herramienta" [(ngModel)]="phForm.id_herramienta" required [disabled]="isEditingHerramienta()">
                         <option value="">Seleccione herramienta...</option>
                         <option *ngFor="let h of herramientas()" [value]="h.id">{{ h.nombre }} (Stock: {{h.stock_disponible}})</option>
                     </select>
@@ -271,9 +275,92 @@
                 
                 <div class="d-flex justify-content-end gap-2 mt-4">
                     <button type="button" class="btn btn-light rounded-pill px-4" (click)="showHerramientaModal.set(false)">Cancelar</button>
-                    <button type="submit" class="btn btn-primary rounded-pill px-4 shadow-sm">Confirmar Requerimiento</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4 shadow-sm">{{ isEditingHerramienta() ? 'Actualizar' : 'Confirmar Requerimiento' }}</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- MODAL VER DETALLES (RECURSOS Y HERRAMIENTAS) -->
+    <div class="modal-overlay" *ngIf="showViewResourcesModal()">
+        <div class="modal-content-custom animate-slide-up" style="max-width: 800px;">
+            <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+                <div>
+                    <h5 class="fw-bold mb-0 text-uppercase">Contenido de la Práctica</h5>
+                    <small class="text-primary fw-bold">{{ selectedPracticaDetails()?.titulo }}</small>
+                </div>
+                <button class="btn-close" (click)="showViewResourcesModal.set(false)"></button>
+            </div>
+
+            <div class="row g-4">
+                <!-- Columna Recursos -->
+                <div class="col-md-6 border-end">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="fw-bold mb-0"><i class="bi bi-play-btn-fill text-info me-2"></i>Recursos Multimedia</h6>
+                        <span class="badge bg-info-subtle text-info rounded-pill">{{ selectedPracticaDetails()?.recursos?.length || 0 }}</span>
+                    </div>
+                    
+                    <div class="list-group list-group-flush custom-list">
+                        <div *ngIf="!selectedPracticaDetails()?.recursos?.length" class="text-center py-4 text-muted small">
+                            No hay recursos asignados
+                        </div>
+                        <div *ngFor="let r of selectedPracticaDetails()?.recursos" class="list-group-item px-0 py-3 border-bottom-0">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="me-3 overflow-hidden">
+                                    <div class="fw-bold text-truncate small">{{ r.titulo }}</div>
+                                    <div class="badge bg-light text-dark border small mt-1" style="font-size: 0.65rem;">{{ r.tipo_recurso_nombre }}</div>
+                                    <div class="mt-2 d-flex gap-2">
+                                        <a *ngIf="r.url_externa" [href]="r.url_externa" target="_blank" class="btn btn-sm btn-outline-primary py-0 px-2" style="font-size: 0.7rem;">Ver Link</a>
+                                        <a *ngIf="r.archivo_local" [href]="r.archivo_local" target="_blank" class="btn btn-sm btn-outline-success py-0 px-2" style="font-size: 0.7rem;">Ver Archivo</a>
+                                    </div>
+                                </div>
+                                <div class="d-flex gap-1">
+                                    <button class="btn btn-sm btn-light-edit text-primary" (click)="openRecursoModal(selectedPracticaDetails().id, r)" title="Editar Recurso">
+                                        <i class="bi bi-pencil small"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-light-delete text-danger" (click)="removeRecurso(r.id)" title="Eliminar Recurso">
+                                        <i class="bi bi-trash small"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Columna Herramientas -->
+                <div class="col-md-6">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="fw-bold mb-0"><i class="bi bi-hammer text-warning me-2"></i>Herramientas Requeridas</h6>
+                        <span class="badge bg-warning-subtle text-warning rounded-pill">{{ selectedPracticaDetails()?.herramientas?.length || 0 }}</span>
+                    </div>
+
+                    <div class="list-group list-group-flush custom-list">
+                        <div *ngIf="!selectedPracticaDetails()?.herramientas?.length" class="text-center py-4 text-muted small">
+                            No hay herramientas requeridas
+                        </div>
+                        <div *ngFor="let h of selectedPracticaDetails()?.herramientas" class="list-group-item px-0 py-3 border-bottom-0">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="fw-bold small">{{ h.herramienta_nombre }}</div>
+                                    <div class="text-muted" style="font-size: 0.75rem;">Cantidad: <span class="fw-bold text-dark">{{ h.cantidad_requerida }}</span></div>
+                                </div>
+                                <div class="d-flex gap-1">
+                                    <button class="btn btn-sm btn-light-edit text-primary" (click)="openHerramientaModal(selectedPracticaDetails().id, h)" title="Editar Cantidad">
+                                        <i class="bi bi-pencil small"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-light-delete text-danger" (click)="removeHerramienta(h.id)" title="Quitar Herramienta">
+                                        <i class="bi bi-trash small"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-end mt-4 pt-3 border-top">
+                <button class="btn btn-primary rounded-pill px-4 shadow-sm" (click)="showViewResourcesModal.set(false)">Cerrar</button>
+            </div>
         </div>
     </div>
 

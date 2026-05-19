@@ -78,6 +78,8 @@ export class HerramientaManagementComponent implements OnInit {
       descripcion: ['', Validators.required],
       uso: ['', Validators.required],
       info_importante: ['', Validators.required],
+      stock_total: [0, [Validators.required, Validators.min(0)]],
+      stock_disponible: [0, [Validators.required, Validators.min(0)]],
       id_administrador: [null]
     });
   }
@@ -293,6 +295,8 @@ export class HerramientaManagementComponent implements OnInit {
     formData.append('uso', formValues.uso);
     formData.append('info_importante', formValues.info_importante);
     formData.append('id_administrador', adminId.toString());
+    formData.append('stock_total', formValues.stock_total.toString());
+    formData.append('stock_disponible', formValues.stock_disponible.toString());
     
     if (this.selectedPreviewImg) formData.append('imagen_previa', this.selectedPreviewImg);
 
@@ -346,7 +350,9 @@ export class HerramientaManagementComponent implements OnInit {
       id_categoria: h.id_categoria,
       descripcion: h.descripcion,
       uso: h.uso,
-      info_importante: h.info_importante
+      info_importante: h.info_importante,
+      stock_total: h.stock_total,
+      stock_disponible: h.stock_disponible
     });
     
     this.modelosActuales = JSON.parse(JSON.stringify(h.modelos_3d || []));

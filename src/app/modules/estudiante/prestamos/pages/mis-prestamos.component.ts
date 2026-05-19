@@ -73,6 +73,19 @@ export class MisPrestamosComponent implements OnInit {
     this.filterFecha.set('');
   }
 
+  // Signals para modal de observaciones
+  showObsModal = signal(false);
+  selectedObs = signal<string>('');
+
+  openObsModal(obs: string) {
+    this.selectedObs.set(obs || 'Sin observaciones adicionales.');
+    this.showObsModal.set(true);
+  }
+
+  closeObsModal() {
+    this.showObsModal.set(false);
+  }
+
   getEstadoBadgeClass(estado: string): string {
     switch (estado) {
         case 'prestado': return 'badge-active';

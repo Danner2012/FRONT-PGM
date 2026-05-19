@@ -151,7 +151,72 @@
     background: linear-gradient(135deg, #3182ce 0%, #2c5282 100%);
 }
 
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+/* Botones de Acción (Estilo Administrador) */
+.btn-action {
+    width: 35px;
+    height: 35px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    border: none;
+    transition: all 0.2s;
+    font-size: 1.1rem;
+}
+
+.btn-details {
+    background-color: #ebf8ff;
+    color: #3182ce;
+}
+
+.btn-details:hover {
+    background-color: #3182ce;
+    color: white;
+}
+
+/* Modal de Observaciones */
+.modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
+    display: flex; align-items: center; justify-content: center; z-index: 1100;
+}
+
+.modal-content-custom {
+    background: white; width: 90%; max-width: 500px; border-radius: 20px;
+    padding: 2rem; box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    animation: slideUp 0.3s ease-out;
+}
+
+.btn-close-circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: none;
+    background: #f1f5f9;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.btn-close-circle:hover {
+    background: #e2e8f0;
+    color: #1e293b;
+}
+
+.obs-text-area {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1rem;
+    color: #475569;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    min-height: 100px;
+}
+
+@keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
 .animate-fade-in {

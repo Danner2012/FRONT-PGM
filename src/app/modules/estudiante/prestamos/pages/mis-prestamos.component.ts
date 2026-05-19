@@ -17,18 +17,6 @@ export class MisPrestamosComponent implements OnInit {
   prestamos = signal<any[]>([]);
   user = this.authService.currentUser;
   
-  misPrestamos = computed(() => {
-    const currentUser = this.user();
-    if (!currentUser) return [];
-    
-    // Filtramos por el nombre del estudiante o ID si el serializer lo permite
-    // Asumiendo que el serializer de PrestamoHerramienta incluye información del estudiante
-    return this.prestamos().filter(p => {
-        // Buscamos coincidencia por correo o ID de usuario si está disponible
-        return p.id_inscripcion_detalle?.id_estudiante_detalle?.correo === currentUser.correo;
-    });
-  });
-
   ngOnInit() {
     this.loadPrestamos();
   }
@@ -41,10 +29,10 @@ export class MisPrestamosComponent implements OnInit {
 
   getEstadoBadgeClass(estado: string): string {
     switch (estado) {
-        case 'prestado': return 'bg-warning text-dark';
-        case 'parcial': return 'bg-info text-white';
-        case 'devuelto': return 'bg-success text-white';
-        default: return 'bg-secondary text-white';
+        case 'prestado': return 'badge-prestado';
+        case 'parcial': return 'badge-parcial';
+        case 'devuelto': return 'badge-devuelto';
+        default: return 'badge-default';
     }
   }
 }

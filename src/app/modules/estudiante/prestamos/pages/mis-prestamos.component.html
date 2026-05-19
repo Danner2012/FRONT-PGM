@@ -31,7 +31,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr *ngFor="let p of misPrestamos()" class="animate__animated animate__fadeIn">
+                                <tr *ngFor="let p of prestamos()" class="animate__animated animate__fadeIn">
                                     <td class="ps-4">
                                         <div class="fw-bold text-primary">{{ p.herramienta_nombre }}</div>
                                     </td>
@@ -51,7 +51,7 @@
                                         <span class="text-muted small italic">{{ p.observacion || 'Sin observaciones' }}</span>
                                     </td>
                                 </tr>
-                                <tr *ngIf="misPrestamos().length === 0">
+                                <tr *ngIf="prestamos().length === 0">
                                     <td colspan="6" class="text-center py-5">
                                         <div class="text-muted">
                                             <i class="bi bi-inbox fs-1 d-block mb-3 opacity-25"></i>

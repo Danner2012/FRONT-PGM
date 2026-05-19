@@ -29,7 +29,10 @@ export class PrestamoManagementComponent implements OnInit {
   practicas = signal<any[]>([]);
   herramientas = signal<any[]>([]);
   cursos = signal<any[]>([]);
-  estudiantes = signal<any[]>([]); // Respaldo
+  estudiantes = signal<any[]>([]); 
+  
+  // Lista de herramientas seleccionadas para el nuevo préstamo
+  selectedHerramientas = signal<any[]>([]);
 
   // UI signals
   showPrestamoModal = signal(false);
@@ -46,9 +49,7 @@ export class PrestamoManagementComponent implements OnInit {
     if (!cursoId || todas.length === 0) return [];
     
     return todas.filter(ins => {
-      // Extraer ID del curso de la inscripción
       const actualCursoId = ins.id_curso || ins.curso_detalle?.id;
-      // Filtramos por curso e inscripciones válidas (confirmadas o pendientes)
       return String(actualCursoId) === String(cursoId) && ['confirmado', 'pendiente'].includes(ins.estado);
     });
   });
@@ -68,8 +69,8 @@ export class PrestamoManagementComponent implements OnInit {
     id_curso_temp: [''],
     id_inscripcion: ['', [Validators.required]],
     id_practica: ['', [Validators.required]],
-    id_herramienta: ['', [Validators.required]],
-    cantidad_prestada: [1, [Validators.required, Validators.min(1)]],
+    id_herramienta: [''], // Se usa para la selección individual
+    cantidad_prestada: [1], // Se usa para la selección individual
     observacion: ['']
   });
 
@@ -81,7 +82,6 @@ export class PrestamoManagementComponent implements OnInit {
   ngOnInit() {
     this.loadAllData();
     
-    // Sincronizar el valor del formulario con la Signal para activar la reactividad
     this.prestamoForm.get('id_curso_temp')?.valueChanges.subscribe(val => {
         this.selectedCursoId.set(val || '');
         this.prestamoForm.patchValue({
@@ -128,6 +128,7 @@ export class PrestamoManagementComponent implements OnInit {
 
   openPrestamoModal() {
     this.prestamoForm.reset({ cantidad_prestada: 1 });
+    this.selectedHerramientas.set([]);
     this.showPrestamoModal.set(true);
   }
 
@@ -135,18 +136,69 @@ export class PrestamoManagementComponent implements OnInit {
     this.showPrestamoModal.set(false);
   }
 
+  addHerramienta() {
+    const hId = this.prestamoForm.get('id_herramienta')?.value;
+    const cant = this.prestamoForm.get('cantidad_prestada')?.value;
+
+    if (!hId || cant < 1) {
+        Swal.fire('Atención', 'Seleccione una herramienta y cantidad válida', 'warning');
+        return;
+    }
+
+    const tool = this.herramientas().find(h => h.id == hId);
+    if (!tool) return;
+
+    if (tool.stock_disponible < cant) {
+        Swal.fire('Error', `Stock insuficiente. Disponible: ${tool.stock_disponible}`, 'error');
+        return;
+    }
+
+    // Verificar si ya está en la lista
+    const existing = this.selectedHerramientas().find(item => item.id_herramienta == hId);
+    if (existing) {
+        Swal.fire('Info', 'Esta herramienta ya fue añadida. Modifíquela si es necesario.', 'info');
+        return;
+    }
+
+    this.selectedHerramientas.update(list => [...list, {
+        id_herramienta: hId,
+        nombre: tool.nombre,
+        cantidad_prestada: cant
+    }]);
+
+    // Limpiar selección individual
+    this.prestamoForm.patchValue({ id_herramienta: '', cantidad_prestada: 1 });
+  }
+
+  removeHerramienta(index: number) {
+    this.selectedHerramientas.update(list => list.filter((_, i) => i !== index));
+  }
+
   savePrestamo() {
-    if (this.prestamoForm.invalid) return;
+    if (this.prestamoForm.get('id_inscripcion')?.invalid || 
+        this.prestamoForm.get('id_practica')?.invalid) return;
+
+    if (this.selectedHerramientas().length === 0) {
+        Swal.fire('Error', 'Debe añadir al menos una herramienta al préstamo.', 'error');
+        return;
+    }
 
     const currentProfile = this.authService.currentUser();
-    if (!currentProfile || !currentProfile.tecnico_id) {
+    // Usamos perfil_id que es el ID del técnico en el backend
+    if (!currentProfile || !currentProfile.perfil_id) {
         Swal.fire('Error', 'No se pudo identificar al técnico actual.', 'error');
         return;
     }
 
     const data = {
-        ...this.prestamoForm.value,
-        id_tecnico: currentProfile.tecnico_id
+        id_inscripcion: this.prestamoForm.get('id_inscripcion')?.value,
+        id_practica: this.prestamoForm.get('id_practica')?.value,
+        observacion: this.prestamoForm.get('observacion')?.value,
+        id_tecnico: currentProfile.perfil_id,
+        detalles_input: this.selectedHerramientas().map(h => ({
+            id_herramienta: h.id_herramienta,
+            cantidad_prestada: h.cantidad_prestada
+        }))
     };
 
     this.practicaService.createPrestamo(data).subscribe({
@@ -156,7 +208,26 @@ export class PrestamoManagementComponent implements OnInit {
             this.closePrestamoModal();
         },
         error: (err) => {
-            const msg = err.error?.non_field_errors?.[0] || err.error?.error || 'Error al registrar préstamo';
+            console.error('Error completo del servidor:', err);
+            let msg = 'Error al registrar préstamo';
+            
+            if (err.error) {
+                if (typeof err.error === 'string') {
+                    msg = err.error;
+                } else if (err.error.error) {
+                    msg = err.error.error;
+                } else if (err.error.non_field_errors) {
+                    msg = err.error.non_field_errors[0];
+                } else if (typeof err.error === 'object') {
+                    // Intentar extraer el primer error de cualquier campo
+                    const keys = Object.keys(err.error);
+                    if (keys.length > 0) {
+                        const firstError = err.error[keys[0]];
+                        msg = Array.isArray(firstError) ? firstError[0] : firstError;
+                    }
+                }
+            }
+            
             Swal.fire('Error', msg, 'error');
         }
     });
@@ -177,14 +248,24 @@ export class PrestamoManagementComponent implements OnInit {
     if (this.devolucionForm.invalid) return;
 
     const currentProfile = this.authService.currentUser();
-    if (!currentProfile || !currentProfile.tecnico_id) {
+    if (!currentProfile || !currentProfile.perfil_id) {
         Swal.fire('Error', 'No se pudo identificar al técnico actual.', 'error');
         return;
     }
 
+    // Buscamos el detalle de préstamo para esta devolución
+    // Como el frontend actual muestra préstamos basados en el primer detalle,
+    // usaremos el ID del primer detalle si está disponible.
+    const detalleId = this.selectedPrestamo().detalles?.[0]?.id || this.selectedPrestamo().id_detalle;
+
+    if (!detalleId) {
+        Swal.fire('Error', 'No se pudo identificar el detalle del préstamo.', 'error');
+        return;
+    }
+
     const data = {
-        id_prestamo: this.selectedPrestamo().id,
-        id_tecnico_receptor: currentProfile.tecnico_id,
+        id_prestamo_detalle: detalleId,
+        id_tecnico_receptor: currentProfile.perfil_id,
         ...this.devolucionForm.value
     };
 

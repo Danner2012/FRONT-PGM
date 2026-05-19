@@ -95,15 +95,15 @@ export class PracticaService {
 
   // Préstamos y Devoluciones
   getPrestamos(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}prestamos-herramientas/`);
+    return this.http.get<any[]>(`${this.apiUrl}prestamos/`);
   }
 
   createPrestamo(data: any): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}prestamos-herramientas/`, data);
+    return this.http.post<any>(`${this.apiUrl}prestamos/`, data);
   }
 
   deletePrestamo(id: number): Observable<any> {
-    return this.http.delete<any>(`${this.apiUrl}prestamos-herramientas/${id}/`);
+    return this.http.delete<any>(`${this.apiUrl}prestamos/${id}/`);
   }
 
   createDevolucion(data: any): Observable<any> {

@@ -1,12 +1,12 @@
-<div class="container-fluid py-4">
+<div class="management-container">
     <div class="row mb-4 animate__animated animate__fadeIn">
         <div class="col-12">
             <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
-                <div class="card-body p-4 bg-dark text-white">
+                <div class="card-body p-4 bg-primary-gradient text-white">
                     <div class="d-flex align-items-center justify-content-between">
                         <div>
                             <h3 class="fw-bold mb-1"><i class="bi bi-file-earmark-bar-graph me-2"></i>Reporte de Préstamos</h3>
-                            <p class="mb-0 opacity-75">Historial y auditoría de herramientas en el taller</p>
+                            <p class="mb-0 opacity-75">Historial completo y auditoría de herramientas en el taller.</p>
                         </div>
                     </div>
                 </div>
@@ -14,70 +14,156 @@
         </div>
     </div>
 
-    <div class="row mb-4">
-        <div class="col-md-8">
-            <div class="input-group shadow-sm rounded-pill overflow-hidden border-0">
-                <span class="input-group-text bg-white border-0 ps-4"><i class="bi bi-search text-muted"></i></span>
-                <input type="text" class="form-control border-0 py-3" placeholder="Buscar por estudiante, herramienta o técnico..." [(ngModel)]="filterText" (ngModelChange)="filterText.set($event)">
+    <!-- Barra de Filtros (Estilo Administrador) -->
+    <div class="filters-bar animate-fade-in">
+        <div class="row g-2 align-items-end">
+            <div class="col-md-4">
+                <div class="filter-group">
+                    <label class="filter-label">Buscar Registro</label>
+                    <div class="search-input-group">
+                        <i class="bi bi-search"></i>
+                        <input type="text" class="filter-control" placeholder="Estudiante, herramienta, técnico..." [ngModel]="filterText()" (ngModelChange)="filterText.set($event)">
+                    </div>
+                </div>
             </div>
-        </div>
-        <div class="col-md-4">
-            <select class="form-select shadow-sm rounded-pill py-3 border-0 px-4" [(ngModel)]="filterEstado" (ngModelChange)="filterEstado.set($event)">
-                <option value="todos">Todos los estados</option>
-                <option value="prestado">Prestado</option>
-                <option value="parcial">Devolución Parcial</option>
-                <option value="devuelto">Devuelto Total</option>
-            </select>
+            <div class="col-md-3">
+                <div class="filter-group">
+                    <label class="filter-label">Estado</label>
+                    <select class="filter-control" [ngModel]="filterEstado()" (ngModelChange)="filterEstado.set($event)">
+                        <option value="todos">Todos los estados</option>
+                        <option value="prestado">Prestado</option>
+                        <option value="parcial">Devolución Parcial</option>
+                        <option value="devuelto">Devuelto Total</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="filter-group">
+                    <label class="filter-label">Fecha del Préstamo</label>
+                    <input type="date" class="filter-control" [ngModel]="filterFecha()" (ngModelChange)="filterFecha.set($event)">
+                </div>
+            </div>
+            <div class="col-auto">
+                <button class="btn-clear-icon" (click)="clearFilters()" title="Limpiar Filtros">
+                    <i class="bi bi-eraser-fill"></i>
+                </button>
+            </div>
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-12">
-            <div class="card border-0 shadow-sm rounded-4">
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0">
+    <div class="card card-custom overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-custom table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th class="text-center" style="width: 60px;">#</th>
+                        <th>Estudiante / CI</th>
+                        <th>Herramientas (Resumen)</th>
+                        <th>Técnico Entrega</th>
+                        <th class="text-center">Fecha</th>
+                        <th class="text-center">Estado</th>
+                        <th class="text-center" style="width: 80px;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let p of filteredPrestamos(); let i = index" class="animate__animated animate__fadeIn">
+                        <td class="text-center fw-bold">{{ i + 1 }}</td>
+                        <td>
+                            <div class="fw-bold text-dark">{{ p.estudiante_nombre }}</div>
+                            <div class="text-muted small">{{ p.estudiante_ci }}</div>
+                        </td>
+                        <td>
+                            <div class="tool-item-mini d-flex justify-content-between" *ngIf="p.detalles?.length > 0; else singleTool">
+                                <span>{{ p.detalles[0].herramienta_nombre }}</span>
+                                <span class="badge bg-white text-primary border border-primary-subtle ms-2" *ngIf="p.detalles.length > 1">+{{ p.detalles.length - 1 }} más</span>
+                            </div>
+                            <ng-template #singleTool>
+                                <div class="tool-item-mini">{{ p.herramienta_nombre }}</div>
+                            </ng-template>
+                        </td>
+                        <td>{{ p.tecnico_nombre }}</td>
+                        <td class="text-center">
+                            <div class="text-dark fw-medium">{{ p.fecha_prestamo | date:'dd/MM/yyyy' }}</div>
+                            <div class="text-muted small">{{ p.fecha_prestamo | date:'HH:mm' }}</div>
+                        </td>
+                        <td class="text-center">
+                            <span [class]="getEstadoBadgeClass(p.estado)" class="badge">
+                                {{ p.estado | uppercase }}
+                            </span>
+                        </td>
+                        <td class="text-center">
+                            <button class="btn-action btn-details" (click)="openDetails(p)" title="Ver Detalles">
+                                <i class="bi bi-eye-fill"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    <tr *ngIf="filteredPrestamos().length === 0">
+                        <td colspan="7" class="text-center py-5 text-muted">
+                            <i class="bi bi-search fs-1 d-block mb-3 opacity-25"></i>
+                            No se encontraron préstamos con los filtros aplicados.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal de Detalles del Préstamo -->
+    <div class="modal-overlay" *ngIf="showDetailsModal()">
+        <div class="modal-content-custom">
+            <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+                <h5 class="fw-bold mb-0 text-primary">Detalles del Préstamo #{{ selectedPrestamo()?.id }}</h5>
+                <button class="btn-close" (click)="closeDetails()"></button>
+            </div>
+            
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="filter-label d-block mb-1">Estudiante</label>
+                    <div class="fw-bold text-dark">{{ selectedPrestamo()?.estudiante_nombre }}</div>
+                    <div class="text-muted small">CI: {{ selectedPrestamo()?.estudiante_ci }}</div>
+                </div>
+                <div class="col-md-6">
+                    <label class="filter-label d-block mb-1">Curso / Práctica</label>
+                    <div class="fw-bold text-dark">{{ selectedPrestamo()?.curso_nombre }}</div>
+                    <div class="text-primary small fw-bold">{{ selectedPrestamo()?.practica_titulo }}</div>
+                </div>
+                
+                <div class="col-12 mt-4">
+                    <label class="filter-label d-block mb-2">Herramientas Prestadas</label>
+                    <div class="table-responsive border rounded-3 overflow-hidden">
+                        <table class="table table-sm table-hover mb-0">
                             <thead class="bg-light">
                                 <tr>
-                                    <th class="ps-4 py-3 text-muted small fw-bold text-uppercase">Estudiante</th>
-                                    <th class="py-3 text-muted small fw-bold text-uppercase">Herramienta</th>
-                                    <th class="py-3 text-muted small fw-bold text-uppercase text-center">Cant.</th>
-                                    <th class="py-3 text-muted small fw-bold text-uppercase">Técnico Entrega</th>
-                                    <th class="py-3 text-muted small fw-bold text-uppercase">Fecha</th>
-                                    <th class="py-3 text-muted small fw-bold text-uppercase text-center">Estado</th>
-                                    <th class="pe-4 py-3 text-muted small fw-bold text-uppercase">Acciones</th>
+                                    <th class="ps-3 py-2">Herramienta</th>
+                                    <th class="text-center py-2">Cant.</th>
+                                    <th class="text-center py-2">Estado</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr *ngFor="let p of filteredPrestamos()" class="animate__animated animate__fadeIn">
-                                    <td class="ps-4">
-                                        <div class="fw-bold">{{ p.estudiante_nombre }}</div>
-                                    </td>
-                                    <td>{{ p.herramienta_nombre }}</td>
-                                    <td class="text-center">{{ p.cantidad_prestada }}</td>
-                                    <td>{{ p.tecnico_nombre }}</td>
-                                    <td>{{ p.fecha_prestamo | date:'short' }}</td>
+                                <tr *ngFor="let det of selectedPrestamo()?.detalles">
+                                    <td class="ps-3">{{ det.herramienta_nombre }}</td>
+                                    <td class="text-center fw-bold">{{ det.cantidad_prestada }}</td>
                                     <td class="text-center">
-                                        <span class="badge rounded-pill px-3 py-2" [ngClass]="getEstadoBadgeClass(p.estado)">
-                                            {{ p.estado | titlecase }}
+                                        <span [class]="getEstadoBadgeClass(det.estado)" style="font-size: 0.7rem; padding: 2px 8px;">
+                                            {{ det.estado | uppercase }}
                                         </span>
-                                    </td>
-                                    <td class="pe-4">
-                                        <button class="btn btn-sm btn-outline-primary rounded-pill px-3" (click)="loadPrestamos()"><i class="bi bi-arrow-repeat"></i></button>
-                                    </td>
-                                </tr>
-                                <tr *ngIf="filteredPrestamos().length === 0">
-                                    <td colspan="7" class="text-center py-5">
-                                        <div class="text-muted">
-                                            <i class="bi bi-search fs-1 d-block mb-3 opacity-25"></i>
-                                            <p class="mb-0">No se encontraron registros que coincidan con los filtros.</p>
-                                        </div>
                                     </td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
+
+                <div class="col-12 mt-4" *ngIf="selectedPrestamo()?.observacion">
+                    <label class="filter-label d-block mb-1">Observaciones</label>
+                    <div class="p-3 bg-light rounded-3 small text-muted border-start border-3 border-primary">
+                        {{ selectedPrestamo()?.observacion }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-end mt-5">
+                <button class="btn btn-primary rounded-pill px-4 shadow-sm" (click)="closeDetails()">CERRAR</button>
             </div>
         </div>
     </div>

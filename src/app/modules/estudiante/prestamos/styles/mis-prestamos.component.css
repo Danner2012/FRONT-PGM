@@ -135,12 +135,23 @@
 }
 
 .tool-item {
-    padding: 0.6rem;
+    padding: 0.5rem 0.75rem;
     background: #f8fafc;
-    border-radius: 10px;
+    border-radius: 8px;
     margin-bottom: 0.4rem;
     border: 1px solid #e2e8f0;
     transition: all 0.2s;
+    height: 38px; /* Altura fija para alineación perfecta entre columnas */
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.tool-item-center {
+    justify-content: center;
+    font-weight: 700;
 }
 
 .tool-item:hover {

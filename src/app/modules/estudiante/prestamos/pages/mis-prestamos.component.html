@@ -56,21 +56,32 @@
             <table class="table table-custom table-hover mb-0">
                 <thead>
                     <tr>
-                        <th class="text-center" style="width: 60px;">#</th>
-                        <th>Herramientas (Cant.)</th>
-                        <th>Práctica / Curso</th>
-                        <th class="text-center">Fecha Préstamo</th>
-                        <th class="text-center">Estado</th>
-                        <th class="text-end" style="width: 100px;">Acciones</th>
+                        <th class="text-center" style="width: 50px;">#</th>
+                        <th style="min-width: 180px;">Herramienta</th>
+                        <th class="text-center" style="width: 100px;">Cantidad</th>
+                        <th style="width: 20%;">Práctica / Curso</th>
+                        <th class="text-center" style="width: 130px;">Fecha Préstamo</th>
+                        <th class="text-center" style="width: 130px;">Estado</th>
+                        <th class="text-center" style="width: 80px;">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr *ngFor="let p of filteredPrestamos(); let i = index" class="animate__animated animate__fadeIn">
                         <td class="text-center fw-bold">{{ i + 1 }}</td>
                         <td>
-                            <div *ngFor="let det of p.detalles" class="tool-item d-flex justify-content-between align-items-center">
+                            <div *ngFor="let det of p.detalles" class="tool-item">
                                 <span class="fw-bold text-dark">{{ det.herramienta_nombre }}</span>
-                                <span class="badge bg-white text-primary border border-primary-subtle ms-2">Cant: {{ det.cantidad_prestada }}</span>
+                            </div>
+                            <div *ngIf="!p.detalles || p.detalles.length === 0" class="tool-item">
+                                <span class="fw-bold text-dark">{{ p.herramienta_nombre }}</span>
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            <div *ngFor="let det of p.detalles" class="tool-item tool-item-center">
+                                <span class="badge bg-white text-primary border border-primary-subtle">{{ det.cantidad_prestada }}</span>
+                            </div>
+                            <div *ngIf="!p.detalles || p.detalles.length === 0" class="tool-item tool-item-center">
+                                <span class="badge bg-white text-primary border border-primary-subtle">{{ p.cantidad_prestada }}</span>
                             </div>
                         </td>
                         <td>
@@ -82,20 +93,25 @@
                             <div class="text-muted small">{{ p.fecha_prestamo | date:'HH:mm' }}</div>
                         </td>
                         <td class="text-center">
-                            <div *ngFor="let det of p.detalles" class="mb-1">
-                                <span [class]="getEstadoBadgeClass(det.estado)" class="badge">
+                            <div *ngFor="let det of p.detalles" class="tool-item tool-item-center border-0 bg-transparent mb-1">
+                                <span [class]="getEstadoBadgeClass(det.estado)" class="badge w-100">
                                     {{ det.estado | uppercase }}
                                 </span>
                             </div>
+                            <div *ngIf="!p.detalles || p.detalles.length === 0" class="tool-item tool-item-center border-0 bg-transparent">
+                                <span [class]="getEstadoBadgeClass(p.estado)" class="badge w-100">
+                                    {{ p.estado | uppercase }}
+                                </span>
+                            </div>
                         </td>
-                        <td class="text-end">
+                        <td class="text-center">
                             <button class="btn-action btn-details" (click)="openObsModal(p.observacion)" title="Ver Observaciones">
                                 <i class="bi bi-eye-fill"></i>
                             </button>
                         </td>
                     </tr>
                     <tr *ngIf="filteredPrestamos().length === 0">
-                        <td colspan="6" class="text-center py-5">
+                        <td colspan="7" class="text-center py-5">
                             <div class="text-muted py-4">
                                 <i class="bi bi-inbox fs-1 d-block mb-3 opacity-25"></i>
                                 <h5 class="fw-bold">Sin registros encontrados</h5>

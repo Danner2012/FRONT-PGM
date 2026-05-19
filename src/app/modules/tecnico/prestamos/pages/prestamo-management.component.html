@@ -19,8 +19,7 @@
                         <th class="text-center" style="width: 60px;">#</th>
                         <th>Estudiante</th>
                         <th>Práctica / Curso</th>
-                        <th>Herramienta</th>
-                        <th class="text-center">Cant.</th>
+                        <th>Herramientas (Cant.)</th>
                         <th class="text-center">Fecha Préstamo</th>
                         <th class="text-center">Estado</th>
                         <th class="text-end" style="width: 150px;">Acciones</th>
@@ -38,22 +37,28 @@
                             <div class="text-muted small">{{ prestamo.curso_nombre }}</div>
                         </td>
                         <td>
-                            <div *ngFor="let det of prestamo.detalles" class="small">
-                                <span class="fw-bold">{{ det.herramienta_nombre }}</span>
-                                <span class="text-muted ms-1">({{ det.cantidad_prestada }})</span>
+                            <div *ngFor="let det of prestamo.detalles" class="small mb-1 d-flex justify-content-between border-bottom pb-1 last-child-no-border">
+                                <span>{{ det.herramienta_nombre }}</span>
+                                <span class="badge bg-light text-dark border ms-2">{{ det.cantidad_prestada }}</span>
                             </div>
-                            <div *ngIf="!prestamo.detalles || prestamo.detalles.length === 0" class="text-muted">
-                                {{ prestamo.herramienta_nombre }} ({{ prestamo.cantidad_prestada }})
+                            <!-- Respaldo para datos antiguos -->
+                            <div *ngIf="!prestamo.detalles || prestamo.detalles.length === 0" class="small d-flex justify-content-between">
+                                <span>{{ prestamo.herramienta_nombre }}</span>
+                                <span class="badge bg-light text-dark border ms-2">{{ prestamo.cantidad_prestada }}</span>
                             </div>
                         </td>
                         <td class="text-center">
+                            <span class="text-muted small">{{ prestamo.fecha_prestamo | date:'dd/MM/yyyy HH:mm' }}</span>
+                        </td>
+                        <td class="text-center">
                             <div *ngFor="let det of prestamo.detalles" class="mb-1">
-                                <span [class]="getEstadoBadgeClass(det.estado)" style="font-size: 0.7rem;">
+                                <span [class]="getEstadoBadgeClass(det.estado)" style="font-size: 0.7rem; padding: 2px 8px;">
                                     {{ det.estado | uppercase }}
                                 </span>
                             </div>
+                            <!-- Respaldo para datos antiguos -->
                             <div *ngIf="!prestamo.detalles || prestamo.detalles.length === 0">
-                                <span [class]="getEstadoBadgeClass(prestamo.estado)">
+                                <span [class]="getEstadoBadgeClass(prestamo.estado)" style="font-size: 0.7rem; padding: 2px 8px;">
                                     {{ prestamo.estado | uppercase }}
                                 </span>
                             </div>

@@ -28,6 +28,18 @@ export const routes: Routes = [
       { path: 'cursos', component: CursoManagementComponent },
       { path: 'inscripciones', component: InscripcionManagementComponent },
       { 
+        path: 'gestion-prestamos', 
+        loadComponent: () => import('./modules/tecnico/prestamos/pages/prestamo-management.component').then(m => m.PrestamoManagementComponent) 
+      },
+      { 
+        path: 'mis-prestamos', 
+        loadComponent: () => import('./modules/estudiante/prestamos/pages/mis-prestamos.component').then(m => m.MisPrestamosComponent) 
+      },
+      { 
+        path: 'reporte-prestamos', 
+        loadComponent: () => import('./modules/administrador/prestamos/pages/prestamo-report.component').then(m => m.PrestamoReportComponent) 
+      },
+      { 
         path: 'herramientas', 
         loadComponent: () => import('./modules/administrador/herramientas/pages/herramienta-management.component').then(m => m.HerramientaManagementComponent) 
       },

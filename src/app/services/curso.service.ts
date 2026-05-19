@@ -71,4 +71,9 @@ export class CursoService {
   quitarTecnico(id: number): Observable<any> {
     return this.http.delete<any>(`${this.apiUrl}curso-tecnicos/${id}/`);
   }
+
+  // Inscripciones
+  getInscripciones(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}inscripciones/`);
+  }
 }

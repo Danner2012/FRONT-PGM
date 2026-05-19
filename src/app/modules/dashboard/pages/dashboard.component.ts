@@ -29,7 +29,9 @@ export class DashboardComponent implements OnInit {
   canSeeConfiguracion = computed(() => this.currentRole() === 'superadministrador');
   isEstudiante = computed(() => this.currentRole() === 'estudiante');
   isAdministrador = computed(() => this.currentRole() === 'administrador');
+  isTecnico = computed(() => ['técnico', 'tecnico'].includes(this.currentRole()));
   canSeeUserManagement = computed(() => ['superadministrador', 'administrador'].includes(this.currentRole()));
+  canSeePrestamos = computed(() => ['superadministrador', 'administrador', 'técnico', 'tecnico'].includes(this.currentRole()));
 
   ngOnInit() {
     this.authService.getUserProfile().subscribe();

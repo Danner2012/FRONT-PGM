@@ -1,0 +1,20 @@
+.bg-primary-gradient {
+    background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+}
+
+.card {
+    transition: transform 0.2s;
+}
+
+.table thead th {
+    border-top: none;
+    letter-spacing: 0.5px;
+}
+
+.badge {
+    font-weight: 600;
+}
+
+.text-primary {
+    color: #4e73df !important;
+}

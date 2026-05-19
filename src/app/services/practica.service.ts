@@ -89,6 +89,10 @@ export class PracticaService {
     return this.http.delete<any>(`${this.apiUrl}practica-herramientas/${id}/`);
   }
 
+  getHerramientasPorPractica(practicaId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}practicas/${practicaId}/herramientas/`);
+  }
+
   // Préstamos y Devoluciones
   getPrestamos(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}prestamos-herramientas/`);
@@ -96,6 +100,10 @@ export class PracticaService {
 
   createPrestamo(data: any): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}prestamos-herramientas/`, data);
+  }
+
+  deletePrestamo(id: number): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}prestamos-herramientas/${id}/`);
   }
 
   createDevolucion(data: any): Observable<any> {

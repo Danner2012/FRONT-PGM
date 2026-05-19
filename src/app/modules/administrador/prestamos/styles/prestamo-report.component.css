@@ -1,0 +1,16 @@
+.bg-dark {
+    background-color: #1a1a1a !important;
+}
+
+.card {
+    transition: transform 0.2s;
+}
+
+.table thead th {
+    border-top: none;
+    letter-spacing: 0.5px;
+}
+
+.badge {
+    font-weight: 600;
+}

@@ -1,0 +1,188 @@
+<div class="management-container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="fw-bold mb-0">Gestión de Préstamos y Devoluciones</h4>
+            <p class="text-muted small">Control de herramientas prestadas a estudiantes para prácticas.</p>
+        </div>
+        <button class="btn btn-primary rounded-pill px-4 shadow-sm d-flex align-items-center gap-2" (click)="openPrestamoModal()">
+            <i class="bi bi-plus-circle-fill fs-5"></i>
+            <span>Nuevo Préstamo</span>
+        </button>
+    </div>
+
+    <!-- Tabla de Préstamos -->
+    <div class="card card-custom overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-custom table-hover">
+                <thead>
+                    <tr>
+                        <th class="text-center" style="width: 60px;">#</th>
+                        <th>Estudiante</th>
+                        <th>Práctica / Curso</th>
+                        <th>Herramienta</th>
+                        <th class="text-center">Cant.</th>
+                        <th class="text-center">Fecha Préstamo</th>
+                        <th class="text-center">Estado</th>
+                        <th class="text-end" style="width: 150px;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let prestamo of prestamos(); let i = index">
+                        <td class="text-center fw-bold">{{ i + 1 }}</td>
+                        <td>
+                            <div class="fw-bold text-dark">{{ prestamo.estudiante_nombre }}</div>
+                            <div class="text-muted small">{{ prestamo.estudiante_ci }}</div>
+                        </td>
+                        <td>
+                            <div class="text-primary fw-bold">{{ prestamo.practica_titulo }}</div>
+                            <div class="text-muted small">{{ prestamo.curso_nombre }}</div>
+                        </td>
+                        <td>
+                            <div class="fw-bold">{{ prestamo.herramienta_nombre }}</div>
+                        </td>
+                        <td class="text-center">
+                            <span class="badge bg-light text-dark border">{{ prestamo.cantidad_prestada }}</span>
+                            <div class="small text-muted" *ngIf="prestamo.total_devuelto > 0">
+                                Dev: {{ prestamo.total_devuelto }}
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            <span class="text-muted small">{{ prestamo.fecha_prestamo | date:'dd/MM/yyyy HH:mm' }}</span>
+                        </td>
+                        <td class="text-center">
+                            <span [class]="getEstadoBadgeClass(prestamo.estado)">
+                                {{ prestamo.estado | uppercase }}
+                            </span>
+                        </td>
+                        <td class="text-end">
+                            <div class="d-flex justify-content-end gap-2">
+                                <button *ngIf="prestamo.estado !== 'devuelto'" 
+                                        class="btn btn-action btn-success" 
+                                        (click)="openDevolucionModal(prestamo)" 
+                                        title="Registrar Devolución">
+                                    <i class="bi bi-arrow-return-left"></i>
+                                </button>
+                                <button class="btn btn-action btn-delete" 
+                                        (click)="deletePrestamo(prestamo.id)"
+                                        title="Eliminar">
+                                    <i class="bi bi-trash-fill"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr *ngIf="prestamos().length === 0">
+                        <td colspan="8" class="text-center py-5 text-muted">
+                            <i class="bi bi-journal-check fs-1 d-block mb-2 opacity-50"></i>
+                            No hay préstamos registrados.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal Nuevo Préstamo -->
+    <div class="modal-overlay" *ngIf="showPrestamoModal()">
+        <div class="modal-content-custom">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="fw-bold mb-0">Registrar Nuevo Préstamo</h5>
+                <button class="btn-close" (click)="closePrestamoModal()"></button>
+            </div>
+
+            <form [formGroup]="prestamoForm" (ngSubmit)="savePrestamo()">
+                <div class="row g-3">
+                    <div class="col-md-12">
+                        <label class="form-label small fw-bold">Curso</label>
+                        <select class="form-select" formControlName="id_curso_temp">
+                            <option value="">Seleccione un curso...</option>
+                            <option *ngFor="let c of cursos()" [value]="c.id">
+                                {{ c.nombre }}
+                            </option>
+                        </select>
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label small fw-bold">Estudiante (Inscripciones del curso)</label>
+                        <select class="form-select" formControlName="id_inscripcion">
+                            <option value="">Seleccione un estudiante...</option>
+                            <option *ngFor="let ins of filteredInscripciones()" [value]="ins.id">
+                                {{ ins.estudiante_detalle?.nombre_completo || 'ID Estudiante: ' + ins.id_estudiante }}
+                            </option>
+                        </select>
+                        <div *ngIf="prestamoForm.get('id_curso_temp')?.value && filteredInscripciones().length === 0" class="small text-danger mt-1">
+                            No se encontraron inscripciones para este curso en el sistema.
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label small fw-bold">Práctica</label>
+                        <select class="form-select" formControlName="id_practica">
+                            <option value="">Seleccione la práctica...</option>
+                            <option *ngFor="let p of filteredPracticas()" [value]="p.id">
+                                {{ p.titulo }}
+                            </option>
+                        </select>
+                    </div>
+                    <div class="col-md-8">
+                        <label class="form-label small fw-bold">Herramienta</label>
+                        <select class="form-select" formControlName="id_herramienta">
+                            <option value="">Seleccione herramienta...</option>
+                            <option *ngFor="let h of herramientas()" [value]="h.id" [disabled]="h.stock_disponible <= 0">
+                                {{ h.nombre }} (Disp: {{ h.stock_disponible }})
+                            </option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold">Cantidad</label>
+                        <input type="number" class="form-control" formControlName="cantidad_prestada">
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label small fw-bold">Observaciones</label>
+                        <textarea class="form-control" formControlName="observacion" rows="2" placeholder="Opcional..."></textarea>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 mt-5">
+                    <button type="button" class="btn btn-light rounded-pill px-4" (click)="closePrestamoModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4" [disabled]="prestamoForm.invalid">
+                        Registrar Préstamo
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Registrar Devolución -->
+    <div class="modal-overlay" *ngIf="showDevolucionModal()">
+        <div class="modal-content-custom modal-sm">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="fw-bold mb-0">Registrar Devolución</h5>
+                <button class="btn-close" (click)="closeDevolucionModal()"></button>
+            </div>
+
+            <div class="mb-4 p-3 bg-light rounded-4 border">
+                <div class="small fw-bold text-primary mb-1">{{ selectedPrestamo()?.herramienta_nombre }}</div>
+                <div class="small text-muted">Prestado: {{ selectedPrestamo()?.cantidad_prestada }}</div>
+                <div class="small text-muted">Pendiente: {{ selectedPrestamo()?.cantidad_prestada - (selectedPrestamo()?.total_devuelto || 0) }}</div>
+            </div>
+
+            <form [formGroup]="devolucionForm" (ngSubmit)="saveDevolucion()">
+                <div class="row g-3">
+                    <div class="col-md-12">
+                        <label class="form-label small fw-bold">Cantidad a Devolver</label>
+                        <input type="number" class="form-control" formControlName="cantidad_devuelta">
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label small fw-bold">Observaciones</label>
+                        <textarea class="form-control" formControlName="observacion" rows="2" placeholder="Estado de la herramienta..."></textarea>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 mt-5">
+                    <button type="button" class="btn btn-light rounded-pill px-4" (click)="closeDevolucionModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-success rounded-pill px-4" [disabled]="devolucionForm.invalid">
+                        Confirmar Devolución
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

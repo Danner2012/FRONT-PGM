@@ -1,4 +1,4 @@
-<div class="container-fluid py-4">
+<div class="management-container">
     <div class="row mb-4 animate__animated animate__fadeIn">
         <div class="col-12">
             <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
@@ -6,7 +6,7 @@
                     <div class="d-flex align-items-center justify-content-between">
                         <div>
                             <h3 class="fw-bold mb-1"><i class="bi bi-box-seam-fill me-2"></i>Mis Herramientas</h3>
-                            <p class="mb-0 opacity-75">Control de herramientas prestadas para tus prácticas</p>
+                            <p class="mb-0 opacity-75">Consulta el estado de las herramientas que tienes prestadas para tus prácticas.</p>
                         </div>
                     </div>
                 </div>
@@ -14,56 +14,109 @@
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-12">
-            <div class="card border-0 shadow-sm rounded-4">
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0">
-                            <thead class="bg-light">
-                                <tr>
-                                    <th class="ps-4 py-3 text-muted small fw-bold text-uppercase">Herramienta</th>
-                                    <th class="py-3 text-muted small fw-bold text-uppercase">Práctica</th>
-                                    <th class="py-3 text-muted small fw-bold text-uppercase text-center">Cantidad</th>
-                                    <th class="py-3 text-muted small fw-bold text-uppercase">Fecha Préstamo</th>
-                                    <th class="py-3 text-muted small fw-bold text-uppercase text-center">Estado</th>
-                                    <th class="pe-4 py-3 text-muted small fw-bold text-uppercase">Observación</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr *ngFor="let p of prestamos()" class="animate__animated animate__fadeIn">
-                                    <td class="ps-4">
-                                        <div class="fw-bold text-primary">{{ p.herramienta_nombre }}</div>
-                                    </td>
-                                    <td>{{ p.practica_titulo }}</td>
-                                    <td class="text-center">
-                                        <span class="badge rounded-pill bg-light text-dark border px-3">
-                                            {{ p.cantidad_prestada }}
-                                        </span>
-                                    </td>
-                                    <td>{{ p.fecha_prestamo | date:'short' }}</td>
-                                    <td class="text-center">
-                                        <span class="badge rounded-pill px-3 py-2" [ngClass]="getEstadoBadgeClass(p.estado)">
-                                            {{ p.estado | titlecase }}
-                                        </span>
-                                    </td>
-                                    <td class="pe-4">
-                                        <span class="text-muted small italic">{{ p.observacion || 'Sin observaciones' }}</span>
-                                    </td>
-                                </tr>
-                                <tr *ngIf="prestamos().length === 0">
-                                    <td colspan="6" class="text-center py-5">
-                                        <div class="text-muted">
-                                            <i class="bi bi-inbox fs-1 d-block mb-3 opacity-25"></i>
-                                            <p class="mb-0">No tienes herramientas prestadas actualmente.</p>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+    <!-- Barra de Filtros -->
+    <div class="filters-bar animate-fade-in mb-4">
+        <div class="row g-2 align-items-end">
+            <div class="col-md-4">
+                <div class="filter-group">
+                    <label class="filter-label">Buscar Herramienta</label>
+                    <div class="search-input-group">
+                        <i class="bi bi-search"></i>
+                        <input type="text" class="filter-control" placeholder="Nombre de herramienta..." [ngModel]="filterHerramienta()" (ngModelChange)="filterHerramienta.set($event)">
                     </div>
                 </div>
             </div>
+            <div class="col-md-3">
+                <div class="filter-group">
+                    <label class="filter-label">Estado</label>
+                    <select class="filter-control" [ngModel]="filterEstado()" (ngModelChange)="filterEstado.set($event)">
+                        <option value="todos">Todos los estados</option>
+                        <option value="prestado">Prestado</option>
+                        <option value="parcial">Devolución Parcial</option>
+                        <option value="devuelto">Devuelto</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="filter-group">
+                    <label class="filter-label">Fecha de Préstamo</label>
+                    <input type="date" class="filter-control" [ngModel]="filterFecha()" (ngModelChange)="filterFecha.set($event)">
+                </div>
+            </div>
+            <div class="col-auto">
+                <button class="btn-clear-icon" (click)="clearFilters()" title="Limpiar Filtros">
+                    <i class="bi bi-eraser-fill"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="card card-custom overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-custom table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th class="text-center" style="width: 60px;">#</th>
+                        <th>Herramientas (Cant.)</th>
+                        <th>Práctica / Curso</th>
+                        <th class="text-center">Fecha Préstamo</th>
+                        <th class="text-center">Estado</th>
+                        <th>Observaciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let p of filteredPrestamos(); let i = index" class="animate__animated animate__fadeIn">
+                        <td class="text-center fw-bold">{{ i + 1 }}</td>
+                        <td>
+                            <div *ngFor="let det of p.detalles" class="tool-item d-flex justify-content-between align-items-center">
+                                <span class="fw-bold text-dark">{{ det.herramienta_nombre }}</span>
+                                <span class="badge bg-white text-primary border border-primary-subtle ms-2">Cant: {{ det.cantidad_prestada }}</span>
+                            </div>
+                            <!-- Respaldo para datos antiguos -->
+                            <div *ngIf="!p.detalles || p.detalles.length === 0" class="tool-item d-flex justify-content-between align-items-center">
+                                <span class="fw-bold text-dark">{{ p.herramienta_nombre }}</span>
+                                <span class="badge bg-white text-primary border border-primary-subtle ms-2">Cant: {{ p.cantidad_prestada }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="fw-bold text-primary">{{ p.practica_titulo }}</div>
+                            <div class="text-muted small">{{ p.curso_nombre }}</div>
+                        </td>
+                        <td class="text-center">
+                            <div class="text-dark fw-medium">{{ p.fecha_prestamo | date:'dd/MM/yyyy' }}</div>
+                            <div class="text-muted small">{{ p.fecha_prestamo | date:'HH:mm' }}</div>
+                        </td>
+                        <td class="text-center">
+                            <div *ngFor="let det of p.detalles" class="mb-1">
+                                <span [class]="getEstadoBadgeClass(det.estado)" class="badge">
+                                    {{ det.estado | uppercase }}
+                                </span>
+                            </div>
+                            <!-- Respaldo para datos antiguos -->
+                            <div *ngIf="!p.detalles || p.detalles.length === 0">
+                                <span [class]="getEstadoBadgeClass(p.estado)" class="badge">
+                                    {{ p.estado | uppercase }}
+                                </span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="p-2 bg-light rounded-3 small text-muted border-start border-3 border-primary" *ngIf="p.observacion">
+                                {{ p.observacion }}
+                            </div>
+                            <span class="text-muted opacity-50 small" *ngIf="!p.observacion">Sin observaciones</span>
+                        </td>
+                    </tr>
+                    <tr *ngIf="prestamos().length === 0">
+                        <td colspan="6" class="text-center py-5">
+                            <div class="text-muted py-4">
+                                <i class="bi bi-inbox fs-1 d-block mb-3 opacity-25"></i>
+                                <h5 class="fw-bold">Sin herramientas prestadas</h5>
+                                <p class="mb-0">No tienes préstamos activos en este momento.</p>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 </div>

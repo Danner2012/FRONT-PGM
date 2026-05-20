@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PracticaService } from '../../../../services/practica.service';
@@ -17,6 +17,11 @@ export class PracticaReviewComponent implements OnInit {
   entregas = signal<any[]>([]);
   isLoading = signal(true);
   
+  // Filtros
+  filterText = signal('');
+  filterCurso = signal('todos');
+  filterEstado = signal('todos');
+
   selectedEntrega = signal<any>(null);
   showReviewModal = signal(false);
 
@@ -26,6 +31,33 @@ export class PracticaReviewComponent implements OnInit {
     comentario: '',
     estado: 'aprobada'
   };
+
+  // Cursos únicos para el filtro
+  cursosDisponibles = computed(() => {
+    const nombres = this.entregas().map(e => ({ 
+      id: e.practica_detalle?.id_curso, 
+      nombre: e.practica_detalle?.curso_nombre 
+    })).filter(c => c.id);
+    
+    return Array.from(new Map(nombres.map(c => [c.id, c])).values());
+  });
+
+  // Entregas filtradas
+  filteredEntregas = computed(() => {
+    return this.entregas().filter(e => {
+      const text = this.filterText().toLowerCase();
+      const matchText = !text || 
+                        e.estudiante_nombre?.toLowerCase().includes(text) || 
+                        e.practica_detalle?.titulo?.toLowerCase().includes(text);
+      
+      const matchCurso = this.filterCurso() === 'todos' || 
+                         e.practica_detalle?.id_curso?.toString() === this.filterCurso();
+      
+      const matchEstado = this.filterEstado() === 'todos' || e.estado === this.filterEstado();
+
+      return matchText && matchCurso && matchEstado;
+    });
+  });
 
   ngOnInit() {
     this.loadEntregas();
@@ -44,6 +76,12 @@ export class PracticaReviewComponent implements OnInit {
         Swal.fire('Error', 'No se pudieron cargar las prácticas entregadas', 'error');
       }
     });
+  }
+
+  clearFilters() {
+    this.filterText.set('');
+    this.filterCurso.set('todos');
+    this.filterEstado.set('todos');
   }
 
   openReview(entrega: any) {

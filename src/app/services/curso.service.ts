@@ -46,6 +46,9 @@ export class CursoService {
   getCursos(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}cursos/`);
   }
+  getCursosPorTecnico(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}cursos/mis-cursos-tecnico/`);
+  }
   createCurso(data: any): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}cursos/`, data);
   }

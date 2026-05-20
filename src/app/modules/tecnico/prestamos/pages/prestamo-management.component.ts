@@ -182,7 +182,7 @@ export class PrestamoManagementComponent implements OnInit {
   }
 
   loadCursos() {
-    this.cursoService.getCursos().subscribe(data => this.cursos.set(data));
+    this.cursoService.getCursosPorTecnico().subscribe(data => this.cursos.set(data));
   }
 
   openPrestamoModal() {

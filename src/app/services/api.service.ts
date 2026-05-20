@@ -52,6 +52,10 @@ export class ApiService {
     return this.http.post<any>(`${this.apiUrl}estudiantes/${id}/toggle-status/`, {});
   }
 
+  getStudentStats(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}student-stats/`);
+  }
+
   // Métodos para Cursos
   getCursos(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}cursos/`);

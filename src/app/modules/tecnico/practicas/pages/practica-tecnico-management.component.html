@@ -1,0 +1,421 @@
+<div class="management-container">
+    <!-- ENCABEZADO SIMPLE -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="fw-bold mb-0">Mis Prácticas</h4>
+            <p class="text-muted small">Crea y gestiona las guías de aprendizaje para tus cursos asignados.</p>
+        </div>
+    </div>
+
+    <!-- PESTAÑAS Y ACCIÓN -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="tabs-container">
+            <button class="tab-btn" [class.active]="activeTab() === 'practicas'" (click)="activeTab.set('practicas')">Prácticas</button>
+            <button class="tab-btn" [class.active]="activeTab() === 'maestros'" (click)="activeTab.set('maestros')">Configuración</button>
+        </div>
+        <button *ngIf="activeTab() === 'practicas'" class="btn btn-primary rounded-pill px-4 shadow-sm d-flex align-items-center gap-2" (click)="openPracticaModal()">
+            <i class="bi bi-plus-circle fs-5"></i>
+            <span>Nueva Práctica</span>
+        </button>
+    </div>
+
+    <!-- PESTAÑA 1: GESTIÓN DE PRÁCTICAS -->
+    <div *ngIf="activeTab() === 'practicas'" class="animate-fade-in">
+        <!-- BARRA DE FILTROS -->
+        <div class="filters-bar mb-4">
+            <div class="row g-2 align-items-end">
+                <div class="col-md-4">
+                    <div class="filter-group">
+                        <label class="filter-label">Título de la Práctica</label>
+                        <div class="search-input-group">
+                            <i class="bi bi-search"></i>
+                            <input type="text" class="filter-control" placeholder="Buscar..." [ngModel]="filterTitulo()" (ngModelChange)="filterTitulo.set($event)">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="filter-group">
+                        <label class="filter-label">Curso</label>
+                        <select class="filter-control shadow-none" [ngModel]="filterCurso()" (ngModelChange)="filterCurso.set($event)">
+                            <option value="todos">Todos mis Cursos</option>
+                            <option *ngFor="let c of cursos()" [value]="c.id">{{ c.nombre }}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="filter-group">
+                        <label class="filter-label">Estado</label>
+                        <select class="filter-control shadow-none" [ngModel]="filterEstado()" (ngModelChange)="filterEstado.set($event)">
+                            <option value="todos">Todos los Estados</option>
+                            <option value="activo">Activas</option>
+                            <option value="inactivo">Inactivas</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-auto">
+                    <button class="btn-clear-icon" (click)="clearFilters()" title="Limpiar Filtros">
+                        <i class="bi bi-eraser-fill"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- TABLA DE PRÁCTICAS -->
+        <div class="card card-custom overflow-hidden">
+            <div class="table-responsive">
+                <table class="table table-custom table-hover">
+                    <thead>
+                        <tr>
+                            <th class="text-center" style="width: 60px;">#</th>
+                            <th>Información de la Práctica</th>
+                            <th class="text-center">Contenido</th>
+                            <th class="text-center">Estado</th>
+                            <th class="text-end" style="width: 220px;">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let p of filteredPracticas(); let i = index">
+                            <td class="text-center fw-bold">
+                                <span class="text-muted" style="font-size: 0.9rem;">{{ i + 1 }}</span>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-sm bg-light-primary text-primary me-2 rounded-circle d-flex align-items-center justify-content-center fw-bold" 
+                                         style="width: 32px; height: 32px; font-size: 0.75rem; background-color: #ebf8ff; color: #3182ce;">
+                                        {{ p.titulo.charAt(0) }}
+                                    </div>
+                                    <div class="ms-2">
+                                        <div class="fw-semibold">{{ p.titulo }}</div>
+                                        <div class="small text-muted text-uppercase fw-bold d-flex gap-2" style="font-size: 0.65rem;">
+                                            <span><i class="bi bi-journal-bookmark me-1"></i> {{ p.curso_nombre }}</span>
+                                            <span class="text-primary"><i class="bi bi-tag-fill me-1"></i> {{ p.tipo_practica_nombre || 'Sin Tipo' }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                <div class="d-flex justify-content-center gap-3">
+                                    <div class="content-badge badge-multimedia" [title]="'Recursos: ' + (p.recursos?.length || 0)">
+                                        <i class="bi bi-play-circle-fill"></i>
+                                        <span>{{ p.recursos?.length || 0 }}</span>
+                                    </div>
+                                    <div class="content-badge badge-tools" [title]="'Herramientas: ' + (p.herramientas?.length || 0)">
+                                        <i class="bi bi-tools"></i>
+                                        <span>{{ p.herramientas?.length || 0 }}</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                <span [class]="p.estado ? 'badge-activo' : 'badge-inactivo'">
+                                    {{ p.estado ? 'Activa' : 'Inactiva' }}
+                                </span>
+                            </td>
+                            <td class="text-end">
+                                <div class="d-flex justify-content-end gap-1">
+                                    <button class="btn-action" [ngClass]="p.estado ? 'btn-status-active' : 'btn-status-inactive'" (click)="togglePracticaStatus(p)" [title]="p.estado ? 'Desactivar' : 'Activar'">
+                                        <i [class]="p.estado ? 'bi bi-toggle-on' : 'bi bi-toggle-off'"></i>
+                                    </button>
+                                    <button class="btn-action btn-view" (click)="openViewResourcesModal(p)" title="Ver Detalles">
+                                        <i class="bi bi-eye-fill"></i>
+                                    </button>
+                                    <button class="btn-action btn-multimedia" (click)="openRecursoModal(p.id)" title="Recursos">
+                                        <i class="bi bi-file-earmark-play"></i>
+                                    </button>
+                                    <button class="btn-action btn-assign" (click)="openHerramientaModal(p.id)" title="Herramientas">
+                                        <i class="bi bi-tools"></i>
+                                    </button>
+                                    <button class="btn-action btn-edit" (click)="openPracticaModal(p)" title="Editar">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- PESTAÑA 2: CONFIGURACIÓN (Maestros) -->
+    <div *ngIf="activeTab() === 'maestros'" class="animate-fade-in">
+        <div class="row g-4">
+            <!-- Tipos de Recurso -->
+            <div class="col-md-6">
+                <div class="card card-custom h-100 overflow-hidden">
+                    <div class="p-3 border-bottom d-flex justify-content-between align-items-center bg-light-subtle">
+                        <h6 class="m-0 fw-bold text-uppercase small letter-spacing-1">Tipos de Recurso</h6>
+                        <button class="btn btn-primary btn-sm rounded-pill px-3 shadow-sm" (click)="showTipoModal.set(true)">
+                            <i class="bi bi-plus-lg me-1"></i> Nuevo
+                        </button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-custom table-hover mb-0">
+                            <thead>
+                                <tr class="bg-light">
+                                    <th class="ps-4" style="width: 80px;">ID</th>
+                                    <th>Nombre</th>
+                                    <th class="text-end pe-4">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let t of tiposRecurso()">
+                                    <td class="ps-4 fw-bold text-muted">#{{ t.id }}</td>
+                                    <td><div class="fw-bold text-primary">{{ t.nombre }}</div></td>
+                                    <td class="text-end pe-4">
+                                        <button class="btn btn-sm btn-light-delete text-danger" (click)="removeTipoRecurso(t.id)"><i class="bi bi-trash"></i></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tipos de Práctica -->
+            <div class="col-md-6">
+                <div class="card card-custom h-100 overflow-hidden">
+                    <div class="p-3 border-bottom d-flex justify-content-between align-items-center bg-light-subtle">
+                        <h6 class="m-0 fw-bold text-uppercase small letter-spacing-1">Tipos de Práctica</h6>
+                        <button class="btn btn-primary btn-sm rounded-pill px-3 shadow-sm" (click)="showTipoPracticaModal.set(true)">
+                            <i class="bi bi-plus-lg me-1"></i> Nuevo
+                        </button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-custom table-hover mb-0">
+                            <thead>
+                                <tr class="bg-light">
+                                    <th class="ps-4" style="width: 80px;">ID</th>
+                                    <th>Categoría</th>
+                                    <th class="text-end pe-4">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let tp of tiposPractica()">
+                                    <td class="ps-4 fw-bold text-muted">#{{ tp.id }}</td>
+                                    <td><div class="fw-bold text-primary">{{ tp.nombre }}</div></td>
+                                    <td class="text-end pe-4">
+                                        <button class="btn btn-sm btn-light-delete text-danger" (click)="removeTipoPractica(tp.id)"><i class="bi bi-trash"></i></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODALES -->
+
+    <!-- MODAL PRÁCTICA -->
+    <div class="modal-overlay" *ngIf="showPracticaModal()">
+        <div class="modal-content-custom animate-slide-up" style="max-width: 600px;">
+            <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+                <h5 class="fw-bold mb-0 text-uppercase">{{ isEditing() ? 'Editar Práctica' : 'Nueva Práctica' }}</h5>
+                <button class="btn-close" (click)="showPracticaModal.set(false)"></button>
+            </div>
+            <form #pForm="ngForm" (ngSubmit)="savePractica()">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">Curso Asignado</label>
+                        <select class="form-select rounded-4 shadow-none" name="id_curso" [(ngModel)]="practicaForm.id_curso" required>
+                            <option value="">Seleccione un curso...</option>
+                            <option *ngFor="let c of cursos()" [value]="c.id">{{ c.nombre }}</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">Tipo de Práctica</label>
+                        <select class="form-select rounded-4 shadow-none" name="id_tipo_practica" [(ngModel)]="practicaForm.id_tipo_practica" required>
+                            <option value="">Seleccione tipo...</option>
+                            <option *ngFor="let tp of tiposPractica()" [value]="tp.id">{{ tp.nombre }}</option>
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label small fw-bold">Título de la Práctica</label>
+                        <input type="text" class="form-control rounded-4 shadow-none" name="titulo" [(ngModel)]="practicaForm.titulo" required placeholder="Ej. Introducción al Desarmado">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label small fw-bold">Descripción / Instrucciones</label>
+                        <textarea class="form-control rounded-4 shadow-none" name="descripcion" [(ngModel)]="practicaForm.descripcion" rows="4" placeholder="Detalle los objetivos..."></textarea>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-end gap-2 mt-5 pt-3 border-top">
+                    <button type="button" class="btn btn-light rounded-pill px-4" (click)="showPracticaModal.set(false)">Cancelar</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4 shadow-sm" [disabled]="!pForm.valid">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- OTROS MODALES -->
+    <div class="modal-overlay" *ngIf="showTipoModal()">
+        <div class="modal-content-custom animate-slide-up" style="max-width: 400px;">
+            <h5 class="fw-bold mb-4">Nuevo Tipo de Recurso</h5>
+            <form (ngSubmit)="saveTipoRecurso()">
+                <input type="text" class="form-control rounded-4 mb-4" name="t_nombre" [(ngModel)]="tipoForm.nombre" required placeholder="Ej: Video, PDF">
+                <div class="d-flex justify-content-end gap-2">
+                    <button type="button" class="btn btn-light rounded-pill px-4" (click)="showTipoModal.set(false)">Cancelar</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal-overlay" *ngIf="showTipoPracticaModal()">
+        <div class="modal-content-custom animate-slide-up" style="max-width: 400px;">
+            <h5 class="fw-bold mb-4">Nueva Categoría de Práctica</h5>
+            <form (ngSubmit)="saveTipoPractica()">
+                <input type="text" class="form-control rounded-4 mb-4" name="tp_nombre" [(ngModel)]="tipoPracticaForm.nombre" required placeholder="Ej: Teórica, Evaluación">
+                <div class="d-flex justify-content-end gap-2">
+                    <button type="button" class="btn btn-light rounded-pill px-4" (click)="showTipoPracticaModal.set(false)">Cancelar</button>
+                    <button type="submit" class="btn btn-info text-white rounded-pill px-4">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL VER DETALLES -->
+    <div class="modal-overlay" *ngIf="showViewResourcesModal()">
+        <div class="modal-content-custom animate-slide-up">
+            <div class="d-flex justify-content-between align-items-center mb-0 border-bottom pb-3">
+                <div>
+                    <h5 class="fw-bold mb-0 text-primary">{{ selectedPracticaDetails()?.titulo }}</h5>
+                    <div class="small text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">
+                        {{ selectedPracticaDetails()?.curso_nombre }} • {{ selectedPracticaDetails()?.tipo_practica_nombre }}
+                    </div>
+                </div>
+                <button class="btn-close" (click)="showViewResourcesModal.set(false)"></button>
+            </div>
+
+            <div class="modal-body-scroll">
+                <div class="mb-5 p-4 bg-light rounded-4 border-start border-4 border-info shadow-sm">
+                    <h6 class="fw-bold mb-3 text-uppercase small text-info d-flex align-items-center">
+                        <i class="bi bi-info-circle-fill me-2 fs-5"></i>Descripción e Instrucciones
+                    </h6>
+                    <p class="mb-0 text-dark" style="white-space: pre-wrap; line-height: 1.6; font-size: 0.95rem;">
+                        {{ selectedPracticaDetails()?.descripcion }}
+                    </p>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-md-6 border-end">
+                        <div class="d-flex align-items-center mb-4">
+                            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 30px; height: 30px;">
+                                <i class="bi bi-play-fill"></i>
+                            </div>
+                            <h6 class="fw-bold mb-0 text-uppercase small letter-spacing-1">Recursos Multimedia</h6>
+                        </div>
+                        
+                        <div *ngFor="let r of selectedPracticaDetails()?.recursos" class="mb-4">
+                            <div class="p-3 bg-white rounded-4 shadow-sm border border-light-subtle position-relative overflow-hidden">
+                                <div class="border-start border-3 border-primary ps-2">
+                                    <div class="fw-bold text-dark small">{{ r.titulo }}</div>
+                                    <div class="text-muted" style="font-size: 0.7rem;">{{ r.tipo_recurso_nombre }}</div>
+                                </div>
+                                <div class="d-flex gap-2 mt-3">
+                                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3" (click)="viewResource(r)" style="font-size: 0.7rem;">
+                                        <i class="bi bi-box-arrow-up-right me-1"></i> Abrir
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger rounded-circle" (click)="removeRecurso(r.id)">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div *ngIf="isVideo(r)" class="mt-2 video-preview-container bg-dark rounded-4 overflow-hidden">
+                                <video controls class="w-100" style="max-height: 250px;">
+                                    <source [src]="getResourceUrl(r)" type="video/mp4">
+                                </video>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-center mb-4">
+                            <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 30px; height: 30px;">
+                                <i class="bi bi-tools"></i>
+                            </div>
+                            <h6 class="fw-bold mb-0 text-uppercase small letter-spacing-1">Herramientas Requeridas</h6>
+                        </div>
+
+                        <div *ngFor="let h of selectedPracticaDetails()?.herramientas" class="mb-3">
+                            <div class="p-3 bg-white rounded-4 shadow-sm border border-light-subtle d-flex justify-content-between align-items-center">
+                                <div class="border-start border-3 border-success ps-2">
+                                    <div class="fw-bold text-dark small">{{ h.herramienta_nombre }}</div>
+                                    <div class="badge bg-success-subtle text-success border border-success-subtle rounded-pill" style="font-size: 0.65rem;">
+                                        Cantidad: {{ h.cantidad_requerida }}
+                                    </div>
+                                </div>
+                                <button class="btn btn-sm btn-outline-danger rounded-circle" (click)="removeHerramienta(h.id)">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-end mt-4 pt-3 border-top">
+                <button class="btn btn-primary rounded-pill px-5 shadow-sm" (click)="showViewResourcesModal.set(false)">CERRAR DETALLES</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL RECURSO -->
+    <div class="modal-overlay" *ngIf="showRecursoModal()">
+        <div class="modal-content-custom animate-slide-up" style="max-width: 500px;">
+            <h5 class="fw-bold mb-4">Gestionar Recurso</h5>
+            <form (ngSubmit)="saveRecurso()">
+                <div class="mb-3">
+                    <label class="small fw-bold">Tipo</label>
+                    <select class="form-select" name="id_tipo_recurso" [(ngModel)]="recursoForm.id_tipo_recurso" required>
+                        <option *ngFor="let t of tiposRecurso()" [value]="t.id">{{ t.nombre }}</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="small fw-bold">Nombre</label>
+                    <input type="text" class="form-control" name="r_titulo" [(ngModel)]="recursoForm.titulo" required>
+                </div>
+                <div class="mb-3">
+                    <label class="small fw-bold">Descripción</label>
+                    <textarea class="form-control" name="r_descripcion" [(ngModel)]="recursoForm.descripcion" required rows="2"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="small fw-bold">URL</label>
+                    <input type="url" class="form-control" name="url_externa" [(ngModel)]="recursoForm.url_externa">
+                </div>
+                <div class="mb-3">
+                    <label class="small fw-bold">Archivo</label>
+                    <input type="file" class="form-control" (change)="onFileSelected($event)">
+                </div>
+                <div class="d-flex justify-content-end gap-2 mt-4">
+                    <button type="button" class="btn btn-light rounded-pill px-4" (click)="showRecursoModal.set(false)">Cancelar</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL HERRAMIENTA -->
+    <div class="modal-overlay" *ngIf="showHerramientaModal()">
+        <div class="modal-content-custom animate-slide-up" style="max-width: 450px;">
+            <h5 class="fw-bold mb-4">Requerir Herramienta</h5>
+            <form (ngSubmit)="savePracticaHerramienta()">
+                <div class="mb-3">
+                    <label class="small fw-bold">Herramienta</label>
+                    <select class="form-select" name="id_herramienta" [(ngModel)]="phForm.id_herramienta" required>
+                        <option *ngFor="let h of herramientas()" [value]="h.id">{{ h.nombre }}</option>
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label class="small fw-bold">Cantidad</label>
+                    <input type="number" class="form-control" name="cant" [(ngModel)]="phForm.cantidad_requerida" required min="1">
+                </div>
+                <div class="d-flex justify-content-end gap-2">
+                    <button type="button" class="btn btn-light rounded-pill px-4" (click)="showHerramientaModal.set(false)">Cancelar</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

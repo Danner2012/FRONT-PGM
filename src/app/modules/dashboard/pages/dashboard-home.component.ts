@@ -1,9 +1,14 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../services/auth.service';
 import { CursoService } from '../../../services/curso.service';
 import { HerramientaService } from '../../../services/herramienta.service';
+import { ApiService } from '../../../services/api.service';
+import { PracticaService } from '../../../services/practica.service';
 import { RouterModule } from '@angular/router';
+import { Chart, registerables } from 'chart.js';
+
+Chart.register(...registerables);
 
 @Component({
   selector: 'app-dashboard-home',
@@ -114,55 +119,221 @@ import { RouterModule } from '@angular/router';
       </ng-container>
 
       <!-- ============================================================ -->
-      <!-- VISTA PARA ESTUDIANTES (Mismo Tema Oscuro) -->
+      <!-- VISTA PARA TÉCNICOS -->
       <!-- ============================================================ -->
-      <ng-container *ngIf="userRole() === 'estudiante'">
-        <div class="hero-section mb-5 p-5 rounded-5 shadow-sm text-white">
+      <ng-container *ngIf="userRole() === 'técnico' || userRole() === 'tecnico'">
+        <div class="hero-section mb-4 p-4 rounded-4 shadow-sm text-white">
           <div class="row align-items-center">
             <div class="col-md-8">
-              <h1 class="display-5 fw-bold mb-2">Bienvenido, {{ getFullName() }}</h1>
-              <p class="lead opacity-75 mb-4">Es un buen día para aprender. Continúa con tus cursos o explora las herramientas 3D.</p>
-              <div class="d-flex gap-3">
-                <a routerLink="/dashboard/mis-cursos" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm">Ir a mis cursos</a>
-                <a routerLink="/dashboard/diagnostico-fallas" class="btn btn-outline-secondary text-white rounded-pill px-4 fw-bold border-2">Diagnóstico IA</a>
+              <h2 class="fw-bold mb-1">Panel del Técnico, {{ getFullName() }}</h2>
+              <p class="small opacity-75 mb-3">Gestiona tus prácticas y revisa el progreso de tus alumnos.</p>
+              <div class="d-flex gap-2">
+                <a routerLink="/dashboard/mis-practicas-tecnico" class="btn btn-primary btn-sm rounded-pill px-3 fw-bold shadow-sm">Mis Prácticas</a>
+                <a routerLink="/dashboard/practicas/revision" class="btn btn-outline-secondary text-white btn-sm rounded-pill px-3 fw-bold border-2">Revisar Alumnos</a>
               </div>
             </div>
-            <div class="col-md-4 d-none d-md-block text-center">
-              <i class="bi bi-mortarboard display-1 opacity-10 floating"></i>
+            <div class="col-md-4 d-none d-md-block text-end pe-5">
+              <i class="bi bi-person-workspace display-6 opacity-25 floating"></i>
             </div>
           </div>
         </div>
 
         <div class="row g-4 mb-4">
-          <div class="col-md-6">
+          <div class="col-md-4">
+            <div class="card-glass p-4 shadow-sm border-0 h-100">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <h6 class="text-muted fw-bold mb-1">CURSOS ASIGNADOS</h6>
+                  <h2 class="fw-bold m-0 text-dark">{{ tecnicoStats().cursos }}</h2>
+                </div>
+                <div class="icon-circle bg-primary-soft text-primary">
+                  <i class="bi bi-journal-text fs-4"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card-glass p-4 shadow-sm border-0 h-100">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <h6 class="text-muted fw-bold mb-1">PRÁCTICAS ACTIVAS</h6>
+                  <h2 class="fw-bold m-0 text-dark">{{ tecnicoStats().practicas }}</h2>
+                </div>
+                <div class="icon-circle bg-warning-soft text-warning">
+                  <i class="bi bi-wrench-adjustable fs-4"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card-glass p-4 shadow-sm border-0 h-100">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <h6 class="text-muted fw-bold mb-1">PENDIENTES DE REVISIÓN</h6>
+                  <h2 class="fw-bold m-0 text-dark">{{ tecnicoStats().pendientes }}</h2>
+                </div>
+                <div class="icon-circle bg-danger-soft text-danger" style="background: #fef2f2; color: #dc2626;">
+                  <i class="bi bi-clock-history fs-4"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-4">
+          <div class="col-md-8">
             <div class="p-4 rounded-4 bg-white shadow-sm border h-100">
-               <h5 class="fw-bold mb-3 d-flex align-items-center gap-2">
-                 <i class="bi bi-lightning-charge text-warning"></i> Atajos de Aprendizaje
-               </h5>
-               <div class="list-group list-group-flush">
-                 <a routerLink="/dashboard/mis-cursos" class="list-group-item list-group-item-action border-0 px-0 py-3 d-flex justify-content-between align-items-center">
-                   <div class="d-flex align-items-center gap-3">
-                     <div class="icon-sm bg-light rounded-3 p-2 text-primary"><i class="bi bi-book"></i></div>
-                     <span class="fw-bold">Ver mi progreso</span>
-                   </div>
-                   <i class="bi bi-chevron-right small text-muted"></i>
-                 </a>
-                 <a routerLink="/dashboard/diagnostico-fallas" class="list-group-item list-group-item-action border-0 px-0 py-3 d-flex justify-content-between align-items-center">
-                   <div class="d-flex align-items-center gap-3">
-                     <div class="icon-sm bg-light rounded-3 p-2 text-info"><i class="bi bi-robot"></i></div>
-                     <span class="fw-bold">Asistente de fallas (IA)</span>
-                   </div>
-                   <i class="bi bi-chevron-right small text-muted"></i>
-                 </a>
-               </div>
+              <h5 class="fw-bold mb-4">Atajos Rápidos</h5>
+              <div class="row g-3">
+                <div class="col-6 col-md-4">
+                  <a routerLink="/dashboard/gestion-prestamos" class="quick-link-box p-3 rounded-4 border text-center text-decoration-none d-block">
+                    <i class="bi bi-box-arrow-right fs-3 mb-2 d-block text-primary"></i>
+                    <span class="small fw-bold text-dark">Gestionar Préstamos</span>
+                  </a>
+                </div>
+                <div class="col-6 col-md-4">
+                  <a routerLink="/dashboard/mis-practicas-tecnico" class="quick-link-box p-3 rounded-4 border text-center text-decoration-none d-block">
+                    <i class="bi bi-plus-circle fs-3 mb-2 d-block text-success"></i>
+                    <span class="small fw-bold text-dark">Nueva Guía Técnica</span>
+                  </a>
+                </div>
+                <div class="col-6 col-md-4">
+                  <a routerLink="/dashboard/practicas/revision" class="quick-link-box p-3 rounded-4 border text-center text-decoration-none d-block">
+                    <i class="bi bi-clipboard-check fs-3 mb-2 d-block text-info"></i>
+                    <span class="small fw-bold text-dark">Calificar Prácticas</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="p-4 rounded-4 bg-dark text-white shadow-lg h-100 position-relative overflow-hidden">
+               <h5 class="fw-bold mb-3">Asistencia en Aula</h5>
+               <p class="small opacity-75 mb-0">Recuerda que puedes gestionar las herramientas físicas desde el módulo de préstamos para agilizar las prácticas presenciales.</p>
+               <i class="bi bi-shield-check position-absolute bottom-0 end-0 opacity-10 fs-1 m-3"></i>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- ============================================================ -->
+      <!-- VISTA PARA ESTUDIANTES -->
+      <!-- ============================================================ -->
+      <ng-container *ngIf="userRole() === 'estudiante'">
+        <div class="hero-section mb-4 p-4 rounded-4 shadow-sm text-white">
+          <div class="row align-items-center">
+            <div class="col-md-8">
+              <h2 class="fw-bold mb-1">Bienvenido, {{ getFullName() }}</h2>
+              <p class="small opacity-75 mb-3">Revisa tu progreso y continúa con tus prácticas.</p>
+              <div class="d-flex gap-2">
+                <a routerLink="/dashboard/mis-cursos" class="btn btn-primary btn-sm rounded-pill px-3 fw-bold shadow-sm">Cursos</a>
+                <a routerLink="/dashboard/mis-practicas" class="btn btn-outline-secondary text-white btn-sm rounded-pill px-3 fw-bold border-2">Prácticas</a>
+              </div>
+            </div>
+            <div class="col-md-4 d-none d-md-block text-end pe-5">
+              <i class="bi bi-mortarboard display-6 opacity-25 floating"></i>
+            </div>
+          </div>
+        </div>
+
+        <h5 class="fw-bold mb-4 px-2 d-flex align-items-center gap-2 text-dark opacity-75">
+          <i class="bi bi-activity text-primary"></i> Mi Progreso Académico
+        </h5>
+
+        <div class="row g-4 mb-5">
+          <div class="col-md-3">
+            <div class="card-glass p-4 shadow-sm border-0">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <h6 class="text-muted fw-bold mb-1">CURSOS</h6>
+                  <h2 class="fw-bold m-0 text-dark">{{ studentStats().resumen.cursos_activos }}</h2>
+                </div>
+                <div class="icon-circle bg-primary-soft text-primary">
+                  <i class="bi bi-journal-text fs-4"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card-glass p-4 shadow-sm border-0">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <h6 class="text-muted fw-bold mb-1">PENDIENTES</h6>
+                  <h2 class="fw-bold m-0 text-dark">{{ studentStats().resumen.practicas_pendientes }}</h2>
+                </div>
+                <div class="icon-circle bg-warning-soft text-warning">
+                  <i class="bi bi-clock-history fs-4"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card-glass p-4 shadow-sm border-0">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <h6 class="text-muted fw-bold mb-1">APROBADAS</h6>
+                  <h2 class="fw-bold m-0 text-dark">{{ studentStats().resumen.practicas_aprobadas }}</h2>
+                </div>
+                <div class="icon-circle bg-success-soft text-success">
+                  <i class="bi bi-check-circle-fill fs-4"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card-glass p-4 shadow-sm border-0">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <h6 class="text-muted fw-bold mb-1">PROMEDIO</h6>
+                  <h2 class="fw-bold m-0 text-dark">{{ studentStats().resumen.promedio_general }}</h2>
+                </div>
+                <div class="icon-circle bg-info-soft text-info">
+                  <i class="bi bi-star-fill fs-4"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-4 mb-5">
+          <div class="col-md-8">
+            <div class="p-4 rounded-4 bg-white shadow-sm border h-100">
+              <h5 class="fw-bold mb-4 d-flex align-items-center gap-2">
+                <i class="bi bi-bar-chart-line text-primary"></i> Rendimiento por Curso
+              </h5>
+              <div class="chart-container" style="position: relative; height:300px;">
+                <canvas #rendimientoChart></canvas>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="p-4 rounded-4 bg-white shadow-sm border h-100">
+              <h5 class="fw-bold mb-4 d-flex align-items-center gap-2">
+                <i class="bi bi-pie-chart text-info"></i> Estado de Prácticas
+              </h5>
+              <div class="chart-container" style="position: relative; height:300px;">
+                <canvas #estadoChart></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-4">
+          <div class="col-md-6">
+            <div class="p-4 rounded-4 bg-dark text-white shadow-lg h-100 position-relative overflow-hidden">
+              <h5 class="fw-bold mb-3">Laboratorio Virtual 3D</h5>
+              <p class="small opacity-75 mb-4">Explora herramientas y componentes en 3D para mejorar tu aprendizaje práctico.</p>
+              <button routerLink="/dashboard/herramientas" class="btn btn-outline-light btn-sm rounded-pill px-4 fw-bold">Ir al Catálogo 3D</button>
+              <i class="bi bi-unity position-absolute bottom-0 end-0 opacity-25 fs-1 m-3"></i>
             </div>
           </div>
           <div class="col-md-6">
-            <div class="p-4 rounded-4 bg-dark text-white shadow-lg h-100 position-relative overflow-hidden">
-               <h5 class="fw-bold mb-3">Laboratorio Virtual</h5>
-               <p class="small opacity-75 mb-4">Practica con nuestros modelos 3D de alta precisión y mejora tus habilidades técnicas.</p>
-               <button routerLink="/dashboard/herramientas" class="btn btn-outline-light btn-sm rounded-pill px-4 fw-bold">Explorar Modelos</button>
-               <i class="bi bi-unity position-absolute bottom-0 end-0 opacity-25 fs-1 m-3"></i>
+            <div class="p-4 rounded-4 bg-white shadow-sm border h-100">
+              <h5 class="fw-bold mb-3 d-flex align-items-center gap-2">
+                <i class="bi bi-robot text-primary"></i> Asistente IA
+              </h5>
+              <p class="small text-muted mb-4">¿Tienes dudas con una falla? Nuestro asistente inteligente te ayuda a diagnosticar.</p>
+              <button routerLink="/dashboard/diagnostico-fallas" class="btn btn-primary btn-sm rounded-pill px-4 fw-bold">Consultar IA</button>
             </div>
           </div>
         </div>
@@ -199,6 +370,7 @@ import { RouterModule } from '@angular/router';
     .bg-primary-soft { background: #eff6ff; }
     .bg-info-soft { background: #ecfeff; }
     .bg-warning-soft { background: #fffbeb; }
+    .bg-success-soft { background: #f0fdf4; }
 
     .quick-link-box { background: #ffffff; transition: 0.2s; }
     .quick-link-box:hover { background: #f8fafc; border-color: #cbd5e1 !important; }
@@ -211,13 +383,18 @@ import { RouterModule } from '@angular/router';
     @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
   `]
 })
-export class DashboardHomeComponent implements OnInit {
+export class DashboardHomeComponent implements OnInit, AfterViewInit {
   private authService = inject(AuthService);
   private cursoService = inject(CursoService);
   private herramientaService = inject(HerramientaService);
+  private apiService = inject(ApiService);
+  private practicaService = inject(PracticaService);
 
   user = this.authService.currentUser;
   userRole = this.authService.userRole;
+
+  @ViewChild('rendimientoChart') rendimientoCanvas!: ElementRef;
+  @ViewChild('estadoChart') estadoCanvas!: ElementRef;
 
   adminStats = signal({
     cursos: 0,
@@ -225,10 +402,35 @@ export class DashboardHomeComponent implements OnInit {
     modelos: 0
   });
 
+  studentStats = signal({
+    resumen: {
+      cursos_activos: 0,
+      practicas_pendientes: 0,
+      practicas_aprobadas: 0,
+      promedio_general: 0
+    },
+    grafica_rendimiento: { labels: [], data: [] },
+    grafica_estados: { labels: [], data: [] }
+  });
+
+  tecnicoStats = signal({
+    cursos: 0,
+    practicas: 0,
+    pendientes: 0
+  });
+
   ngOnInit(): void {
     if (this.userRole() === 'administrador' || this.userRole() === 'superadministrador') {
       this.loadAdminStats();
+    } else if (this.userRole() === 'estudiante') {
+      this.loadStudentStats();
+    } else if (this.userRole() === 'técnico' || this.userRole() === 'tecnico') {
+      this.loadTecnicoStats();
     }
+  }
+
+  ngAfterViewInit(): void {
+    // Si los datos ya están cargados (o cuando se carguen), se inicializarán los charts
   }
 
   loadAdminStats(): void {
@@ -240,6 +442,84 @@ export class DashboardHomeComponent implements OnInit {
       data.forEach((h: any) => totalModelos += (h.modelos_3d?.length || 0));
       this.adminStats.update(s => ({ ...s, herramientas: data.length, modelos: totalModelos }));
     });
+  }
+
+  loadStudentStats(): void {
+    this.apiService.getStudentStats().subscribe(data => {
+      this.studentStats.set(data);
+      setTimeout(() => {
+        this.initCharts();
+      }, 0);
+    });
+  }
+
+  loadTecnicoStats(): void {
+    this.cursoService.getCursosPorTecnico().subscribe(cursos => {
+      this.tecnicoStats.update(s => ({ ...s, cursos: cursos.length }));
+      
+      this.practicaService.getPracticas().subscribe(practicas => {
+        const cursoIds = cursos.map((c: any) => c.id);
+        const misPracticas = practicas.filter(p => cursoIds.includes(p.id_curso));
+        this.tecnicoStats.update(s => ({ ...s, practicas: misPracticas.length }));
+      });
+    });
+
+    this.practicaService.getEntregasParaTecnico().subscribe(entregas => {
+      const pendientes = entregas.filter(e => e.estado === 'entregada').length;
+      this.tecnicoStats.update(s => ({ ...s, pendientes: pendientes }));
+    });
+  }
+
+  initCharts(): void {
+    if (this.rendimientoCanvas) {
+      new Chart(this.rendimientoCanvas.nativeElement, {
+        type: 'bar',
+        data: {
+          labels: this.studentStats().grafica_rendimiento.labels,
+          datasets: [{
+            label: 'Promedio de Calificación',
+            data: this.studentStats().grafica_rendimiento.data,
+            backgroundColor: 'rgba(54, 162, 235, 0.6)',
+            borderColor: 'rgba(54, 162, 235, 1)',
+            borderWidth: 1,
+            borderRadius: 8
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: { beginAtZero: true, max: 100 }
+          }
+        }
+      });
+    }
+
+    if (this.estadoCanvas) {
+      new Chart(this.estadoCanvas.nativeElement, {
+        type: 'doughnut',
+        data: {
+          labels: this.studentStats().grafica_estados.labels,
+          datasets: [{
+            data: this.studentStats().grafica_estados.data,
+            backgroundColor: [
+              'rgba(255, 206, 86, 0.6)', // Pendiente
+              'rgba(75, 192, 192, 0.6)', // Entregada / Aprobada
+              'rgba(255, 99, 132, 0.6)', // Reprobada
+              'rgba(54, 162, 235, 0.6)'  // Otros
+            ],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom' }
+          }
+        }
+      });
+    }
   }
 
   getFullName(): string {

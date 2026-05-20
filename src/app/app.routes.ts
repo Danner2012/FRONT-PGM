@@ -11,6 +11,7 @@ import { authGuard } from './guards/auth.guard';
 
 import { MisCursosComponent } from './modules/estudiante/cursos/pages/mis-cursos.component';
 import { MisPracticasComponent } from './modules/estudiante/practicas/pages/mis-practicas.component';
+import { PracticaTecnicoManagementComponent } from './modules/tecnico/practicas/pages/practica-tecnico-management.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -46,6 +47,7 @@ export const routes: Routes = [
       { path: 'practicas', 
         loadComponent: () => import('./modules/administrador/practicas/pages/practica-management.component').then(m => m.PracticaManagementComponent) 
       },
+      { path: 'mis-practicas-tecnico', component: PracticaTecnicoManagementComponent },
       { 
         path: 'practicas/simulacion/:id', 
         loadComponent: () => import('./modules/estudiante/practicas/components/simulation-workspace/simulation-workspace.component').then(m => m.SimulationWorkspaceComponent) 

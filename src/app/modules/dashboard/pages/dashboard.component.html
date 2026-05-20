@@ -86,6 +86,13 @@
         </li>
 
         <li class="mb-1" *ngIf="isTecnico()">
+          <a routerLink="/dashboard/mis-practicas-tecnico" routerLinkActive="active" class="nav-link-pro" title="Mis Prácticas">
+            <i class="bi bi-wrench-adjustable"></i> 
+            <span *ngIf="!isCollapsed()">Mis Prácticas</span>
+          </a>
+        </li>
+
+        <li class="mb-1" *ngIf="isTecnico()">
           <a routerLink="/dashboard/practicas/revision" routerLinkActive="active" class="nav-link-pro" title="Revisión de Prácticas">
             <i class="bi bi-check2-square"></i> 
             <span *ngIf="!isCollapsed()">Revisión de Prácticas</span>

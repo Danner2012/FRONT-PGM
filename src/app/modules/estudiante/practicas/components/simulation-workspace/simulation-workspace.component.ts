@@ -20,8 +20,12 @@ export class SimulationWorkspaceComponent implements OnInit {
 
   practica = signal<any>(null);
   isLoading = signal(true);
-  activeTab = signal<'guia' | 'camara'>('guia');
+  activeTab = signal<'guia' | 'camara' | 'entregables'>('guia');
   
+  // Seguimiento de la práctica
+  seguimientoPractica = signal<any>(null);
+  isUploading = signal(false);
+
   // Filtros de Recursos
   searchTerm = signal<string>('');
   selectedType = signal<string>('all');
@@ -77,17 +81,25 @@ export class SimulationWorkspaceComponent implements OnInit {
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
-      this.loadPractica(Number(id));
+      const practicaId = Number(id);
+      this.loadPractica(practicaId);
+      this.loadSeguimiento(practicaId);
       this.loadAvailableCameras();
     } else {
       this.router.navigate(['/dashboard/mis-practicas']);
     }
   }
 
+  loadSeguimiento(idPractica: number) {
+    this.practicaService.getEstadoPracticaEstudiante(idPractica).subscribe({
+      next: (data) => this.seguimientoPractica.set(data),
+      error: (err) => console.error('Error cargando seguimiento:', err)
+    });
+  }
+
   async loadAvailableCameras() {
     try {
-      // Pedimos permiso primero para obtener los nombres de los dispositivos
-      await navigator.mediaDevices.getUserMedia({ video: true });
+      // Solo enumerar dispositivos, no encender cámara automáticamente
       const devices = await navigator.mediaDevices.enumerateDevices();
       const videoDevices = devices.filter(device => device.kind === 'videoinput');
       this.availableCameras.set(videoDevices);
@@ -97,6 +109,80 @@ export class SimulationWorkspaceComponent implements OnInit {
     } catch (err) {
       console.error('Error listando cámaras:', err);
     }
+  }
+
+  async onSubirEvidencia(event: any) {
+    const file = event.target.files[0];
+    if (!file || !this.seguimientoPractica()) return;
+
+    this.isUploading.set(true);
+    const formData = new FormData();
+    formData.append('archivo', file);
+    formData.append('id_practica_estudiante', this.seguimientoPractica().id);
+    formData.append('descripcion', 'Evidencia subida desde simulación');
+
+    this.practicaService.subirEvidencia(formData).subscribe({
+      next: () => {
+        this.isUploading.set(false);
+        this.loadSeguimiento(this.practica().id);
+        Swal.fire('Éxito', 'Evidencia subida correctamente', 'success');
+      },
+      error: (err) => {
+        this.isUploading.set(false);
+        console.error('Error subiendo evidencia:', err);
+        Swal.fire('Error', 'No se pudo subir la evidencia', 'error');
+      }
+    });
+  }
+
+  eliminarEvidencia(id: number) {
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: 'Esta acción no se puede deshacer',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.practicaService.deleteEvidencia(id).subscribe({
+          next: () => {
+            this.loadSeguimiento(this.practica().id);
+            Swal.fire('Eliminado', 'La evidencia ha sido eliminada', 'success');
+          },
+          error: (err) => {
+            console.error('Error eliminando evidencia:', err);
+            Swal.fire('Error', 'No se pudo eliminar la evidencia', 'error');
+          }
+        });
+      }
+    });
+  }
+
+  finalizarEntrega() {
+    if (!this.seguimientoPractica()) return;
+
+    Swal.fire({
+      title: '¿Finalizar entrega?',
+      text: 'Una vez finalizada, no podrás subir más evidencias hasta que sea revisada.',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, finalizar y enviar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.practicaService.finalizarEntrega(this.seguimientoPractica().id).subscribe({
+          next: () => {
+            this.loadSeguimiento(this.practica().id);
+            Swal.fire('¡Entregada!', 'Tu práctica ha sido enviada para revisión.', 'success');
+          },
+          error: (err) => {
+            console.error('Error finalizando entrega:', err);
+            Swal.fire('Error', 'Hubo un problema al finalizar la entrega.', 'error');
+          }
+        });
+      }
+    });
   }
 
   async toggleCamera() {

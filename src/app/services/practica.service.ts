@@ -109,4 +109,32 @@ export class PracticaService {
   createDevolucion(data: any): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}devoluciones-herramientas/`, data);
   }
+
+  // --- ENTREGABLES Y SEGUIMIENTO (ESTUDIANTE) ---
+  getEstadoPracticaEstudiante(idPractica: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}practicas-estudiante/mi_estado_practica/`, {
+      params: { id_practica: idPractica.toString() }
+    });
+  }
+
+  finalizarEntrega(idPracticaEstudiante: number): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}practicas-estudiante/${idPracticaEstudiante}/finalizar_entrega/`, {});
+  }
+
+  subirEvidencia(data: FormData): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}evidencias-practica/`, data);
+  }
+
+  deleteEvidencia(id: number): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}evidencias-practica/${id}/`);
+  }
+
+  // --- REVISIÓN (TÉCNICO) ---
+  getEntregasParaTecnico(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}practicas-estudiante/`);
+  }
+
+  calificarPractica(id: number, data: any): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}practicas-estudiante/${id}/calificar/`, data);
+  }
 }

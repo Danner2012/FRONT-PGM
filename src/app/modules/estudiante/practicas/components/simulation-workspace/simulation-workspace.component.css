@@ -108,6 +108,48 @@
     background-color: #f8fafc;
 }
 
+/* ENTREGABLES STYLES */
+.upload-zone {
+    background: white;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    min-height: 200px;
+}
+
+.upload-zone:hover {
+    border-color: #3b82f6 !important;
+    background: #f0f7ff;
+}
+
+.upload-zone.uploading {
+    pointer-events: none;
+    opacity: 0.7;
+    border-style: solid !important;
+}
+
+.evidence-item {
+    transition: all 0.2s;
+}
+
+.evidence-item:hover {
+    transform: translateX(5px);
+    border-color: #3b82f6 !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.section-card {
+    display: flex;
+    flex-direction: column;
+}
+
+.evidence-list {
+    scrollbar-width: thin;
+}
+
+.bg-success-subtle { background-color: #f0fdf4 !important; }
+.bg-danger-subtle { background-color: #fef2f2 !important; }
+.bg-info-subtle { background-color: #f0f9ff !important; }
+
 .section-header {
     padding-bottom: 0.75rem;
     border-bottom: 1px dashed #e2e8f0;

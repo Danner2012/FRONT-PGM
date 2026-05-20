@@ -50,6 +50,10 @@ export const routes: Routes = [
         path: 'practicas/simulacion/:id', 
         loadComponent: () => import('./modules/estudiante/practicas/components/simulation-workspace/simulation-workspace.component').then(m => m.SimulationWorkspaceComponent) 
       },
+      { 
+        path: 'practicas/revision', 
+        loadComponent: () => import('./modules/tecnico/practicas/pages/practica-review.component').then(m => m.PracticaReviewComponent) 
+      },
       { path: '', redirectTo: 'inicio', pathMatch: 'full' }
     ]
   },

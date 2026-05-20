@@ -11,6 +11,13 @@ import { ThreeEngineService } from '../../../services/three-engine.service';
       <!-- Motor 3D -->
       <div #rendererContainer style="width: 100%; height: 100%;"></div>
 
+      <!-- Spinner de Carga -->
+      <div class="loading-overlay" *ngIf="isLoading()">
+        <div class="spinner-grow text-primary" role="status">
+          <span class="visually-hidden">Cargando...</span>
+        </div>
+      </div>
+
       <!-- Botón para ver esquema -->
       <button *ngIf="schemaUrl" 
               class="btn-schema-toggle"
@@ -88,6 +95,15 @@ import { ThreeEngineService } from '../../../services/three-engine.service';
     @keyframes zoomIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     
     .x-small { font-size: 0.7rem; letter-spacing: 1px; }
+
+    .loading-overlay {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(33, 37, 41, 0.5);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 50;
+      pointer-events: none;
+    }
   `],
   providers: [ThreeEngineService]
 })
@@ -101,14 +117,27 @@ export class ThreeViewerComponent implements OnInit, OnChanges, OnDestroy {
   @Input() autoRotate: boolean = false;
 
   showSchema = signal(false); // Signal para controlar visibilidad
+  isLoading = signal(false);  // Signal para estado de carga
 
   private threeEngine = inject(ThreeEngineService);
 
   ngOnInit(): void {
     this.threeEngine.initEngine(this.rendererContainer.nativeElement);
     if (this.src) {
-      this.threeEngine.loadModel(this.src, this.scale, this.rotation, this.autoRotate);
+      this.loadModel();
     }
+  }
+
+  private loadModel(): void {
+    if (!this.src) return;
+    this.isLoading.set(true);
+    // Usamos una pequeña demora para que la UI respire antes de la carga pesada
+    setTimeout(() => {
+      this.threeEngine.loadModel(this.src!, this.scale, this.rotation, this.autoRotate);
+      // Como loadModel es asíncrono internamente pero no devuelve promesa, 
+      // asumimos que termina pronto o confiamos en que el motor ya está renderizando
+      this.isLoading.set(false);
+    }, 100);
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -119,7 +148,7 @@ export class ThreeViewerComponent implements OnInit, OnChanges, OnDestroy {
 
     // Si cambia la URL del modelo, recargamos
     if (changes['src'] && !changes['src'].firstChange && this.src) {
-      this.threeEngine.loadModel(this.src, this.scale, this.rotation, this.autoRotate);
+      this.loadModel();
     } 
     // Si solo cambian transformaciones, actualizamos el modelo existente sin recargar archivo
     else if ((changes['scale'] || changes['rotation']) && !changes['src']) {

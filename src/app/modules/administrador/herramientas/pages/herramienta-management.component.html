@@ -265,7 +265,7 @@
                 </label>
                 <div class="d-flex gap-2">
                   <button type="button" class="btn btn-outline-danger btn-sm rounded-circle p-1" 
-                          *ngIf="previewUrl3D" (click)="removeActiveModel()" title="Eliminar modelo actual">
+                          *ngIf="previewUrl3D" (click)="removeActiveModel($event)" title="Eliminar modelo actual">
                     <i class="bi bi-trash"></i>
                   </button>
                   <label class="btn btn-primary btn-sm rounded-pill px-3 mb-0" style="cursor: pointer;">

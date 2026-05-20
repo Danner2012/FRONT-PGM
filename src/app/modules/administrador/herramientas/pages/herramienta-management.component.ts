@@ -257,34 +257,68 @@ export class HerramientaManagementComponent implements OnInit {
     return null;
   }
 
-  removeActiveModel(): void {
+  removeActiveModel(event?: Event): void {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
     const nActuales = this.modelosActuales.length;
+    
+    // CASO 1: Es un modelo que ya existe en la base de datos
     if (this.activeModelIdx < nActuales) {
       const m = this.modelosActuales[this.activeModelIdx];
-      Swal.fire({
-        title: '¿Eliminar modelo?',
-        text: `¿Seguro que desea eliminar el modelo "${m.nombre_identificador}"?`,
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Sí, eliminar'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          this.herramientaService.deleteModelo3D(m.id).subscribe({
-            next: () => {
-              this.modelosActuales.splice(this.activeModelIdx, 1);
-              this.activeModelIdx = 0;
-              this.refreshActivePreview();
-              Swal.fire('Eliminado', 'Modelo eliminado correctamente', 'success');
-            },
-            error: (err) => this.showError(err, 'Error al eliminar el modelo de la base de datos')
-          });
+      
+      // Verificación de seguridad: si no tiene ID (poco probable pero posible), solo quitar de lista
+      if (!m.id) {
+        this.modelosActuales.splice(this.activeModelIdx, 1);
+        this.resetAfterDelete();
+        return;
+      }
+
+      this.herramientaService.deleteModelo3D(m.id).subscribe({
+        next: () => {
+          this.modelosActuales.splice(this.activeModelIdx, 1);
+          this.resetAfterDelete();
+          this.showSuccessToast('Modelo eliminado de la base de datos');
+        },
+        error: (err) => {
+          console.error('Error al borrar de DB:', err);
+          // Si el error es 404, significa que ya no existe, lo quitamos de la lista local
+          if (err.status === 404) {
+            this.modelosActuales.splice(this.activeModelIdx, 1);
+            this.resetAfterDelete();
+          } else {
+            this.showError(err, 'No se pudo eliminar el modelo del servidor');
+          }
         }
       });
-    } else {
-      this.modelosNuevos.splice(this.activeModelIdx - nActuales, 1);
-      this.activeModelIdx = 0;
-      this.refreshActivePreview();
+    } 
+    // CASO 2: Es un modelo nuevo que aún no se ha guardado
+    else {
+      const idxNuevo = this.activeModelIdx - nActuales;
+      if (this.modelosNuevos[idxNuevo]) {
+        this.modelosNuevos.splice(idxNuevo, 1);
+        this.resetAfterDelete();
+        this.showSuccessToast('Modelo nuevo descartado');
+      }
     }
+  }
+
+  private resetAfterDelete(): void {
+    this.activeModelIdx = 0;
+    this.refreshActivePreview();
+  }
+
+  private showSuccessToast(message: string): void {
+    const Toast = Swal.mixin({
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false,
+      timer: 2000,
+      timerProgressBar: true
+    });
+    Toast.fire({ icon: 'success', title: message });
   }
 
   syncActiveConfig(): void {

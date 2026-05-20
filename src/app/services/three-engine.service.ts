@@ -1,6 +1,7 @@
 import { Injectable, NgZone, ElementRef } from '@angular/core';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 @Injectable({
@@ -14,8 +15,16 @@ export class ThreeEngineService {
   private model: THREE.Group | null = null;
   private animationId: number | null = null;
   private container!: HTMLElement;
+  
+  // Loader de Draco compartido
+  private dracoLoader = new DRACOLoader();
 
-  constructor(private ngZone: NgZone) {}
+  constructor(private ngZone: NgZone) {
+    // Configurar el decodificador de Draco desde una CDN confiable (Google)
+    // Esto evita tener que servir los archivos de decodificación localmente
+    this.dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
+    this.dracoLoader.setDecoderConfig({ type: 'js' }); // Usar JS para máxima compatibilidad
+  }
 
   public initEngine(container: HTMLElement): void {
     this.container = container;
@@ -79,6 +88,7 @@ export class ThreeEngineService {
     }
 
     const loader = new GLTFLoader();
+    loader.setDRACOLoader(this.dracoLoader); // Vincular el decodificador
     loader.load(url, (gltf) => {
       this.model = gltf.scene;
       

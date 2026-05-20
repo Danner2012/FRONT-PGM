@@ -470,6 +470,31 @@
     opacity: 1;
 }
 
+.max-vh-70 {
+    max-height: 70vh;
+}
+
+.glass-dark {
+    background: rgba(15, 23, 42, 0.95) !important;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.preview-main-content {
+    max-width: 90%;
+    max-height: 80vh;
+}
+
+.inmersive-footer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+}
+
 /* ESTILOS DEL MODAL 3D (Adaptados de herramienta-management) */
 .modal-overlay {
     position: fixed;

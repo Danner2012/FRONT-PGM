@@ -9,7 +9,7 @@ import Swal from 'sweetalert2';
 
 interface TemporaryEvidence {
   file: File;
-  previewUrl: SafeUrl;
+  previewUrl: any;
   type: 'image' | 'video';
   isUploading: boolean;
 }
@@ -38,6 +38,8 @@ export class SimulationWorkspaceComponent implements OnInit {
 
   // Evidencias Temporales (Capturadas por cámara pero no subidas)
   temporaryEvidences = signal<TemporaryEvidence[]>([]);
+  showPreviewModal = signal(false);
+  selectedPreview = signal<TemporaryEvidence | null>(null);
 
   // Filtros de Recursos
   searchTerm = signal<string>('');
@@ -270,7 +272,12 @@ export class SimulationWorkspaceComponent implements OnInit {
   // GESTIÓN DE MEDIOS TEMPORALES
   onMediaCaptured(file: File) {
     const type = file.type.startsWith('image') ? 'image' : 'video';
-    const previewUrl = this.sanitizer.bypassSecurityTrustUrl(URL.createObjectURL(file));
+    const objectUrl = URL.createObjectURL(file);
+    
+    // IMPORTANTE: Para <video> se necesita bypassSecurityTrustResourceUrl
+    const previewUrl = type === 'image' 
+      ? this.sanitizer.bypassSecurityTrustUrl(objectUrl)
+      : this.sanitizer.bypassSecurityTrustResourceUrl(objectUrl);
     
     this.temporaryEvidences.update(list => [...list, {
       file,
@@ -323,5 +330,15 @@ export class SimulationWorkspaceComponent implements OnInit {
       newList.splice(index, 1);
       return newList;
     });
+  }
+
+  openPreview(evidence: TemporaryEvidence) {
+    this.selectedPreview.set(evidence);
+    this.showPreviewModal.set(true);
+  }
+
+  closePreview() {
+    this.showPreviewModal.set(false);
+    this.selectedPreview.set(null);
   }
 }

@@ -30,7 +30,7 @@ export class MediaCaptureService {
         height: { ideal: 720 },
         aspectRatio: { ideal: 1.7777777778 }
       },
-      audio: true // Capturar audio para el video
+      audio: false // Desactivado para no pedir permisos de micrófono
     };
 
     this.stream = await navigator.mediaDevices.getUserMedia(constraints);

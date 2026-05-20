@@ -277,6 +277,16 @@ export class SimulationWorkspaceComponent implements OnInit {
     this.updatePreviewFromCurrent();
   }
 
+  getSchemaUrl(model: any): string | null {
+    if (!model) return null;
+    if (model.archivo_esquema) {
+      return model.archivo_esquema.startsWith('http') 
+        ? model.archivo_esquema 
+        : `http://localhost:8000${model.archivo_esquema}`;
+    }
+    return null;
+  }
+
   getRotation(): { x: number, y: number, z: number } {
     return { x: this.rotX, y: this.rotY, z: this.rotZ };
   }

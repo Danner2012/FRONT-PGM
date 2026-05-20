@@ -338,6 +338,7 @@
                 <app-three-viewer 
                     *ngIf="previewUrl3D"
                     [src]="previewUrl3D"
+                    [schemaUrl]="getSchemaUrl(modelosActuales[activeModelIdx])"
                     [rotation]="getRotation()"
                     [scale]="scaleValue"
                     [autoRotate]="true">

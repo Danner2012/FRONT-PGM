@@ -149,12 +149,7 @@
 
                 <!-- CONTENIDO: ENTREGABLES (NUEVO) -->
                 <div class="card-body-scrollable" *ngIf="activeTab() === 'entregables'">
-                    <!-- Instrucciones en pestaña de entregas -->
-                    <div class="section-header mb-3">
-                        <h6 class="fw-bold m-0"><i class="bi bi-info-circle me-2 text-primary"></i>Instrucciones para la Entrega</h6>
-                    </div>
-                    <p class="description-text mb-4">{{ practica()?.descripcion }}</p>
-
+                    
                     <div *ngIf="seguimientoPractica() as s; else noSeguimiento" class="animate-fade-in">
                         
                         <!-- Panel de Calificación (Si está revisada) -->

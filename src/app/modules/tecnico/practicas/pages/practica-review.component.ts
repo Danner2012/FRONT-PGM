@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PracticaService } from '../../../../services/practica.service';
+import { CursoService } from '../../../../services/curso.service';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -13,8 +14,10 @@ import Swal from 'sweetalert2';
 })
 export class PracticaReviewComponent implements OnInit {
   private practicaService = inject(PracticaService);
+  private cursoService = inject(CursoService);
 
   entregas = signal<any[]>([]);
+  cursosAsignados = signal<any[]>([]);
   isLoading = signal(true);
   
   // Filtros
@@ -34,12 +37,10 @@ export class PracticaReviewComponent implements OnInit {
 
   // Cursos únicos para el filtro
   cursosDisponibles = computed(() => {
-    const nombres = this.entregas().map(e => ({ 
-      id: e.practica_detalle?.id_curso, 
-      nombre: e.practica_detalle?.curso_nombre 
-    })).filter(c => c.id);
-    
-    return Array.from(new Map(nombres.map(c => [c.id, c])).values());
+    return this.cursosAsignados().map(c => ({
+      id: c.id,
+      nombre: c.nombre
+    }));
   });
 
   // Entregas filtradas
@@ -60,11 +61,25 @@ export class PracticaReviewComponent implements OnInit {
   });
 
   ngOnInit() {
-    this.loadEntregas();
+    this.loadInitialData();
+  }
+
+  loadInitialData() {
+    this.isLoading.set(true);
+    // Cargar cursos y entregas en paralelo
+    this.cursoService.getCursosPorTecnico().subscribe({
+      next: (cursos) => {
+        this.cursosAsignados.set(cursos);
+        this.loadEntregas();
+      },
+      error: (err) => {
+        console.error('Error cargando cursos:', err);
+        this.loadEntregas(); // Intentar cargar entregas aunque fallen los cursos
+      }
+    });
   }
 
   loadEntregas() {
-    this.isLoading.set(true);
     this.practicaService.getEntregasParaTecnico().subscribe({
       next: (data: any[]) => {
         this.entregas.set(data);

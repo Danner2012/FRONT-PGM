@@ -376,6 +376,26 @@
     border: 1px solid #2d3748;
 }
 
+/* Evidencias Temporales */
+.temp-evidence-card {
+    transition: all 0.3s ease;
+}
+
+.temp-evidence-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
+}
+
+.upload-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 5;
+}
+
 /* CARDS DE HERRAMIENTAS EN SIMULACIÓN */
 .tool-scroll-horizontal {
     display: flex;

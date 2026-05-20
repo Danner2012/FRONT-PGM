@@ -30,11 +30,10 @@
                         </button>
                         <button class="tab-btn-custom" [class.active]="activeTab() === 'camara'" (click)="activeTab.set('camara')">
                             <i class="bi bi-camera-video me-2"></i>Cámara en Vivo
-                            <span *ngIf="cameraActive()" class="status-dot-mini"></span>
                         </button>
                         <button class="tab-btn-custom" [class.active]="activeTab() === 'entregables'" (click)="activeTab.set('entregables')">
                             <i class="bi bi-cloud-upload me-2"></i>Entregas
-                            <span *ngIf="seguimientoPractica()?.estado === 'pendiente' && seguimientoPractica()?.evidencias?.length" class="status-dot-mini bg-warning"></span>
+                            <span *ngIf="temporaryEvidences().length > 0" class="status-dot-mini bg-warning pulse-badge"></span>
                         </button>
                     </div>
                 </div>
@@ -88,70 +87,60 @@
                     </div>
                 </div>
 
-                <!-- CONTENIDO: CÁMARA (DEDICADO) -->
+                <!-- CONTENIDO: CÁMARA (NUEVO COMPONENTE) -->
                 <div class="card-body-scrollable" [hidden]="activeTab() !== 'camara'">
-                    <div class="d-flex align-items-center justify-content-between mb-4">
-                        <div>
-                            <h6 class="fw-bold m-0"><i class="bi bi-camera-video me-2 text-primary"></i>Transmisión de Cámara</h6>
-                            <p class="text-muted extra-small mb-0">Usa la cámara para mostrar tu avance físico o capturar evidencia.</p>
-                        </div>
-                        <div class="d-flex gap-2 align-items-center">
-                            <!-- Selector de Cámara -->
-                            <select *ngIf="availableCameras().length > 1" 
-                                    class="form-select form-select-sm rounded-pill px-3 shadow-none border-primary-subtle"
-                                    style="width: 180px; font-size: 0.7rem;"
-                                    [value]="selectedCameraId()"
-                                    (change)="onCameraChange(cameraSelect.value)"
-                                    #cameraSelect>
-                                <option *ngFor="let cam of availableCameras()" [value]="cam.deviceId">
-                                    {{ cam.label || 'Cámara ' + cam.deviceId.slice(0,5) }}
-                                </option>
-                            </select>
-
-                            <button class="btn btn-sm rounded-pill px-3" 
-                                    [class.btn-primary]="!cameraActive()" 
-                                    [class.btn-danger]="cameraActive()"
-                                    (click)="toggleCamera()">
-                                <i class="bi" [class.bi-camera]="!cameraActive()" [class.bi-camera-off]="cameraActive()"></i>
-                                {{ cameraActive() ? 'Apagar Cámara' : 'Encender Cámara' }}
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div class="camera-workspace-view bg-dark rounded-4 overflow-hidden position-relative shadow-lg">
-                        <video id="cameraFeed" autoplay playsinline class="w-100 h-100 object-fit-contain" [class.d-none]="!cameraActive()"></video>
-                        
-                        <div *ngIf="!cameraActive()" class="d-flex flex-column align-items-center justify-content-center h-100 text-white-50 py-5">
-                            <div class="camera-off-icon mb-3">
-                                <i class="bi bi-camera-video-off display-1"></i>
-                            </div>
-                            <h5 class="fw-bold">Cámara Desactivada</h5>
-                            <p class="small text-center px-4">Haz clic en "Encender Cámara" para comenzar la transmisión.</p>
-                        </div>
-
-                        <!-- Overlay de cámara -->
-                        <div *ngIf="cameraActive()" class="position-absolute top-0 end-0 m-4">
-                            <span class="badge bg-danger rounded-pill pulse-badge px-3 py-2">
-                                <i class="bi bi-record-fill me-1"></i> EN VIVO
-                            </span>
-                        </div>
-                    </div>
-
-                    <div class="mt-4 p-3 bg-light rounded-3 border">
-                        <div class="fw-bold d-block mb-2 small"><i class="bi bi-info-circle-fill me-2 text-primary"></i>Consejos para una mejor vista:</div>
-                        <ul class="extra-small text-muted mb-0 ps-3">
-                            <li>Asegúrate de tener buena iluminación en tu área de trabajo.</li>
-                            <li>Coloca la cámara en un ángulo donde se vean claramente tus manos y el dispositivo.</li>
-                            <li>Si tienes varias cámaras, puedes alternar entre ellas usando el selector superior.</li>
-                        </ul>
-                    </div>
+                    <app-camera-recorder (onCapture)="onMediaCaptured($event)"></app-camera-recorder>
                 </div>
 
-                <!-- CONTENIDO: ENTREGABLES (NUEVO) -->
+                <!-- CONTENIDO: ENTREGABLES -->
                 <div class="card-body-scrollable" *ngIf="activeTab() === 'entregables'">
                     
                     <div *ngIf="seguimientoPractica() as s; else noSeguimiento" class="animate-fade-in">
                         
+                        <!-- SECCIÓN: CAPTURAS RECIENTES (Temporales) -->
+                        <div *ngIf="temporaryEvidences().length > 0" class="mb-5">
+                            <div class="section-header mb-3 d-flex justify-content-between align-items-center">
+                                <h6 class="fw-bold m-0"><i class="bi bi-clock-history me-2 text-warning"></i>Capturas Recientes (Sin subir)</h6>
+                                <span class="badge bg-warning-subtle text-warning border border-warning-subtle rounded-pill">
+                                    {{ temporaryEvidences().length }} pendientes
+                                </span>
+                            </div>
+                            
+                            <div class="row g-3">
+                                <div class="col-md-4" *ngFor="let ev of temporaryEvidences(); let i = index">
+                                    <div class="temp-evidence-card bg-white rounded-4 border overflow-hidden shadow-sm position-relative">
+                                        <div class="preview-container bg-dark position-relative" style="height: 150px;">
+                                            <img *ngIf="ev.type === 'image'" [src]="ev.previewUrl" class="w-100 h-100 object-fit-cover">
+                                            <div *ngIf="ev.type === 'video'" class="w-100 h-100 d-flex align-items-center justify-content-center bg-dark">
+                                                <i class="bi bi-play-circle-fill display-4 text-white opacity-50"></i>
+                                                <div class="position-absolute bottom-0 end-0 m-2">
+                                                    <span class="badge bg-danger extra-small">VIDEO</span>
+                                                </div>
+                                            </div>
+                                            
+                                            <div *ngIf="ev.isUploading" class="upload-overlay">
+                                                <div class="spinner-border text-white" role="status"></div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="p-2 d-flex gap-2">
+                                            <button class="btn btn-sm btn-primary flex-fill rounded-pill" 
+                                                    [disabled]="ev.isUploading"
+                                                    (click)="uploadTemporaryEvidence(i)">
+                                                <i class="bi bi-cloud-arrow-up-fill me-1"></i> Subir
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-danger rounded-circle" 
+                                                    [disabled]="ev.isUploading"
+                                                    (click)="discardTemporaryEvidence(i)" title="Descartar">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr class="my-4 opacity-10">
+                        </div>
+
                         <!-- Panel de Calificación (Si está revisada) -->
                         <div *ngIf="s.estado === 'aprobada' || s.estado === 'reprobada'" 
                              class="mb-4 p-4 rounded-4 border-start border-5 shadow-sm"
@@ -180,10 +169,10 @@
                         </div>
 
                         <div class="row g-4">
-                            <!-- Columna Izquierda: Subida -->
+                            <!-- Columna Izquierda: Subida Manual -->
                             <div class="col-md-6">
                                 <div class="section-card h-100 p-4 bg-light rounded-4 border">
-                                    <h6 class="fw-bold mb-3"><i class="bi bi-cloud-arrow-up me-2 text-primary"></i>Subir Nuevas Evidencias</h6>
+                                    <h6 class="fw-bold mb-3"><i class="bi bi-cloud-arrow-up me-2 text-primary"></i>Subir Otras Evidencias</h6>
                                     
                                     <div *ngIf="s.estado === 'pendiente'" class="upload-zone rounded-4 d-flex flex-column align-items-center justify-content-center p-5 border-2 border-dashed"
                                          (click)="fileInput.click()" [class.uploading]="isUploading()">
@@ -191,20 +180,20 @@
                                         
                                         <div *ngIf="!isUploading()" class="text-center">
                                             <i class="bi bi-upload display-4 text-primary opacity-50 mb-3"></i>
-                                            <p class="fw-bold mb-1">Haz clic para subir</p>
-                                            <p class="extra-small text-muted">Imágenes, Videos o PDF (Max 20MB)</p>
+                                            <p class="fw-bold mb-1">Cargar Archivo</p>
+                                            <p class="extra-small text-muted">Documentos, fotos o videos externos</p>
                                         </div>
 
                                         <div *ngIf="isUploading()" class="text-center">
                                             <div class="spinner-border text-primary mb-3" role="status"></div>
-                                            <p class="fw-bold mb-0">Subiendo archivo...</p>
+                                            <p class="fw-bold mb-0">Subiendo...</p>
                                         </div>
                                     </div>
 
                                     <div *ngIf="s.estado !== 'pendiente'" class="p-5 text-center bg-white rounded-4 border opacity-75">
                                         <i class="bi bi-lock-fill display-4 text-muted mb-3"></i>
                                         <p class="fw-bold mb-1">Entrega Bloqueada</p>
-                                        <p class="extra-small text-muted">No puedes subir más evidencias porque la práctica ya fue entregada o revisada.</p>
+                                        <p class="extra-small text-muted">La práctica ya fue entregada o revisada.</p>
                                     </div>
 
                                     <div class="mt-4 pt-3 border-top" *ngIf="s.estado === 'pendiente'">
@@ -213,23 +202,22 @@
                                                 (click)="finalizarEntrega()">
                                             <i class="bi bi-check-all me-2"></i>Finalizar y Enviar a Revisión
                                         </button>
-                                        <p class="extra-small text-center text-muted mt-2">Asegúrate de subir todas tus evidencias antes de finalizar.</p>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Columna Derecha: Lista de Archivos -->
+                            <!-- Columna Derecha: Lista de Archivos Oficiales -->
                             <div class="col-md-6">
                                 <div class="section-card h-100 p-4 bg-white rounded-4 border">
                                     <div class="d-flex justify-content-between align-items-center mb-3">
-                                        <h6 class="fw-bold m-0"><i class="bi bi-folder2-open me-2 text-warning"></i>Archivos Subidos</h6>
+                                        <h6 class="fw-bold m-0"><i class="bi bi-folder2-open me-2 text-warning"></i>Evidencias Enviadas</h6>
                                         <span class="badge bg-light text-dark border">{{ s.evidencias?.length || 0 }}</span>
                                     </div>
 
                                     <div class="evidence-list overflow-auto" style="max-height: 400px;">
                                         <div *ngFor="let ev of s.evidencias" class="evidence-item d-flex align-items-center p-3 mb-2 bg-light rounded-3 border animate-fade-in">
                                             <div class="evidence-icon me-3 text-primary">
-                                                <i class="bi bi-file-earmark-image fs-3"></i>
+                                                <i class="bi bi-file-earmark-check fs-3"></i>
                                             </div>
                                             <div class="flex-grow-1 min-width-0">
                                                 <div class="text-truncate fw-bold small">Evidencia #{{ ev.id }}</div>
@@ -247,7 +235,7 @@
 
                                         <div *ngIf="!s.evidencias?.length" class="text-center py-5 opacity-50">
                                             <i class="bi bi-inbox display-6"></i>
-                                            <p class="small mt-2">Aún no has subido evidencias</p>
+                                            <p class="small mt-2">Aún no hay evidencias oficiales</p>
                                         </div>
                                     </div>
                                 </div>

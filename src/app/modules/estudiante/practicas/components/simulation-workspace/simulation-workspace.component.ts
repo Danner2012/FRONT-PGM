@@ -1,14 +1,23 @@
 import { Component, OnInit, inject, signal, computed, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PracticaService } from '../../../../../services/practica.service';
 import { ThreeViewerComponent } from '../../../../../shared/components/three-viewer/three-viewer.component';
+import { CameraRecorderComponent } from '../../../../../shared/components/camera-recorder/camera-recorder.component';
 import Swal from 'sweetalert2';
+
+interface TemporaryEvidence {
+  file: File;
+  previewUrl: SafeUrl;
+  type: 'image' | 'video';
+  isUploading: boolean;
+}
 
 @Component({
   selector: 'app-simulation-workspace',
   standalone: true,
-  imports: [CommonModule, ThreeViewerComponent],
+  imports: [CommonModule, ThreeViewerComponent, CameraRecorderComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './simulation-workspace.component.html',
   styleUrls: ['./simulation-workspace.component.css']
@@ -17,6 +26,7 @@ export class SimulationWorkspaceComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private practicaService = inject(PracticaService);
+  private sanitizer = inject(DomSanitizer);
 
   practica = signal<any>(null);
   isLoading = signal(true);
@@ -25,6 +35,9 @@ export class SimulationWorkspaceComponent implements OnInit {
   // Seguimiento de la práctica
   seguimientoPractica = signal<any>(null);
   isUploading = signal(false);
+
+  // Evidencias Temporales (Capturadas por cámara pero no subidas)
+  temporaryEvidences = signal<TemporaryEvidence[]>([]);
 
   // Filtros de Recursos
   searchTerm = signal<string>('');
@@ -62,12 +75,6 @@ export class SimulationWorkspaceComponent implements OnInit {
     return resources;
   });
 
-  // Gestión de Cámara
-  stream: MediaStream | null = null;
-  cameraActive = signal(false);
-  availableCameras = signal<MediaDeviceInfo[]>([]);
-  selectedCameraId = signal<string>('');
-
   // Estados para el visor 3D
   showViewModal = false;
   selectedHerramienta: any = null;
@@ -84,7 +91,6 @@ export class SimulationWorkspaceComponent implements OnInit {
       const practicaId = Number(id);
       this.loadPractica(practicaId);
       this.loadSeguimiento(practicaId);
-      this.loadAvailableCameras();
     } else {
       this.router.navigate(['/dashboard/mis-practicas']);
     }
@@ -95,20 +101,6 @@ export class SimulationWorkspaceComponent implements OnInit {
       next: (data) => this.seguimientoPractica.set(data),
       error: (err) => console.error('Error cargando seguimiento:', err)
     });
-  }
-
-  async loadAvailableCameras() {
-    try {
-      // Solo enumerar dispositivos, no encender cámara automáticamente
-      const devices = await navigator.mediaDevices.enumerateDevices();
-      const videoDevices = devices.filter(device => device.kind === 'videoinput');
-      this.availableCameras.set(videoDevices);
-      if (videoDevices.length > 0) {
-        this.selectedCameraId.set(videoDevices[0].deviceId);
-      }
-    } catch (err) {
-      console.error('Error listando cámaras:', err);
-    }
   }
 
   async onSubirEvidencia(event: any) {
@@ -183,60 +175,6 @@ export class SimulationWorkspaceComponent implements OnInit {
         });
       }
     });
-  }
-
-  async toggleCamera() {
-    if (this.cameraActive()) {
-      this.stopCamera();
-    } else {
-      this.startCamera();
-    }
-  }
-
-  async startCamera() {
-    try {
-      if (this.stream) {
-        this.stopCamera();
-      }
-
-      const constraints = {
-        video: {
-          deviceId: this.selectedCameraId() ? { exact: this.selectedCameraId() } : undefined,
-          width: { ideal: 1280 },
-          height: { ideal: 720 },
-          aspectRatio: { ideal: 1.7777777778 } // 16:9
-        }
-      };
-
-      this.stream = await navigator.mediaDevices.getUserMedia(constraints);
-      const videoElement = document.getElementById('cameraFeed') as HTMLVideoElement;
-      if (videoElement) {
-        videoElement.srcObject = this.stream;
-        this.cameraActive.set(true);
-      }
-    } catch (err) {
-      console.error('Error accediendo a la cámara:', err);
-      Swal.fire('Error', 'No se pudo acceder a la cámara seleccionada.', 'error');
-    }
-  }
-
-  onCameraChange(deviceId: string) {
-    this.selectedCameraId.set(deviceId);
-    if (this.cameraActive()) {
-      this.startCamera(); // Reiniciar con la nueva cámara si ya estaba encendida
-    }
-  }
-
-  stopCamera() {
-    if (this.stream) {
-      this.stream.getTracks().forEach(track => track.stop());
-      this.stream = null;
-    }
-    this.cameraActive.set(false);
-  }
-
-  ngOnDestroy() {
-    this.stopCamera();
   }
 
   loadPractica(id: number) {
@@ -327,5 +265,63 @@ export class SimulationWorkspaceComponent implements OnInit {
 
   getRotation(): { x: number, y: number, z: number } {
     return { x: this.rotX, y: this.rotY, z: this.rotZ };
+  }
+
+  // GESTIÓN DE MEDIOS TEMPORALES
+  onMediaCaptured(file: File) {
+    const type = file.type.startsWith('image') ? 'image' : 'video';
+    const previewUrl = this.sanitizer.bypassSecurityTrustUrl(URL.createObjectURL(file));
+    
+    this.temporaryEvidences.update(list => [...list, {
+      file,
+      previewUrl,
+      type,
+      isUploading: false
+    }]);
+
+    // Opcional: Notificación suave
+    const toast = Swal.mixin({
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true
+    });
+    toast.fire({
+      icon: 'success',
+      title: `${type === 'image' ? 'Foto' : 'Video'} capturado. Revisa la pestaña de Entregas.`
+    });
+  }
+
+  uploadTemporaryEvidence(index: number) {
+    const evidence = this.temporaryEvidences()[index];
+    if (!evidence || !this.seguimientoPractica()) return;
+
+    evidence.isUploading = true;
+    const formData = new FormData();
+    formData.append('archivo', evidence.file);
+    formData.append('id_practica_estudiante', this.seguimientoPractica().id);
+    formData.append('descripcion', `Evidencia capturada desde cámara (${evidence.type})`);
+
+    this.practicaService.subirEvidencia(formData).subscribe({
+      next: () => {
+        this.discardTemporaryEvidence(index);
+        this.loadSeguimiento(this.practica().id);
+        Swal.fire('Éxito', 'Evidencia subida correctamente', 'success');
+      },
+      error: (err) => {
+        evidence.isUploading = false;
+        console.error('Error subiendo evidencia:', err);
+        Swal.fire('Error', 'No se pudo subir la evidencia', 'error');
+      }
+    });
+  }
+
+  discardTemporaryEvidence(index: number) {
+    this.temporaryEvidences.update(list => {
+      const newList = [...list];
+      newList.splice(index, 1);
+      return newList;
+    });
   }
 }

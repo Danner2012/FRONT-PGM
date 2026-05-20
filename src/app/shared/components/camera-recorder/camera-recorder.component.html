@@ -1,0 +1,73 @@
+<div class="camera-recorder-wrapper">
+    <div class="camera-controls-top d-flex justify-content-between align-items-center mb-3">
+        <div class="d-flex gap-2 align-items-center">
+            <select *ngIf="availableCameras().length > 1" 
+                    class="form-select form-select-sm rounded-pill px-3 shadow-none border-primary-subtle"
+                    style="width: 180px; font-size: 0.7rem;"
+                    [value]="selectedCameraId()"
+                    (change)="onCameraChange($event)">
+                <option *ngFor="let cam of availableCameras()" [value]="cam.deviceId">
+                    {{ cam.label || 'Cámara ' + cam.deviceId.slice(0,5) }}
+                </option>
+            </select>
+
+            <button class="btn btn-sm rounded-pill px-3" 
+                    [class.btn-primary]="!cameraActive()" 
+                    [class.btn-danger]="cameraActive()"
+                    (click)="toggleCamera()">
+                <i class="bi" [class.bi-camera-video]="!cameraActive()" [class.bi-camera-video-off]="cameraActive()"></i>
+                {{ cameraActive() ? 'Apagar Cámara' : 'Encender Cámara' }}
+            </button>
+        </div>
+
+        <div class="d-flex gap-2" *ngIf="cameraActive()">
+            <button class="btn btn-sm btn-light rounded-pill px-3 shadow-sm" (click)="takeSnapshot()" title="Tomar Foto">
+                <i class="bi bi-camera-fill me-1"></i> Foto
+            </button>
+            
+            <button *ngIf="!isRecording()" class="btn btn-sm btn-danger rounded-pill px-3 shadow-sm" (click)="startRecording()" title="Iniciar Grabación">
+                <i class="bi bi-circle-fill me-1"></i> Grabar
+            </button>
+            
+            <button *ngIf="isRecording()" class="btn btn-sm btn-dark rounded-pill px-3 shadow-sm" (click)="stopRecording()" title="Detener Grabación">
+                <i class="bi bi-stop-fill me-1"></i> Detener
+            </button>
+        </div>
+    </div>
+
+    <div class="camera-viewport bg-dark rounded-4 overflow-hidden position-relative shadow-lg">
+        <video #videoFeed autoplay playsinline class="w-100 h-100 object-fit-contain" [class.d-none]="!cameraActive()"></video>
+        
+        <div *ngIf="!cameraActive()" class="d-flex flex-column align-items-center justify-content-center h-100 text-white-50 py-5">
+            <div class="camera-off-icon mb-3">
+                <i class="bi bi-camera-video-off display-1"></i>
+            </div>
+            <h5 class="fw-bold">Cámara Desactivada</h5>
+            <p class="small text-center px-4">Enciende la cámara para capturar evidencias de tu práctica.</p>
+        </div>
+
+        <!-- Overlay de Grabación -->
+        <div *ngIf="isRecording()" class="recording-overlay position-absolute top-0 start-0 m-4">
+            <div class="d-flex align-items-center gap-2 bg-dark bg-opacity-75 text-white px-3 py-2 rounded-pill border border-danger">
+                <span class="recording-dot"></span>
+                <span class="fw-bold small">REC</span>
+                <span class="timer-text small">{{ formatTime(recordingTime()) }}</span>
+            </div>
+        </div>
+
+        <div *ngIf="cameraActive() && !isRecording()" class="position-absolute top-0 end-0 m-4">
+            <span class="badge bg-danger rounded-pill pulse-badge px-3 py-2">
+                <i class="bi bi-record-fill me-1"></i> EN VIVO
+            </span>
+        </div>
+    </div>
+
+    <div class="mt-3 p-3 bg-light rounded-3 border">
+        <div class="fw-bold d-block mb-2 small"><i class="bi bi-info-circle-fill me-2 text-primary"></i>Consejos de Captura:</div>
+        <ul class="extra-small text-muted mb-0 ps-3">
+            <li>Las fotos y videos se guardarán temporalmente en la pestaña de <b>Entregas</b>.</li>
+            <li>Revisa tus capturas antes de enviarlas para revisión.</li>
+            <li>Asegúrate de que la iluminación sea adecuada para que el técnico pueda calificar tu trabajo.</li>
+        </ul>
+    </div>
+</div>

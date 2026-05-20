@@ -1,0 +1,46 @@
+.camera-viewport {
+    height: 450px;
+    background-color: #0d1117 !important;
+}
+
+.camera-off-icon {
+    color: #1e293b;
+    opacity: 0.5;
+}
+
+.pulse-badge {
+    animation: pulse 2s infinite;
+}
+
+.recording-dot {
+    width: 10px;
+    height: 10px;
+    background-color: #ef4444;
+    border-radius: 50%;
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    0% { opacity: 1; }
+    50% { opacity: 0.3; }
+    100% { opacity: 1; }
+}
+
+@keyframes pulse {
+    0% { transform: scale(0.95); opacity: 0.7; }
+    50% { transform: scale(1); opacity: 1; }
+    100% { transform: scale(0.95); opacity: 0.7; }
+}
+
+.extra-small {
+    font-size: 0.7rem;
+}
+
+.timer-text {
+    font-family: monospace;
+    letter-spacing: 1px;
+}
+
+.recording-overlay {
+    z-index: 10;
+}

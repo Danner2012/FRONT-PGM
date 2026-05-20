@@ -1,4 +1,4 @@
-import { Component, ElementRef, Input, OnChanges, OnDestroy, OnInit, ViewChild, SimpleChanges, inject } from '@angular/core';
+import { Component, ElementRef, Input, OnChanges, OnDestroy, OnInit, ViewChild, SimpleChanges, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ThreeEngineService } from '../../../services/three-engine.service';
 
@@ -6,20 +6,101 @@ import { ThreeEngineService } from '../../../services/three-engine.service';
   selector: 'app-three-viewer',
   standalone: true,
   imports: [CommonModule],
-  template: `<div #rendererContainer style="width: 100%; height: 100%;"></div>`,
+  template: `
+    <div class="viewer-wrapper" style="position: relative; width: 100%; height: 100%;">
+      <!-- Motor 3D -->
+      <div #rendererContainer style="width: 100%; height: 100%;"></div>
+
+      <!-- Botón para ver esquema -->
+      <button *ngIf="schemaUrl" 
+              class="btn-schema-toggle"
+              (click)="showSchema.set(!showSchema())"
+              [title]="showSchema() ? 'Cerrar Esquema' : 'Ver Esquema Técnico'">
+        <i [class]="showSchema() ? 'bi bi-x-lg' : 'bi bi-file-earmark-image'"></i>
+      </button>
+
+      <!-- Overlay del Esquema -->
+      <div class="schema-overlay" *ngIf="showSchema()" (click)="showSchema.set(false)">
+        <div class="schema-content animate-zoom" (click)="$event.stopPropagation()">
+          <div class="d-flex justify-content-between align-items-center mb-2 px-3 pt-3">
+            <h6 class="m-0 fw-bold text-white uppercase x-small">Esquema Técnico</h6>
+            <button class="btn-close btn-close-white" (click)="showSchema.set(false)"></button>
+          </div>
+          <div class="p-3">
+            <img [src]="schemaUrl" class="img-fluid rounded shadow-lg" alt="Esquema">
+          </div>
+        </div>
+      </div>
+    </div>
+  `,
   styles: [`
     :host { display: block; width: 100%; height: 100%; }
-    div { outline: none; }
+    .viewer-wrapper { overflow: hidden; }
+    
+    .btn-schema-toggle {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      width: 45px;
+      height: 45px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 100;
+    }
+    .btn-schema-toggle:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: scale(1.05);
+    }
+
+    .schema-overlay {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(5px);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 200;
+      cursor: zoom-out;
+    }
+
+    .schema-content {
+      max-width: 90%;
+      max-height: 90%;
+      background: #1a1a1a;
+      border-radius: 15px;
+      border: 1px solid #333;
+      cursor: default;
+    }
+
+    .schema-content img {
+      max-height: 75vh;
+      object-fit: contain;
+    }
+
+    .animate-zoom { animation: zoomIn 0.3s ease-out; }
+    @keyframes zoomIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    
+    .x-small { font-size: 0.7rem; letter-spacing: 1px; }
   `],
-  providers: [ThreeEngineService] // Provee una instancia única por cada componente visor
+  providers: [ThreeEngineService]
 })
 export class ThreeViewerComponent implements OnInit, OnChanges, OnDestroy {
   @ViewChild('rendererContainer', { static: true }) rendererContainer!: ElementRef;
 
   @Input() src: string | null = null;
+  @Input() schemaUrl: string | null = null; // Nueva entrada
   @Input() scale: number = 1;
   @Input() rotation: { x: number, y: number, z: number } = { x: 0, y: 0, z: 0 };
   @Input() autoRotate: boolean = false;
+
+  showSchema = signal(false); // Signal para controlar visibilidad
 
   private threeEngine = inject(ThreeEngineService);
 
@@ -31,6 +112,11 @@ export class ThreeViewerComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
+    // Si cambia el esquema, lo ocultamos por defecto
+    if (changes['schemaUrl']) {
+      this.showSchema.set(false);
+    }
+
     // Si cambia la URL del modelo, recargamos
     if (changes['src'] && !changes['src'].firstChange && this.src) {
       this.threeEngine.loadModel(this.src, this.scale, this.rotation, this.autoRotate);

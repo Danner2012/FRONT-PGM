@@ -203,6 +203,8 @@ export class HerramientaManagementComponent implements OnInit {
     if (file) {
       const nuevo = {
         archivo: file,
+        archivo_esquema: null as File | null,
+        schemaPreview: null as string | null,
         previewUrl: URL.createObjectURL(file),
         escala: 1.0,
         rotX: 0, rotY: 0, rotZ: 0,
@@ -213,6 +215,46 @@ export class HerramientaManagementComponent implements OnInit {
       this.refreshActivePreview();
       event.target.value = '';
     }
+  }
+
+  onSchemaSelected(event: any): void {
+    const file = event.target.files[0];
+    if (file) {
+      const nActuales = this.modelosActuales.length;
+      if (this.activeModelIdx >= nActuales) {
+        const idxNuevo = this.activeModelIdx - nActuales;
+        this.modelosNuevos[idxNuevo].archivo_esquema = file;
+        this.modelosNuevos[idxNuevo].schemaPreview = URL.createObjectURL(file);
+      } else {
+        this.modelosActuales[this.activeModelIdx].nuevo_esquema = file;
+        this.modelosActuales[this.activeModelIdx].schemaPreview = URL.createObjectURL(file);
+      }
+    }
+  }
+
+  getSchemaUrl(model: any): string | null {
+    if (!model) return null;
+    if (model.schemaPreview) return model.schemaPreview;
+    if (model.archivo_esquema) {
+      return model.archivo_esquema.startsWith('http') 
+        ? model.archivo_esquema 
+        : `http://localhost:8000${model.archivo_esquema}`;
+    }
+    return null;
+  }
+
+  getSchemaPreview(): string | null {
+    const nActuales = this.modelosActuales.length;
+    if (this.activeModelIdx < nActuales) {
+      const m = this.modelosActuales[this.activeModelIdx];
+      if (m.schemaPreview) return m.schemaPreview;
+      if (m.archivo_esquema) {
+        return m.archivo_esquema.startsWith('http') ? m.archivo_esquema : `http://localhost:8000${m.archivo_esquema}`;
+      }
+    } else {
+      return this.modelosNuevos[this.activeModelIdx - nActuales]?.schemaPreview || null;
+    }
+    return null;
   }
 
   removeActiveModel(): void {
@@ -307,14 +349,16 @@ export class HerramientaManagementComponent implements OnInit {
         fd.append('escala', m.escala.toString());
         fd.append('nombre_identificador', m.nombre_identificador);
         fd.append('rotacion_default', `${m.rotX} ${m.rotY} ${m.rotZ}`);
+        if (m.archivo_esquema) fd.append('archivo_esquema', m.archivo_esquema);
         return this.herramientaService.subirModelo3D(herramientaId, fd).toPromise();
       });
 
       const updatePromesas = this.modelosActuales.map(m => {
-        return this.herramientaService.updateConfig3D(m.id, {
-          escala: m.escala,
-          rotacion_default: m.rotacion_default
-        }).toPromise();
+        const configFd = new FormData();
+        configFd.append('escala', m.escala.toString());
+        configFd.append('rotacion_default', m.rotacion_default);
+        if (m.nuevo_esquema) configFd.append('archivo_esquema', m.nuevo_esquema);
+        return this.herramientaService.updateConfig3D(m.id, configFd).toPromise();
       });
 
       Promise.all([...subirPromesas, ...updatePromesas]).then(() => {

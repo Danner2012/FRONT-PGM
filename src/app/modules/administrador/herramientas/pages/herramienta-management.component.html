@@ -139,6 +139,7 @@
         <app-three-viewer 
           *ngIf="previewUrl3D"
           [src]="previewUrl3D"
+          [schemaUrl]="getSchemaUrl(modelosActuales[activeModelIdx])"
           [rotation]="getRotation()"
           [scale]="scaleValue"
           [autoRotate]="true">
@@ -288,6 +289,7 @@
                 <app-three-viewer 
                   *ngIf="previewUrl3D"
                   [src]="previewUrl3D"
+                  [schemaUrl]="getSchemaPreview()"
                   [rotation]="getRotation()"
                   [scale]="scaleValue"
                   [autoRotate]="false">
@@ -307,13 +309,28 @@
                 </div>
                 <div class="col-12">
                   <label class="x-small fw-bold text-muted d-block mb-1">POSICIÓN DE CÁMARA (ANGULOS / ZOOM)</label>
-                  <div class="input-group input-group-sm">
+                  <div class="input-group input-group-sm mb-3">
                     <span class="input-group-text bg-white border-end-0 text-muted">X</span>
                     <input type="number" class="form-control border-start-0 me-1 rounded-end" [(ngModel)]="rotX" [ngModelOptions]="{standalone: true}" (change)="syncActiveConfig()">
                     <span class="input-group-text bg-white border-end-0 text-muted">Y</span>
                     <input type="number" class="form-control border-start-0 me-1 rounded-end" [(ngModel)]="rotY" [ngModelOptions]="{standalone: true}" (change)="syncActiveConfig()">
                     <span class="input-group-text bg-white border-end-0 text-muted">Z</span>
                     <input type="number" class="form-control border-start-0 rounded-end" [(ngModel)]="rotZ" [ngModelOptions]="{standalone: true}" (change)="syncActiveConfig()">
+                  </div>
+                </div>
+
+                <!-- Nueva Sección: Esquema del Modelo -->
+                <div class="col-12">
+                  <label class="x-small fw-bold text-muted d-block mb-1">ESQUEMA TÉCNICO (IMAGEN)</label>
+                  <div class="d-flex gap-3 align-items-center">
+                    <label class="btn btn-outline-primary btn-sm rounded-pill px-3 mb-0" style="cursor: pointer;">
+                      <i class="bi bi-image-fill me-1"></i> {{ getSchemaPreview() ? 'Cambiar Esquema' : 'Subir Esquema' }}
+                      <input type="file" class="d-none" (change)="onSchemaSelected($event)" accept="image/*">
+                    </label>
+                    <div *ngIf="getSchemaPreview()" class="schema-thumbnail rounded border overflow-hidden bg-white" style="width: 50px; height: 50px;">
+                      <img [src]="getSchemaPreview()" class="w-100 h-100 object-fit-cover" alt="Esquema">
+                    </div>
+                    <span *ngIf="!getSchemaPreview()" class="x-small text-muted italic">Sin esquema asignado</span>
                   </div>
                 </div>
               </div>

@@ -46,6 +46,7 @@ export class HerramientaService {
   }
 
   updateConfig3D(modeloId: number, config: any): Observable<any> {
+    // Si es FormData se envía tal cual, si no, se asume JSON
     return this.http.patch<any>(`${this.apiUrl}/modelos-3d/${modeloId}/`, config);
   }
 

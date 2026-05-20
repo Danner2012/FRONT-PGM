@@ -100,6 +100,7 @@ export class PracticaReviewComponent implements OnInit {
   }
 
   openReview(entrega: any) {
+    console.log('Abriendo revisión para entrega:', entrega);
     this.selectedEntrega.set(entrega);
     this.reviewForm = {
       calificacion: entrega.calificacion || 0,
@@ -107,6 +108,7 @@ export class PracticaReviewComponent implements OnInit {
       estado: entrega.estado === 'entregada' ? 'aprobada' : entrega.estado
     };
     this.showReviewModal.set(true);
+    console.log('Estado showReviewModal:', this.showReviewModal());
   }
 
   closeReview() {
@@ -115,7 +117,16 @@ export class PracticaReviewComponent implements OnInit {
   }
 
   submitReview() {
-    if (!this.selectedEntrega()) return;
+    const entregaActual = this.selectedEntrega();
+    if (!entregaActual) {
+      console.warn('No hay entrega seleccionada para calificar');
+      return;
+    }
+
+    const entregaId = entregaActual.id;
+    
+    // Ocultamos el modal de revisión para que no se superponga con la confirmación
+    this.showReviewModal.set(false);
 
     Swal.fire({
       title: '¿Confirmar calificación?',
@@ -123,20 +134,30 @@ export class PracticaReviewComponent implements OnInit {
       icon: 'question',
       showCancelButton: true,
       confirmButtonText: 'Sí, calificar',
-      cancelButtonText: 'Cancelar'
+      cancelButtonText: 'Cancelar',
+      allowOutsideClick: false // Evita cerrar por error y perder el estado
     }).then((result) => {
       if (result.isConfirmed) {
-        this.practicaService.calificarPractica(this.selectedEntrega().id, this.reviewForm).subscribe({
-          next: () => {
+        console.log('Confirmación recibida, llamando al servicio para ID:', entregaId);
+        this.practicaService.calificarPractica(entregaId, this.reviewForm).subscribe({
+          next: (res) => {
+            console.log('Respuesta exitosa del servidor:', res);
             Swal.fire('Éxito', 'Práctica calificada correctamente', 'success');
             this.loadEntregas();
-            this.closeReview();
+            this.selectedEntrega.set(null); // Limpiamos la selección tras éxito
+            console.log('Vista actualizada');
           },
           error: (err: any) => {
-            console.error('Error al calificar:', err);
-            Swal.fire('Error', 'No se pudo guardar la calificación', 'error');
+            console.error('Error al calificar (detalle completo):', err);
+            const errorMsg = err.error?.error || 'No se pudo guardar la calificación';
+            Swal.fire('Error', errorMsg, 'error');
+            this.showReviewModal.set(true); // Reabrimos el modal si hubo error para corregir
           }
         });
+      } else {
+        // Si el usuario cancela la confirmación, reabrimos el modal con sus datos intactos
+        console.log('Calificación cancelada, reabriendo formulario...');
+        this.showReviewModal.set(true);
       }
     });
   }

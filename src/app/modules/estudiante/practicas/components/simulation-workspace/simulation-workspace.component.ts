@@ -20,6 +20,7 @@ export class SimulationWorkspaceComponent implements OnInit {
 
   practica = signal<any>(null);
   isLoading = signal(true);
+  activeTab = signal<'guia' | 'camara'>('guia');
   
   // Filtros de Recursos
   searchTerm = signal<string>('');

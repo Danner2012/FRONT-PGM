@@ -23,10 +23,24 @@
         <!-- ÁREA DE TRABAJO (IZQUIERDA) -->
         <main class="workspace-main">
             <div class="workspace-card">
-                <div class="card-header-simple">
-                    <h6 class="fw-bold m-0"><i class="bi bi-info-circle me-2"></i>Instrucciones de la Práctica</h6>
+                <div class="workspace-tabs-header">
+                    <div class="tabs-container-custom">
+                        <button class="tab-btn-custom" [class.active]="activeTab() === 'guia'" (click)="activeTab.set('guia')">
+                            <i class="bi bi-journal-text me-2"></i>Guía de Práctica
+                        </button>
+                        <button class="tab-btn-custom" [class.active]="activeTab() === 'camara'" (click)="activeTab.set('camara')">
+                            <i class="bi bi-camera-video me-2"></i>Cámara en Vivo
+                            <span *ngIf="cameraActive()" class="status-dot-mini"></span>
+                        </button>
+                    </div>
                 </div>
-                <div class="card-body-scrollable">
+
+                <!-- CONTENIDO: GUÍA DE PRÁCTICA -->
+                <div class="card-body-scrollable" *ngIf="activeTab() === 'guia'">
+                    <div class="section-header mb-3">
+                        <h6 class="fw-bold m-0"><i class="bi bi-info-circle me-2 text-primary"></i>Instrucciones de la Práctica</h6>
+                    </div>
+                    
                     <p class="description-text">{{ practica()?.descripcion }}</p>
                     
                     <div class="mt-4" *ngIf="practica()?.herramientas?.length">
@@ -58,48 +72,64 @@
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <!-- CAMPO DE CÁMARA (NUEVO) -->
-                    <div class="mt-4">
-                        <div class="d-flex align-items-center justify-content-between mb-3">
-                            <h6 class="fw-bold m-0"><i class="bi bi-camera-video me-2 text-primary"></i>Cámara del Dispositivo</h6>
-                            <div class="d-flex gap-2 align-items-center">
-                                <!-- Selector de Cámara -->
-                                <select *ngIf="availableCameras().length > 1" 
-                                        class="form-select form-select-sm rounded-pill px-3 shadow-none border-primary-subtle"
-                                        style="width: 180px; font-size: 0.7rem;"
-                                        [value]="selectedCameraId()"
-                                        (change)="onCameraChange(cameraSelect.value)"
-                                        #cameraSelect>
-                                    <option *ngFor="let cam of availableCameras()" [value]="cam.deviceId">
-                                        {{ cam.label || 'Cámara ' + cam.deviceId.slice(0,5) }}
-                                    </option>
-                                </select>
-
-                                <button class="btn btn-xs rounded-pill px-3" 
-                                        [class.btn-primary]="!cameraActive()" 
-                                        [class.btn-danger]="cameraActive()"
-                                        (click)="toggleCamera()">
-                                    <i class="bi" [class.bi-camera]="!cameraActive()" [class.bi-camera-off]="cameraActive()"></i>
-                                    {{ cameraActive() ? 'Apagar Cámara' : 'Encender Cámara' }}
-                                </button>
-                            </div>
+                <!-- CONTENIDO: CÁMARA (DEDICADO) -->
+                <div class="card-body-scrollable" [hidden]="activeTab() !== 'camara'">
+                    <div class="d-flex align-items-center justify-content-between mb-4">
+                        <div>
+                            <h6 class="fw-bold m-0"><i class="bi bi-camera-video me-2 text-primary"></i>Transmisión de Cámara</h6>
+                            <p class="text-muted extra-small mb-0">Usa la cámara para mostrar tu avance físico o capturar evidencia.</p>
                         </div>
+                        <div class="d-flex gap-2 align-items-center">
+                            <!-- Selector de Cámara -->
+                            <select *ngIf="availableCameras().length > 1" 
+                                    class="form-select form-select-sm rounded-pill px-3 shadow-none border-primary-subtle"
+                                    style="width: 180px; font-size: 0.7rem;"
+                                    [value]="selectedCameraId()"
+                                    (change)="onCameraChange(cameraSelect.value)"
+                                    #cameraSelect>
+                                <option *ngFor="let cam of availableCameras()" [value]="cam.deviceId">
+                                    {{ cam.label || 'Cámara ' + cam.deviceId.slice(0,5) }}
+                                </option>
+                            </select>
+
+                            <button class="btn btn-sm rounded-pill px-3" 
+                                    [class.btn-primary]="!cameraActive()" 
+                                    [class.btn-danger]="cameraActive()"
+                                    (click)="toggleCamera()">
+                                <i class="bi" [class.bi-camera]="!cameraActive()" [class.bi-camera-off]="cameraActive()"></i>
+                                {{ cameraActive() ? 'Apagar Cámara' : 'Encender Cámara' }}
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="camera-workspace-view bg-dark rounded-4 overflow-hidden position-relative shadow-lg">
+                        <video id="cameraFeed" autoplay playsinline class="w-100 h-100 object-fit-contain" [class.d-none]="!cameraActive()"></video>
                         
-                        <div class="camera-field bg-dark rounded-4 overflow-hidden position-relative">
-                            <video id="cameraFeed" autoplay playsinline class="w-100 h-auto object-fit-contain" [class.d-none]="!cameraActive()"></video>
-                            
-                            <div *ngIf="!cameraActive()" class="d-flex flex-column align-items-center justify-content-center h-100 text-white-50 opacity-50">
-                                <i class="bi bi-camera display-4 mb-2"></i>
-                                <p class="small">Cámara desactivada</p>
+                        <div *ngIf="!cameraActive()" class="d-flex flex-column align-items-center justify-content-center h-100 text-white-50 py-5">
+                            <div class="camera-off-icon mb-3">
+                                <i class="bi bi-camera-video-off display-1"></i>
                             </div>
-
-                            <!-- Overlay de cámara -->
-                            <div *ngIf="cameraActive()" class="position-absolute top-0 end-0 m-3">
-                                <span class="badge bg-danger rounded-pill pulse-badge">● LIVE</span>
-                            </div>
+                            <h5 class="fw-bold">Cámara Desactivada</h5>
+                            <p class="small text-center px-4">Haz clic en "Encender Cámara" para comenzar la transmisión.</p>
                         </div>
-                        <p class="text-muted extra-small mt-2 italic"><i class="bi bi-info-circle me-1"></i>Usa la cámara para mostrar tu avance físico al técnico o capturar evidencia.</p>
+
+                        <!-- Overlay de cámara -->
+                        <div *ngIf="cameraActive()" class="position-absolute top-0 end-0 m-4">
+                            <span class="badge bg-danger rounded-pill pulse-badge px-3 py-2">
+                                <i class="bi bi-record-fill me-1"></i> EN VIVO
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 p-3 bg-light rounded-3 border">
+                        <div class="fw-bold d-block mb-2 small"><i class="bi bi-info-circle-fill me-2 text-primary"></i>Consejos para una mejor vista:</div>
+                        <ul class="extra-small text-muted mb-0 ps-3">
+                            <li>Asegúrate de tener buena iluminación en tu área de trabajo.</li>
+                            <li>Coloca la cámara en un ángulo donde se vean claramente tus manos y el dispositivo.</li>
+                            <li>Si tienes varias cámaras, puedes alternar entre ellas usando el selector superior.</li>
+                        </ul>
                     </div>
                 </div>
             </div>

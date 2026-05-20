@@ -54,6 +54,13 @@ export class SimulationWorkspaceComponent implements OnInit {
     return [...new Set(types)].filter(t => !!t); // Solo tipos únicos y no nulos
   });
 
+  isTeorica = computed(() => {
+    const p = this.practica();
+    if (!p) return false;
+    const tipo = p.tipo_practica_nombre?.toLowerCase() || '';
+    return tipo === 'teórica' || tipo === 'teorica';
+  });
+
   filteredRecursos = computed(() => {
     const p = this.practica();
     if (!p || !p.recursos) return [];
@@ -185,6 +192,11 @@ export class SimulationWorkspaceComponent implements OnInit {
       next: (data) => {
         this.practica.set(data);
         this.isLoading.set(false);
+        
+        // Si es teórica y por alguna razón estamos en la pestaña de cámara, cambiamos a guía
+        if (this.isTeorica() && this.activeTab() === 'camara') {
+          this.activeTab.set('guia');
+        }
       },
       error: (err) => {
         console.error('Error cargando práctica:', err);

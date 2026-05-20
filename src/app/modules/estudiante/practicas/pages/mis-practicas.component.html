@@ -112,7 +112,7 @@
                             </td>
                             <td class="text-end">
                                 <div class="d-flex justify-content-end gap-1">
-                                    <button *ngIf="item.tipo_practica_nombre?.toLowerCase() === 'simulación' || item.tipo_practica_nombre?.toLowerCase() === 'simulacion'" 
+                                    <button *ngIf="item.tipo_practica_nombre?.toLowerCase() === 'simulación' || item.tipo_practica_nombre?.toLowerCase() === 'simulacion' || item.tipo_practica_nombre?.toLowerCase() === 'teórica' || item.tipo_practica_nombre?.toLowerCase() === 'teorica'" 
                                             class="btn-action btn-simulation" 
                                             (click)="startSimulation(item)" title="Ingresar Práctica">
                                         <i class="bi bi-arrow-right-circle-fill"></i>

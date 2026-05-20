@@ -21,10 +21,9 @@
 
     <!-- PESTAÑA 1: GESTIÓN DE PRÁCTICAS -->
     <div *ngIf="activeTab() === 'practicas'" class="animate-fade-in">
-        <!-- BARRA DE FILTROS -->
         <div class="filters-bar mb-4">
             <div class="row g-2 align-items-end">
-                <div class="col-md-4">
+                <div class="col-md-5">
                     <div class="filter-group">
                         <label class="filter-label">Título de la Práctica</label>
                         <div class="search-input-group">
@@ -33,7 +32,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-4">
                     <div class="filter-group">
                         <label class="filter-label">Curso</label>
                         <select class="filter-control shadow-none" [ngModel]="filterCurso()" (ngModelChange)="filterCurso.set($event)">
@@ -42,7 +41,7 @@
                         </select>
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <div class="filter-group">
                         <label class="filter-label">Estado</label>
                         <select class="filter-control shadow-none" [ngModel]="filterEstado()" (ngModelChange)="filterEstado.set($event)">
@@ -68,6 +67,7 @@
                         <tr>
                             <th class="text-center" style="width: 60px;">#</th>
                             <th>Información de la Práctica</th>
+                            <th>Creado Por</th>
                             <th class="text-center">Contenido</th>
                             <th class="text-center">Estado</th>
                             <th class="text-end" style="width: 220px;">Acciones</th>
@@ -92,6 +92,9 @@
                                         </div>
                                     </div>
                                 </div>
+                            </td>
+                            <td>
+                                <div class="small fw-bold text-dark">{{ p.usuario_creador_nombre || 'Sistema' }}</div>
                             </td>
                             <td class="text-center">
                                 <div class="d-flex justify-content-center gap-3">

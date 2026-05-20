@@ -16,6 +16,7 @@ import Swal from 'sweetalert2';
 export class PracticaManagementComponent implements OnInit {
   practicas = signal<any[]>([]);
   cursos = signal<any[]>([]);
+  tecnicos = signal<any[]>([]);
   herramientas = signal<any[]>([]);
   tiposRecurso = signal<any[]>([]);
   tiposPractica = signal<any[]>([]);
@@ -25,16 +26,18 @@ export class PracticaManagementComponent implements OnInit {
   // Filtros
   filterTitulo = signal('');
   filterCurso = signal('todos');
+  filterTecnico = signal('todos');
   filterEstado = signal('todos');
   
   filteredPracticas = computed(() => {
     return this.practicas().filter(p => {
       const matchTitulo = p.titulo.toLowerCase().includes(this.filterTitulo().toLowerCase());
-      const matchCurso = this.filterCurso() === 'todos' || p.id_curso.toString() === this.filterCurso();
+      const matchCurso = this.filterCurso() === 'todos' || (p.id_curso && p.id_curso.toString() === this.filterCurso());
+      const matchTecnico = this.filterTecnico() === 'todos' || (p.id_usuario_creador && p.id_usuario_creador.toString() === this.filterTecnico());
       const matchEstado = this.filterEstado() === 'todos' || 
                          (this.filterEstado() === 'activo' && p.estado) || 
                          (this.filterEstado() === 'inactivo' && !p.estado);
-      return matchTitulo && matchCurso && matchEstado;
+      return matchTitulo && matchCurso && matchTecnico && matchEstado;
     });
   });
 
@@ -106,6 +109,7 @@ export class PracticaManagementComponent implements OnInit {
   clearFilters() {
     this.filterTitulo.set('');
     this.filterCurso.set('todos');
+    this.filterTecnico.set('todos');
     this.filterEstado.set('todos');
   }
 
@@ -119,6 +123,7 @@ export class PracticaManagementComponent implements OnInit {
       }
     });
     this.apiService.getCursos().subscribe(data => this.cursos.set(data));
+    this.apiService.getTecnicos().subscribe(data => this.tecnicos.set(data));
     this.herramientaService.getHerramientas().subscribe(data => this.herramientas.set(data));
     this.practicaService.getTiposRecurso().subscribe(data => this.tiposRecurso.set(data));
     this.practicaService.getTiposPractica().subscribe(data => this.tiposPractica.set(data));

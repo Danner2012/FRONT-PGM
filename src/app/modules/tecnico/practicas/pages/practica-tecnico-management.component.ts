@@ -5,6 +5,7 @@ import { PracticaService } from '../../../../services/practica.service';
 import { ApiService } from '../../../../services/api.service';
 import { HerramientaService } from '../../../../services/herramienta.service';
 import { CursoService } from '../../../../services/curso.service';
+import { AuthService } from '../../../../services/auth.service';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -31,7 +32,7 @@ export class PracticaTecnicoManagementComponent implements OnInit {
   filteredPracticas = computed(() => {
     return this.practicas().filter(p => {
       const matchTitulo = p.titulo.toLowerCase().includes(this.filterTitulo().toLowerCase());
-      const matchCurso = this.filterCurso() === 'todos' || p.id_curso.toString() === this.filterCurso();
+      const matchCurso = this.filterCurso() === 'todos' || (p.id_curso && p.id_curso.toString() === this.filterCurso());
       const matchEstado = this.filterEstado() === 'todos' || 
                          (this.filterEstado() === 'activo' && p.estado) || 
                          (this.filterEstado() === 'inactivo' && !p.estado);
@@ -83,7 +84,8 @@ export class PracticaTecnicoManagementComponent implements OnInit {
     private practicaService: PracticaService,
     private apiService: ApiService,
     private herramientaService: HerramientaService,
-    private cursoService: CursoService
+    private cursoService: CursoService,
+    private authService: AuthService
   ) {}
 
   ngOnInit() {
@@ -112,17 +114,16 @@ export class PracticaTecnicoManagementComponent implements OnInit {
   }
 
   loadData() {
-    // Para técnicos, el backend ya filtra las prácticas en get_queryset del PracticaEstudianteViewSet? 
-    // No, PracticaViewSet.queryset = Practica.objects.all().
-    // Pero el usuario pidió que el técnico vea sus prácticas propias para sus cursos asignados.
-    // En el backend, PracticaViewSet no tiene filtro por técnico por defecto en la lista general.
-    // Sin embargo, podemos filtrar en el frontend por los cursos asignados al técnico.
-    
+    const currentUserId = this.authService.currentUser()?.id;
+
     this.practicaService.getPracticas().subscribe(data => {
-      // Filtrar prácticas que pertenezcan a los cursos del técnico
+      // Filtrar prácticas que pertenezcan a los cursos del técnico Y hayan sido creadas por él
       this.cursoService.getCursosPorTecnico().subscribe(cursosTecnico => {
         const cursoIds = cursosTecnico.map((c: any) => c.id);
-        const filtered = data.filter(p => cursoIds.includes(p.id_curso));
+        const filtered = data.filter(p => 
+          cursoIds.includes(p.id_curso) && 
+          p.id_usuario_creador === currentUserId
+        );
         this.practicas.set(filtered);
         this.cursos.set(cursosTecnico);
 

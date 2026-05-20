@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PracticaService } from '../../../../services/practica.service';
+import { CursoService } from '../../../../services/curso.service';
 import { FormsModule } from '@angular/forms';
 
 @Component({
@@ -12,11 +13,17 @@ import { FormsModule } from '@angular/forms';
 })
 export class PrestamoReportComponent implements OnInit {
   private practicaService = inject(PracticaService);
+  private cursoService = inject(CursoService);
 
   prestamos = signal<any[]>([]);
+  cursos = signal<any[]>([]);
+  
+  // Signals de Filtrado
   filterText = signal('');
   filterEstado = signal('todos');
-  filterFecha = signal('');
+  filterFechaInicio = signal('');
+  filterFechaFin = signal('');
+  filterCurso = signal('todos');
 
   // Signals para modal de detalles
   showDetailsModal = signal(false);
@@ -26,7 +33,9 @@ export class PrestamoReportComponent implements OnInit {
     let data = this.prestamos();
     const text = this.filterText().toLowerCase();
     const estado = this.filterEstado();
-    const fecha = this.filterFecha();
+    const fechaInicio = this.filterFechaInicio();
+    const fechaFin = this.filterFechaFin();
+    const cursoId = this.filterCurso();
 
     if (text) {
       data = data.filter(p => 
@@ -42,11 +51,19 @@ export class PrestamoReportComponent implements OnInit {
       data = data.filter(p => p.estado === estado);
     }
 
-    if (fecha) {
-      data = data.filter(p => {
-        const pFecha = new Date(p.fecha_prestamo).toISOString().split('T')[0];
-        return pFecha === fecha;
-      });
+    if (cursoId !== 'todos') {
+      data = data.filter(p => p.id_curso?.toString() === cursoId);
+    }
+
+    if (fechaInicio) {
+      const start = new Date(fechaInicio);
+      data = data.filter(p => new Date(p.fecha_prestamo) >= start);
+    }
+
+    if (fechaFin) {
+      const end = new Date(fechaFin);
+      end.setHours(23, 59, 59);
+      data = data.filter(p => new Date(p.fecha_prestamo) <= end);
     }
 
     return data;
@@ -54,6 +71,7 @@ export class PrestamoReportComponent implements OnInit {
 
   ngOnInit() {
     this.loadPrestamos();
+    this.loadCursos();
   }
 
   loadPrestamos() {
@@ -62,10 +80,18 @@ export class PrestamoReportComponent implements OnInit {
     });
   }
 
+  loadCursos() {
+    this.cursoService.getCursos().subscribe(data => {
+      this.cursos.set(data);
+    });
+  }
+
   clearFilters() {
     this.filterText.set('');
     this.filterEstado.set('todos');
-    this.filterFecha.set('');
+    this.filterFechaInicio.set('');
+    this.filterFechaFin.set('');
+    this.filterCurso.set('todos');
   }
 
   openDetails(prestamo: any) {

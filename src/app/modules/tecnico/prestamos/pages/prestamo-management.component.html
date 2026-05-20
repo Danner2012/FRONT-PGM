@@ -10,6 +10,58 @@
         </button>
     </div>
 
+    <!-- BARRA DE FILTROS (Estilo consistente) -->
+    <div class="filters-bar animate-fade-in mb-4">
+        <div class="row g-2 align-items-end">
+            <div class="col-md-3">
+                <div class="filter-group">
+                    <label class="filter-label">Buscar Registro</label>
+                    <div class="search-input-group">
+                        <i class="bi bi-search"></i>
+                        <input type="text" class="filter-control" placeholder="Estudiante, herramienta..." [ngModel]="filterText()" (ngModelChange)="filterText.set($event)">
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="filter-group">
+                    <label class="filter-label">Curso</label>
+                    <select class="filter-control" [ngModel]="filterCurso()" (ngModelChange)="filterCurso.set($event)">
+                        <option value="todos">Todos los cursos</option>
+                        <option *ngFor="let c of cursos()" [value]="c.id">{{ c.nombre }}</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="filter-group">
+                    <label class="filter-label">Estado</label>
+                    <select class="filter-control" [ngModel]="filterEstado()" (ngModelChange)="filterEstado.set($event)">
+                        <option value="todos">Todos los estados</option>
+                        <option value="prestado">Prestado</option>
+                        <option value="parcial">Devolución Parcial</option>
+                        <option value="devuelto">Devuelto Total</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="filter-group">
+                    <label class="filter-label">Desde</label>
+                    <input type="date" class="filter-control" [ngModel]="filterFechaInicio()" (ngModelChange)="filterFechaInicio.set($event)">
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="filter-group">
+                    <label class="filter-label">Hasta</label>
+                    <input type="date" class="filter-control" [ngModel]="filterFechaFin()" (ngModelChange)="filterFechaFin.set($event)">
+                </div>
+            </div>
+            <div class="col-auto">
+                <button class="btn-clear-icon" (click)="clearFilters()" title="Limpiar Filtros">
+                    <i class="bi bi-eraser-fill"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Tabla de Préstamos -->
     <div class="card card-custom overflow-hidden">
         <div class="table-responsive">
@@ -26,7 +78,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr *ngFor="let prestamo of prestamos(); let i = index">
+                    <tr *ngFor="let prestamo of filteredPrestamos(); let i = index">
                         <td class="text-center fw-bold">{{ i + 1 }}</td>
                         <td>
                             <div class="fw-bold text-dark">{{ prestamo.estudiante_nombre }}</div>

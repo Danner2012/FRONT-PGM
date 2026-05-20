@@ -41,7 +41,66 @@ export class PrestamoManagementComponent implements OnInit {
   selectedPrestamo = signal<any>(null);
   selectedCursoId = signal<string>(''); // Signal para reactividad
 
+  // Signals de Filtrado (NUEVOS)
+  filterText = signal('');
+  filterEstado = signal('todos');
+  filterFechaInicio = signal('');
+  filterFechaFin = signal('');
+  filterCurso = signal('todos');
+
   // Computed signals for filtering
+  filteredPrestamos = computed(() => {
+    let data = this.prestamos();
+    const text = this.filterText().toLowerCase();
+    const estado = this.filterEstado();
+    const fechaInicio = this.filterFechaInicio();
+    const fechaFin = this.filterFechaFin();
+    const cursoId = this.filterCurso();
+
+    if (text) {
+      data = data.filter(p => 
+        p.estudiante_nombre?.toLowerCase().includes(text) || 
+        p.estudiante_ci?.toLowerCase().includes(text) ||
+        p.tecnico_nombre?.toLowerCase().includes(text) ||
+        p.detalles?.some((d: any) => d.herramienta_nombre?.toLowerCase().includes(text)) ||
+        p.herramienta_nombre?.toLowerCase().includes(text)
+      );
+    }
+
+    if (estado !== 'todos') {
+      data = data.filter(p => {
+        // En este componente, el estado puede estar en detalles o en la raíz
+        const pEstado = p.detalles?.[0]?.estado || p.estado;
+        return pEstado === estado;
+      });
+    }
+
+    if (cursoId !== 'todos') {
+      data = data.filter(p => p.id_curso?.toString() === cursoId);
+    }
+
+    if (fechaInicio) {
+      const start = new Date(fechaInicio);
+      data = data.filter(p => new Date(p.fecha_prestamo) >= start);
+    }
+
+    if (fechaFin) {
+      const end = new Date(fechaFin);
+      end.setHours(23, 59, 59);
+      data = data.filter(p => new Date(p.fecha_prestamo) <= end);
+    }
+
+    return data;
+  });
+
+  clearFilters() {
+    this.filterText.set('');
+    this.filterEstado.set('todos');
+    this.filterFechaInicio.set('');
+    this.filterFechaFin.set('');
+    this.filterCurso.set('todos');
+  }
+
   filteredInscripciones = computed(() => {
     const cursoId = this.selectedCursoId();
     const todas = this.inscripciones();

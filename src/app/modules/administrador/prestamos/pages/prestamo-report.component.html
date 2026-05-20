@@ -17,16 +17,25 @@
     <!-- Barra de Filtros (Estilo Administrador) -->
     <div class="filters-bar animate-fade-in">
         <div class="row g-2 align-items-end">
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <div class="filter-group">
                     <label class="filter-label">Buscar Registro</label>
                     <div class="search-input-group">
                         <i class="bi bi-search"></i>
-                        <input type="text" class="filter-control" placeholder="Estudiante, herramienta, técnico..." [ngModel]="filterText()" (ngModelChange)="filterText.set($event)">
+                        <input type="text" class="filter-control" placeholder="Estudiante, herramienta..." [ngModel]="filterText()" (ngModelChange)="filterText.set($event)">
                     </div>
                 </div>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-2">
+                <div class="filter-group">
+                    <label class="filter-label">Curso</label>
+                    <select class="filter-control" [ngModel]="filterCurso()" (ngModelChange)="filterCurso.set($event)">
+                        <option value="todos">Todos los cursos</option>
+                        <option *ngFor="let c of cursos()" [value]="c.id">{{ c.nombre }}</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-2">
                 <div class="filter-group">
                     <label class="filter-label">Estado</label>
                     <select class="filter-control" [ngModel]="filterEstado()" (ngModelChange)="filterEstado.set($event)">
@@ -37,10 +46,16 @@
                     </select>
                 </div>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-2">
                 <div class="filter-group">
-                    <label class="filter-label">Fecha del Préstamo</label>
-                    <input type="date" class="filter-control" [ngModel]="filterFecha()" (ngModelChange)="filterFecha.set($event)">
+                    <label class="filter-label">Desde</label>
+                    <input type="date" class="filter-control" [ngModel]="filterFechaInicio()" (ngModelChange)="filterFechaInicio.set($event)">
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="filter-group">
+                    <label class="filter-label">Hasta</label>
+                    <input type="date" class="filter-control" [ngModel]="filterFechaFin()" (ngModelChange)="filterFechaFin.set($event)">
                 </div>
             </div>
             <div class="col-auto">

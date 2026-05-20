@@ -1,12 +1,17 @@
 <div class="management-container">
-    <!-- ENCABEZADO Y PESTAÑAS -->
+    <!-- ENCABEZADO SIMPLE (Sin fondo azul) -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h4 class="fw-bold mb-0">Gestión de Prácticas</h4>
-            <div class="mt-2 tabs-container">
-                <button class="tab-btn" [class.active]="activeTab() === 'practicas'" (click)="activeTab.set('practicas')">Prácticas</button>
-                <button class="tab-btn" [class.active]="activeTab() === 'maestros'" (click)="activeTab.set('maestros')">Configuración</button>
-            </div>
+            <p class="text-muted small">Configuración de guías de aprendizaje y recursos para los estudiantes.</p>
+        </div>
+    </div>
+
+    <!-- PESTAÑAS Y ACCIÓN -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="tabs-container">
+            <button class="tab-btn" [class.active]="activeTab() === 'practicas'" (click)="activeTab.set('practicas')">Prácticas</button>
+            <button class="tab-btn" [class.active]="activeTab() === 'maestros'" (click)="activeTab.set('maestros')">Configuración</button>
         </div>
         <button *ngIf="activeTab() === 'practicas'" class="btn btn-primary rounded-pill px-4 shadow-sm d-flex align-items-center gap-2" (click)="openPracticaModal()">
             <i class="bi bi-plus-circle fs-5"></i>

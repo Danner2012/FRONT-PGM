@@ -68,7 +68,6 @@
                         <tr>
                             <th class="text-center" style="width: 60px;">#</th>
                             <th>Información de la Práctica</th>
-                            <th>Descripción</th>
                             <th class="text-center">Contenido</th>
                             <th class="text-center">Estado</th>
                             <th class="text-end" style="width: 120px;">Acciones</th>
@@ -92,11 +91,6 @@
                                             <span class="text-primary"><i class="bi bi-tag-fill me-1"></i> {{ item.tipo_practica_nombre || 'Sin Tipo' }}</span>
                                         </div>
                                     </div>
-                                </div>
-                            </td>
-                            <td>
-                                <div class="text-muted small" style="max-width: 250px; white-space: normal;">
-                                    {{ item.descripcion }}
                                 </div>
                             </td>
                             <td class="text-center">
@@ -123,7 +117,7 @@
                                             (click)="startSimulation(item)" title="Iniciar Simulación">
                                         <i class="bi bi-play-circle-fill"></i>
                                     </button>
-                                    <button class="btn-action btn-view" title="Ver Detalles">
+                                    <button class="btn-action btn-view" (click)="openDetails(item)" title="Ver Detalles">
                                         <i class="bi bi-eye-fill"></i>
                                     </button>
                                 </div>
@@ -132,7 +126,7 @@
 
                         <!-- Sin Resultados -->
                         <tr *ngIf="filteredPracticas().length === 0">
-                            <td colspan="7" class="text-center py-5">
+                            <td colspan="6" class="text-center py-5">
                                 <div class="empty-state">
                                     <i class="bi bi-wrench-adjustable display-4 text-muted opacity-25"></i>
                                     <h5 class="mt-3 fw-bold">No se encontraron prácticas</h5>
@@ -142,6 +136,103 @@
                         </tr>
                     </tbody>
                 </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE DETALLES -->
+    <div class="modal-overlay" *ngIf="showDetailsModal()">
+        <div class="modal-content-custom animate-slide-up">
+            <div class="d-flex justify-content-between align-items-center mb-0 border-bottom pb-3">
+                <div>
+                    <h5 class="fw-bold mb-0 text-primary">{{ selectedPractica()?.titulo }}</h5>
+                    <div class="small text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">
+                        {{ selectedPractica()?.curso_nombre }} • {{ selectedPractica()?.tipo_practica_nombre }}
+                    </div>
+                </div>
+                <button class="btn-close" (click)="closeDetails()"></button>
+            </div>
+
+            <div class="modal-body-scroll">
+                <!-- Descripción de la Práctica -->
+                <div class="mb-5 p-4 bg-light rounded-4 border-start border-4 border-info shadow-sm">
+                    <h6 class="fw-bold mb-3 text-uppercase small text-info d-flex align-items-center">
+                        <i class="bi bi-info-circle-fill me-2 fs-5"></i>Descripción e Instrucciones
+                    </h6>
+                    <p class="mb-0 text-dark" style="white-space: pre-wrap; line-height: 1.6; font-size: 0.95rem;">
+                        {{ selectedPractica()?.descripcion }}
+                    </p>
+                    <div *ngIf="!selectedPractica()?.descripcion" class="text-muted italic small">
+                        No se han proporcionado instrucciones detalladas para esta práctica.
+                    </div>
+                </div>
+
+                <div class="row g-4">
+                    <!-- Recursos Multimedia -->
+                    <div class="col-md-6 border-end">
+                        <div class="d-flex align-items-center mb-4">
+                            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 30px; height: 30px;">
+                                <i class="bi bi-play-fill"></i>
+                            </div>
+                            <h6 class="fw-bold mb-0 text-uppercase small letter-spacing-1">Recursos Multimedia</h6>
+                        </div>
+                        
+                        <div *ngFor="let r of selectedPractica()?.recursos" class="mb-4">
+                            <div class="p-3 bg-white rounded-4 shadow-sm border border-light-subtle position-relative overflow-hidden">
+                                <div class="border-start border-3 border-primary ps-2">
+                                    <div class="fw-bold text-dark small">{{ r.titulo }}</div>
+                                    <div class="text-muted" style="font-size: 0.7rem;">{{ r.tipo_recurso_nombre }}</div>
+                                </div>
+                                <div class="d-flex gap-2 mt-3">
+                                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3" (click)="viewResource(r)" style="font-size: 0.7rem;">
+                                        <i class="bi bi-box-arrow-up-right me-1"></i> Abrir
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Visualizador de Video -->
+                            <div *ngIf="isVideo(r)" class="mt-2 video-preview-container bg-dark rounded-4 overflow-hidden">
+                                <video controls class="w-100" style="max-height: 250px;">
+                                    <source [src]="getResourceUrl(r)" type="video/mp4">
+                                    Tu navegador no soporta video.
+                                </video>
+                            </div>
+                        </div>
+                        <div *ngIf="!selectedPractica()?.recursos?.length" class="text-center py-5 bg-light rounded-4 border border-dashed">
+                            <i class="bi bi-camera-video text-muted d-block mb-2 fs-3"></i>
+                            <span class="text-muted small">Sin recursos multimedia</span>
+                        </div>
+                    </div>
+
+                    <!-- Herramientas Requeridas -->
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-center mb-4">
+                            <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 30px; height: 30px;">
+                                <i class="bi bi-tools"></i>
+                            </div>
+                            <h6 class="fw-bold mb-0 text-uppercase small letter-spacing-1">Herramientas Requeridas</h6>
+                        </div>
+
+                        <div *ngFor="let h of selectedPractica()?.herramientas" class="mb-3">
+                            <div class="p-3 bg-white rounded-4 shadow-sm border border-light-subtle d-flex justify-content-between align-items-center">
+                                <div class="border-start border-3 border-success ps-2">
+                                    <div class="fw-bold text-dark small">{{ h.herramienta_nombre }}</div>
+                                    <div class="badge bg-success-subtle text-success border border-success-subtle rounded-pill" style="font-size: 0.65rem;">
+                                        Cantidad: {{ h.cantidad_requerida }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div *ngIf="!selectedPractica()?.herramientas?.length" class="text-center py-5 bg-light rounded-4 border border-dashed">
+                            <i class="bi bi-wrench-adjustable text-muted d-block mb-2 fs-3"></i>
+                            <span class="text-muted small">Sin herramientas asignadas</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-end mt-4 pt-3 border-top">
+                <button class="btn btn-primary rounded-pill px-5 shadow-sm" (click)="closeDetails()">CERRAR DETALLES</button>
             </div>
         </div>
     </div>

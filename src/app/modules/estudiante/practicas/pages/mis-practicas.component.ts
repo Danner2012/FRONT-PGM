@@ -25,6 +25,10 @@ export class MisPracticasComponent implements OnInit {
   filterTipoPractica = signal('todos');
   filterEstado = signal('todos');
 
+  // Modal de Detalles
+  showDetailsModal = signal(false);
+  selectedPractica = signal<any>(null);
+
   // Cursos únicos para el filtro
   cursosDisponibles = computed(() => {
     const nombres = this.practicas().map(p => ({ id: p.id_curso, nombre: p.curso_nombre }));
@@ -91,5 +95,33 @@ export class MisPracticasComponent implements OnInit {
 
   startSimulation(practica: any) {
     this.router.navigate(['/dashboard/practicas/simulacion', practica.id]);
+  }
+
+  openDetails(practica: any) {
+    this.selectedPractica.set(practica);
+    this.showDetailsModal.set(true);
+  }
+
+  closeDetails() {
+    this.showDetailsModal.set(false);
+    this.selectedPractica.set(null);
+  }
+
+  // Helpers para recursos
+  isVideo(recurso: any): boolean {
+    if (!recurso.archivo_url) return false;
+    const ext = recurso.archivo_url.split('.').pop()?.toLowerCase();
+    return ['mp4', 'webm', 'ogg', 'mkv'].includes(ext || '');
+  }
+
+  getResourceUrl(recurso: any): string {
+    if (recurso.archivo_url) {
+      return recurso.archivo_url.startsWith('http') ? recurso.archivo_url : `http://localhost:8000${recurso.archivo_url}`;
+    }
+    return recurso.url_externa || '#';
+  }
+
+  viewResource(recurso: any) {
+    window.open(this.getResourceUrl(recurso), '_blank');
   }
 }

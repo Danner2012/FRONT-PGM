@@ -99,11 +99,11 @@ export class CursoManagementComponent implements OnInit {
   cursoForm: FormGroup = this.fb.group({
     nombre: ['', [Validators.required]],
     descripcion: ['', [Validators.required]],
-    precio: ['', [Validators.required]], // Quitamos min(0) reactivo para validar manualmente y dar feedback
+    precio: ['', [Validators.required]], 
     id_tipo: ['', [Validators.required]],
     fecha_inicio: ['', [Validators.required]],
     fecha_fin: ['', [Validators.required]],
-    cupo_maximo: ['', [Validators.required]], // Quitamos min(1) reactivo
+    cupo_maximo: ['', [Validators.required]], 
     estado: [true]
   });
 

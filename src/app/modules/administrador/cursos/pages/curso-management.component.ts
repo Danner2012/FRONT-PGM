@@ -89,15 +89,21 @@ export class CursoManagementComponent implements OnInit {
   showDetailsModal = signal(false);
   selectedCursoDetails = signal<any>(null);
 
+  // Mensajes de feedback
+  message = signal<{ text: string, type: 'success' | 'error' | null }>({ text: '', type: null });
+
+  // Fecha mínima para el calendario (Hoy)
+  minDate = signal<string>(new Date().toISOString().split('T')[0]);
+
   // Formularios
   cursoForm: FormGroup = this.fb.group({
     nombre: ['', [Validators.required]],
     descripcion: ['', [Validators.required]],
-    precio: ['', [Validators.required, Validators.min(0)]],
+    precio: ['', [Validators.required]], // Quitamos min(0) reactivo para validar manualmente y dar feedback
     id_tipo: ['', [Validators.required]],
     fecha_inicio: ['', [Validators.required]],
     fecha_fin: ['', [Validators.required]],
-    cupo_maximo: [20, [Validators.required, Validators.min(1)]],
+    cupo_maximo: ['', [Validators.required]], // Quitamos min(1) reactivo
     estado: [true]
   });
 
@@ -190,33 +196,79 @@ export class CursoManagementComponent implements OnInit {
   openCursoModal(curso: any = null) {
     this.isEditing.set(!!curso);
     this.showCursoModal.set(true);
+    this.message.set({ text: '', type: null }); // Limpiar mensajes
+    
     if (curso) {
       this.selectedId.set(curso.id);
       this.cursoForm.patchValue(curso);
     } else {
       this.selectedId.set(null);
-      this.cursoForm.reset({ estado: true });
+      this.cursoForm.reset(); // Reset completo
+      this.cursoForm.patchValue({ estado: true }); // Solo estado activo por defecto, cupo vacío
     }
   }
 
+  closeCursoModal() {
+    this.showCursoModal.set(false);
+    this.message.set({ text: '', type: null });
+  }
+
   saveCurso() {
-    if (this.cursoForm.invalid) return;
+    // 1. Validar campos vacíos
+    if (this.cursoForm.invalid) {
+      this.message.set({ text: 'Debe llenar todos los campos obligatorios del curso.', type: 'error' });
+      return;
+    }
+
     const data = this.cursoForm.value;
+
+    // 2. Validar Precio Negativo
+    if (data.precio < 0) {
+      this.message.set({ text: 'El precio del curso no puede ser un valor negativo.', type: 'error' });
+      return;
+    }
+
+    // 3. Validar Cupo Negativo
+    if (data.cupo_maximo < 0) {
+      this.message.set({ text: 'El cupo global no puede ser negativo.', type: 'error' });
+      return;
+    }
+
+    // 4. Validar Coherencia de Fechas
+    const inicio = new Date(data.fecha_inicio);
+    const fin = new Date(data.fecha_fin);
+    if (fin < inicio) {
+      this.message.set({ text: 'La fecha de fin no puede ser anterior a la fecha de inicio.', type: 'error' });
+      return;
+    }
+
+    this.message.set({ text: '', type: null }); // Limpiar antes de enviar
+
     if (this.isEditing()) {
       this.cursoService.updateCurso(this.selectedId()!, data).subscribe({
         next: () => {
-          this.loadCursos();
-          this.showCursoModal.set(false);
+          this.message.set({ text: 'Curso actualizado exitosamente.', type: 'success' });
+          setTimeout(() => {
+            this.loadCursos();
+            this.closeCursoModal();
+          }, 1500);
         },
-        error: (err) => alert('Error al actualizar: ' + JSON.stringify(err.error))
+        error: (err) => {
+          this.message.set({ text: 'Error al actualizar: ' + (err.error?.detail || 'Intente nuevamente'), type: 'error' });
+        }
       });
     } else {
       this.cursoService.createCurso(data).subscribe({
         next: () => {
-          this.loadCursos();
-          this.showCursoModal.set(false);
+          this.message.set({ text: '¡Curso creado exitosamente!', type: 'success' });
+          setTimeout(() => {
+            this.loadCursos();
+            this.closeCursoModal();
+          }, 1500);
         },
-        error: (err) => alert('Error al crear: ' + JSON.stringify(err.error))
+        error: (err) => {
+          this.message.set({ text: 'Error al crear: ' + (err.error?.detail || 'Intente nuevamente'), type: 'error' });
+        }
       });
     }
   }

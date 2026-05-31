@@ -320,10 +320,18 @@
     <div class="modal-content-custom">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h5 class="fw-bold mb-0">{{ isEditing() ? 'Editar Curso' : 'Registrar Nuevo Curso' }}</h5>
-            <button class="btn-close" (click)="showCursoModal.set(false)"></button>
+            <button class="btn-close" (click)="closeCursoModal()"></button>
         </div>
 
         <form [formGroup]="cursoForm" (ngSubmit)="saveCurso()">
+            <!-- Mensajes de Feedback -->
+            <div *ngIf="message().type" 
+                 [class]="message().type === 'success' ? 'alert-custom-success' : 'alert-custom-error'"
+                 class="mb-3">
+                <i [class]="message().type === 'success' ? 'bi bi-check-circle-fill' : 'bi bi-exclamation-triangle-fill'" class="me-2"></i>
+                {{ message().text }}
+            </div>
+
             <div class="row g-3">
                 <div class="col-md-8">
                     <label class="form-label small fw-bold">Nombre del Curso</label>
@@ -350,17 +358,17 @@
                 </div>
                 <div class="col-md-3">
                     <label class="form-label small fw-bold">Fecha de Inicio</label>
-                    <input type="date" class="form-control" formControlName="fecha_inicio">
+                    <input type="date" class="form-control" formControlName="fecha_inicio" [min]="minDate()">
                 </div>
                 <div class="col-md-3">
                     <label class="form-label small fw-bold">Fecha de Fin</label>
-                    <input type="date" class="form-control" formControlName="fecha_fin">
+                    <input type="date" class="form-control" formControlName="fecha_fin" [min]="minDate()">
                 </div>
             </div>
             
             <div class="d-flex justify-content-end gap-2 mt-5">
-                <button type="button" class="btn btn-light rounded-pill px-4" (click)="showCursoModal.set(false)">Cancelar</button>
-                <button type="submit" class="btn btn-primary rounded-pill px-4" [disabled]="cursoForm.invalid">
+                <button type="button" class="btn btn-light rounded-pill px-4" (click)="closeCursoModal()">Cancelar</button>
+                <button type="submit" class="btn btn-primary rounded-pill px-4">
                     {{ isEditing() ? 'Guardar Cambios' : 'Confirmar Registro' }}
                 </button>
             </div>

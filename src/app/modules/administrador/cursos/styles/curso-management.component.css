@@ -243,3 +243,37 @@
 .animate-fade-in {
     animation: fadeIn 0.4s ease-out;
 }
+
+/* Estilos para Alertas Personalizadas (Consistente con Estudiantes) */
+.alert-custom-success {
+    background-color: #d1e7dd;
+    color: #0f5132;
+    border: 1px solid #badbcc;
+    padding: 0.75rem 1rem;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    animation: fadeIn 0.3s ease-in;
+    margin-bottom: 1rem;
+}
+
+.alert-custom-error {
+    background-color: #f8d7da;
+    color: #842029;
+    border: 1px solid #f5c2c7;
+    padding: 0.75rem 1rem;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    animation: fadeIn 0.3s ease-in;
+    margin-bottom: 1rem;
+}
+
+.alert-custom-success i, .alert-custom-error i {
+    font-size: 1.1rem;
+    margin-right: 0.5rem;
+}

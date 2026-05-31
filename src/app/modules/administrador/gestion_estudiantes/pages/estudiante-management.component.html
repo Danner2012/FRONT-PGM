@@ -10,6 +10,37 @@
         </button>
     </div>
 
+    <!-- Barra de Filtros (Estilo consistente) -->
+    <div class="filters-bar animate-fade-in">
+        <div class="row g-2 align-items-end">
+            <div class="col-md-4">
+                <div class="filter-group">
+                    <label class="filter-label">Buscar Estudiante</label>
+                    <div class="search-input-group">
+                        <i class="bi bi-search"></i>
+                        <input type="text" class="filter-control" placeholder="Nombre, Apellido o CI..." 
+                               [ngModel]="filterText()" (ngModelChange)="filterText.set($event)">
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="filter-group">
+                    <label class="filter-label">Estado</label>
+                    <select class="filter-control" [ngModel]="filterEstado()" (ngModelChange)="filterEstado.set($event)">
+                        <option value="todos">Todos</option>
+                        <option value="activo">Activos</option>
+                        <option value="inactivo">Inactivos</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-auto">
+                <button class="btn-clear-icon" (click)="clearFilters()" title="Limpiar Filtros">
+                    <i class="bi bi-eraser-fill"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Tabla de Estudiantes -->
     <div class="card card-custom overflow-hidden">
         <div class="table-responsive">
@@ -27,7 +58,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr *ngFor="let estudiante of estudiantes(); let i = index">
+                    <tr *ngFor="let estudiante of filteredEstudiantes(); let i = index">
                         <td class="text-center fw-bold">{{ i + 1 }}</td>
                         <td>
                             <div class="d-flex align-items-center">
@@ -82,6 +113,14 @@
             </div>
 
             <form [formGroup]="estudianteForm" (ngSubmit)="saveEstudiante()">
+                <!-- Mensajes de Feedback -->
+                <div *ngIf="message().type" 
+                     [class]="message().type === 'success' ? 'alert-custom-success' : 'alert-custom-error'"
+                     class="mb-3">
+                    <i [class]="message().type === 'success' ? 'bi bi-check-circle-fill' : 'bi bi-exclamation-triangle-fill'" class="me-2"></i>
+                    {{ message().text }}
+                </div>
+
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label class="form-label small fw-bold">Nombre</label>
@@ -119,7 +158,7 @@
 
                 <div class="d-flex justify-content-end gap-2 mt-5">
                     <button type="button" class="btn btn-light rounded-pill px-4" (click)="closeModal()">Cancelar</button>
-                    <button type="submit" class="btn btn-primary rounded-pill px-4" [disabled]="estudianteForm.invalid">
+                    <button type="submit" class="btn btn-primary rounded-pill px-4">
                         {{ isEditing() ? 'Guardar Cambios' : 'Crear Estudiante' }}
                     </button>
                 </div>

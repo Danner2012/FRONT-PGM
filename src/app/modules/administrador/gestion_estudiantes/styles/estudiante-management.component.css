@@ -94,3 +94,114 @@
 
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+.animate-fade-in {
+    animation: fadeIn 0.4s ease-out;
+}
+
+/* Filter Bar Styles (Consistent with other modules) */
+.filters-bar {
+    background: #ffffff;
+    padding: 1.25rem;
+    border-radius: 15px;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.03);
+    border: 1px solid #edf2f7;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.filter-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #718096;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.filter-control {
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.85rem;
+    color: #2d3748;
+    background-color: #f8fafc;
+    transition: all 0.2s;
+    width: 100%;
+}
+
+.filter-control:focus {
+    outline: none;
+    border-color: #3182ce;
+    background-color: #ffffff;
+    box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
+}
+
+.search-input-group {
+    position: relative;
+    width: 100%;
+}
+
+.search-input-group i {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #a0aec0;
+}
+
+.search-input-group .filter-control {
+    padding-left: 2.2rem;
+}
+
+.btn-clear-icon {
+    background: #fff5f5;
+    border: 1px solid #feb2b2;
+    color: #e53e3e;
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.btn-clear-icon:hover {
+    background: #e53e3e;
+    color: white;
+    border-color: #e53e3e;
+    transform: rotate(90deg);
+}
+
+/* Estilos para Alertas Personalizadas */
+.alert-custom-success {
+    background-color: #d1e7dd;
+    color: #0f5132;
+    border: 1px solid #badbcc;
+    padding: 0.75rem 1rem;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    animation: fadeIn 0.3s ease-in;
+}
+
+.alert-custom-error {
+    background-color: #f8d7da;
+    color: #842029;
+    border: 1px solid #f5c2c7;
+    padding: 0.75rem 1rem;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    animation: fadeIn 0.3s ease-in;
+}

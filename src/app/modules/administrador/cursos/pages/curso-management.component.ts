@@ -82,12 +82,19 @@ export class CursoManagementComponent implements OnInit {
   showCursoModal = signal(false);
   showMaestroModal = signal(false);
   showTecnicosModal = signal(false);
+  showConfirmModal = signal(false);
+  confirmData = signal<{ title: string, message: string, action: () => void }>({ title: '', message: '', action: () => {} });
   maestroType = signal<'tipo' | 'horario'>('tipo');
   isEditing = signal(false);
   selectedId = signal<number | null>(null);
   showAsignarForm = signal<number | null>(null);
   showDetailsModal = signal(false);
   selectedCursoDetails = signal<any>(null);
+
+  executeConfirmedAction() {
+    this.confirmData().action();
+    this.showConfirmModal.set(false);
+  }
 
   // Mensajes de feedback
   message = signal<{ text: string, type: 'success' | 'error' | null }>({ text: '', type: null });
@@ -213,6 +220,11 @@ export class CursoManagementComponent implements OnInit {
     this.message.set({ text: '', type: null });
   }
 
+  closeMaestroModal() {
+    this.showMaestroModal.set(false);
+    this.message.set({ text: '', type: null });
+  }
+
   saveCurso() {
     // 1. Validar campos vacíos
     if (this.cursoForm.invalid) {
@@ -285,20 +297,42 @@ export class CursoManagementComponent implements OnInit {
 
   asignarHorario(cursoId: number) {
     if (this.horarioAsignacionForm.invalid) return;
+    this.message.set({ text: '', type: null });
     const data = { ...this.horarioAsignacionForm.value, id_curso: cursoId };
     this.cursoService.asignarHorario(data).subscribe({
       next: () => {
         this.loadCursos();
         this.horarioAsignacionForm.reset();
+        this.message.set({ text: 'Horario asignado exitosamente.', type: 'success' });
+        setTimeout(() => this.message.set({ text: '', type: null }), 3000);
       },
-      error: (err) => alert(err.error.error || 'Error al asignar horario')
+      error: (err) => {
+        this.message.set({ text: err.error.error || 'Error al asignar horario', type: 'error' });
+        setTimeout(() => this.message.set({ text: '', type: null }), 3000);
+      }
     });
   }
 
   quitarHorario(asignacionId: number) {
-    if (confirm('¿Está seguro de quitar este horario?')) {
-      this.cursoService.quitarHorario(asignacionId).subscribe(() => this.loadCursos());
-    }
+    this.confirmData.set({
+      title: 'Quitar Horario',
+      message: '¿Está seguro de que desea remover este horario del curso?',
+      action: () => {
+        this.message.set({ text: '', type: null });
+        this.cursoService.quitarHorario(asignacionId).subscribe({
+          next: () => {
+            this.loadCursos();
+            this.message.set({ text: 'Horario removido del curso.', type: 'success' });
+            setTimeout(() => this.message.set({ text: '', type: null }), 3000);
+          },
+          error: () => {
+            this.message.set({ text: 'Error al quitar horario.', type: 'error' });
+            setTimeout(() => this.message.set({ text: '', type: null }), 3000);
+          }
+        });
+      }
+    });
+    this.showConfirmModal.set(true);
   }
 
   // --- Gestión de Maestros ---
@@ -306,6 +340,7 @@ export class CursoManagementComponent implements OnInit {
     this.maestroType.set(type);
     this.isEditing.set(!!item);
     this.selectedId.set(item?.id || null);
+    this.message.set({ text: '', type: null }); // Limpiar mensajes
     this.showMaestroModal.set(true);
     
     if (type === 'tipo') {
@@ -316,53 +351,154 @@ export class CursoManagementComponent implements OnInit {
   }
 
   saveMaestro() {
+    this.message.set({ text: '', type: null });
+
     if (this.maestroType() === 'tipo') {
       if (this.tipoForm.invalid) return;
       const data = this.tipoForm.value;
+
+      // Validación de duplicados local antes de enviar
+      const duplicado = this.tiposCurso().some(t => 
+        t.nombre.toLowerCase() === data.nombre.toLowerCase() && t.id !== this.selectedId()
+      );
+
+      if (duplicado) {
+        this.message.set({ text: 'Ya existe un tipo de curso con este nombre.', type: 'error' });
+        return;
+      }
+
       if (this.isEditing()) {
-        this.cursoService.updateTipoCurso(this.selectedId()!, data).subscribe(() => {
-          this.loadTiposCurso();
-          this.showMaestroModal.set(false);
+        this.cursoService.updateTipoCurso(this.selectedId()!, data).subscribe({
+          next: () => {
+            this.message.set({ text: 'Tipo de curso actualizado exitosamente.', type: 'success' });
+            setTimeout(() => {
+              this.loadTiposCurso();
+              this.showMaestroModal.set(false);
+              this.message.set({ text: '', type: null });
+            }, 1500);
+          },
+          error: (err) => this.message.set({ text: 'Error: ' + (err.error?.nombre || 'No se pudo actualizar'), type: 'error' })
         });
       } else {
-        this.cursoService.createTipoCurso(data).subscribe(() => {
-          this.loadTiposCurso();
-          this.showMaestroModal.set(false);
+        this.cursoService.createTipoCurso(data).subscribe({
+          next: () => {
+            this.message.set({ text: '¡Tipo de curso creado exitosamente!', type: 'success' });
+            setTimeout(() => {
+              this.loadTiposCurso();
+              this.showMaestroModal.set(false);
+              this.message.set({ text: '', type: null });
+            }, 1500);
+          },
+          error: (err) => this.message.set({ text: 'Error: ' + (err.error?.nombre || 'No se pudo crear'), type: 'error' })
         });
       }
     } else {
       if (this.horarioMaestroForm.invalid) return;
       const data = this.horarioMaestroForm.value;
+
+      // Validación de Coherencia de Horas
+      if (data.hora_fin <= data.hora_inicio) {
+        this.message.set({ text: 'La hora de fin debe ser posterior a la hora de inicio.', type: 'error' });
+        return;
+      }
+
       if (this.isEditing()) {
-        this.cursoService.updateHorario(this.selectedId()!, data).subscribe(() => {
-          this.loadHorarios();
-          this.showMaestroModal.set(false);
+        this.cursoService.updateHorario(this.selectedId()!, data).subscribe({
+          next: () => {
+            this.message.set({ text: 'Horario actualizado exitosamente.', type: 'success' });
+            setTimeout(() => {
+              this.loadHorarios();
+              this.showMaestroModal.set(false);
+              this.message.set({ text: '', type: null });
+            }, 1500);
+          },
+          error: (err) => this.message.set({ text: 'Error: El rango de horas ya existe.', type: 'error' })
         });
       } else {
-        this.cursoService.createHorario(data).subscribe(() => {
-          this.loadHorarios();
-          this.showMaestroModal.set(false);
+        // Validación local de duplicados por rango de tiempo
+        const duplicado = this.horarios().some(h => 
+          h.hora_inicio === data.hora_inicio && h.hora_fin === data.hora_fin
+        );
+
+        if (duplicado) {
+          this.message.set({ text: 'Este rango de horas ya está registrado en el catálogo.', type: 'error' });
+          return;
+        }
+
+        this.cursoService.createHorario(data).subscribe({
+          next: () => {
+            this.message.set({ text: '¡Horario creado exitosamente!', type: 'success' });
+            setTimeout(() => {
+              this.loadHorarios();
+              this.showMaestroModal.set(false);
+              this.message.set({ text: '', type: null });
+            }, 1500);
+          },
+          error: (err) => this.message.set({ text: 'Error: El rango de horas ya existe.', type: 'error' })
         });
       }
     }
   }
 
   deleteMaestro(type: 'tipo' | 'horario', id: number) {
-    if (!confirm('¿Está seguro de eliminar este registro?')) return;
-    if (type === 'tipo') {
-      this.cursoService.deleteTipoCurso(id).subscribe(() => this.loadTiposCurso());
-    } else {
-      this.cursoService.deleteHorario(id).subscribe(() => this.loadHorarios());
-    }
+    this.confirmData.set({
+      title: 'Eliminar Registro',
+      message: `¿Está seguro de que desea eliminar este ${type === 'tipo' ? 'tipo de curso' : 'horario'}? Esta acción no se puede deshacer.`,
+      action: () => {
+        this.message.set({ text: '', type: null });
+        if (type === 'tipo') {
+          this.cursoService.deleteTipoCurso(id).subscribe({
+            next: () => {
+              this.loadTiposCurso();
+              this.message.set({ text: 'Tipo de curso eliminado exitosamente.', type: 'success' });
+              setTimeout(() => this.message.set({ text: '', type: null }), 3000);
+            },
+            error: () => {
+              this.message.set({ text: 'No se puede eliminar porque está siendo usado en cursos.', type: 'error' });
+              setTimeout(() => this.message.set({ text: '', type: null }), 3000);
+            }
+          });
+        } else {
+          this.cursoService.deleteHorario(id).subscribe({
+            next: () => {
+              this.loadHorarios();
+              this.message.set({ text: 'Horario eliminado exitosamente.', type: 'success' });
+              setTimeout(() => this.message.set({ text: '', type: null }), 3000);
+            },
+            error: () => {
+              this.message.set({ text: 'No se puede eliminar porque está siendo usado.', type: 'error' });
+              setTimeout(() => this.message.set({ text: '', type: null }), 3000);
+            }
+          });
+        }
+      }
+    });
+    this.showConfirmModal.set(true);
   }
 
   toggleCursoEstado(curso: any) {
     const nuevoEstado = !curso.estado;
-    this.cursoService.updateCurso(curso.id, { ...curso, estado: nuevoEstado }).subscribe({
-      next: () => {
-        this.loadCursos();
-      },
-      error: (err) => alert('Error al cambiar estado: ' + JSON.stringify(err.error))
+    this.confirmData.set({
+      title: `${nuevoEstado ? 'Activar' : 'Desactivar'} Curso`,
+      message: `¿Está seguro de que desea ${nuevoEstado ? 'activar' : 'desactivar'} el curso "${curso.nombre}"?`,
+      action: () => {
+        this.message.set({ text: '', type: null });
+        this.cursoService.updateCurso(curso.id, { ...curso, estado: nuevoEstado }).subscribe({
+          next: () => {
+            this.loadCursos();
+            this.message.set({ 
+              text: `Curso ${nuevoEstado ? 'activado' : 'desactivado'} exitosamente.`, 
+              type: 'success' 
+            });
+            setTimeout(() => this.message.set({ text: '', type: null }), 3000);
+          },
+          error: (err) => {
+            this.message.set({ text: 'Error al cambiar estado: ' + (err.error?.detail || 'Intente nuevamente'), type: 'error' });
+            setTimeout(() => this.message.set({ text: '', type: null }), 3000);
+          }
+        });
+      }
     });
+    this.showConfirmModal.set(true);
   }
 }

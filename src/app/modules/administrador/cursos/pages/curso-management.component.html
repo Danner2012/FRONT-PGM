@@ -1,4 +1,17 @@
 <div class="management-container">
+    <!-- Mensajes Globales de Feedback (Fuera de Modales) -->
+    <div *ngIf="message().type && !showCursoModal() && !showMaestroModal() && !showTecnicosModal() && !showDetailsModal()" 
+         [class]="message().type === 'success' ? 'alert-custom-success' : 'alert-custom-error'"
+         class="mb-3 animate-fade-in shadow-sm">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <i [class]="message().type === 'success' ? 'bi bi-check-circle-fill' : 'bi bi-exclamation-triangle-fill'" class="me-2"></i>
+                {{ message().text }}
+            </div>
+            <button class="btn-close small" style="font-size: 0.5rem;" (click)="message.set({text:'', type:null})"></button>
+        </div>
+    </div>
+
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h4 class="fw-bold mb-0">Gestión de Cursos</h4>
@@ -11,6 +24,21 @@
             <i class="bi bi-journal-plus fs-5"></i>
             <span>Nuevo Curso</span>
         </button>
+    </div>
+
+    <!-- MODAL DE CONFIRMACIÓN PERSONALIZADO -->
+    <div class="modal-overlay" *ngIf="showConfirmModal()" style="z-index: 1200;">
+        <div class="modal-content-custom" style="max-width: 400px; text-align: center;">
+            <div class="mb-3">
+                <i class="bi bi-exclamation-triangle-fill text-warning" style="font-size: 3rem;"></i>
+            </div>
+            <h5 class="fw-bold mb-3">{{ confirmData().title }}</h5>
+            <p class="text-muted mb-4">{{ confirmData().message }}</p>
+            <div class="d-flex justify-content-center gap-2">
+                <button class="btn btn-light rounded-pill px-4" (click)="showConfirmModal.set(false)">Cancelar</button>
+                <button class="btn btn-danger rounded-pill px-4" (click)="executeConfirmedAction()">Confirmar</button>
+            </div>
+        </div>
     </div>
 
     <!-- BARRA DE FILTROS (Estilo consistente) -->
@@ -212,9 +240,25 @@
                     </div>
                     <div class="table-responsive">
                         <table class="table table-custom mb-0">
+                            <thead class="small">
+                                <tr>
+                                    <th class="text-center" style="width: 50px;">#</th>
+                                    <th>Nombre del Tipo</th>
+                                    <th class="text-end pe-3">Acciones</th>
+                                </tr>
+                            </thead>
                             <tbody>
-                                <tr *ngFor="let t of tiposCurso()">
-                                    <td class="ps-3 fw-semibold">{{ t.nombre }}</td>
+                                <tr *ngFor="let t of tiposCurso(); let i = index">
+                                    <td class="text-center fw-bold small text-muted">{{ i + 1 }}</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-sm bg-light-primary text-primary me-2 rounded-circle d-flex align-items-center justify-content-center fw-bold" 
+                                                 style="width: 28px; height: 28px; font-size: 0.7rem; background-color: #ebf8ff; color: #3182ce;">
+                                                {{ t.nombre.charAt(0) }}
+                                            </div>
+                                            <span class="fw-semibold">{{ t.nombre }}</span>
+                                        </div>
+                                    </td>
                                     <td class="text-end pe-3">
                                         <button class="btn btn-link btn-sm text-primary" (click)="openMaestroModal('tipo', t)"><i class="bi bi-pencil"></i></button>
                                         <button class="btn btn-link btn-sm text-danger" (click)="deleteMaestro('tipo', t.id)"><i class="bi bi-trash"></i></button>
@@ -239,15 +283,29 @@
                         <table class="table table-custom mb-0">
                             <thead class="small">
                                 <tr>
-                                    <th class="ps-3">Nombre</th>
-                                    <th>Rango</th>
+                                    <th class="text-center" style="width: 50px;">#</th>
+                                    <th>Etiqueta / Nombre</th>
+                                    <th>Rango de Horas</th>
                                     <th class="text-end pe-3">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr *ngFor="let h of horarios()">
-                                    <td class="ps-3 fw-semibold">{{ h.nombre }}</td>
-                                    <td class="small">{{ h.hora_inicio }} - {{ h.hora_fin }}</td>
+                                <tr *ngFor="let h of horarios(); let i = index">
+                                    <td class="text-center fw-bold small text-muted">{{ i + 1 }}</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-sm bg-light text-secondary me-2 rounded-circle d-flex align-items-center justify-content-center fw-bold" 
+                                                 style="width: 28px; height: 28px; font-size: 0.7rem; background-color: #f7fafc; color: #718096; border: 1px solid #e2e8f0;">
+                                                <i class="bi bi-clock-fill"></i>
+                                            </div>
+                                            <span class="fw-semibold">{{ h.nombre }}</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-light text-primary border" style="font-size: 0.75rem;">
+                                            {{ h.hora_inicio }} - {{ h.hora_fin }}
+                                        </span>
+                                    </td>
                                     <td class="text-end pe-3">
                                         <button class="btn btn-link btn-sm text-primary" (click)="openMaestroModal('horario', h)"><i class="bi bi-pencil"></i></button>
                                         <button class="btn btn-link btn-sm text-danger" (click)="deleteMaestro('horario', h.id)"><i class="bi bi-trash"></i></button>
@@ -422,7 +480,15 @@
     <div class="modal-content-custom" style="max-width: 500px;">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h5 class="fw-bold mb-0">{{ isEditing() ? 'Editar' : 'Nuevo' }} {{ maestroType() === 'tipo' ? 'Tipo de Curso' : 'Horario' }}</h5>
-            <button class="btn-close" (click)="showMaestroModal.set(false)"></button>
+            <button class="btn-close" (click)="closeMaestroModal()"></button>
+        </div>
+
+        <!-- Mensajes de Feedback -->
+        <div *ngIf="message().type" 
+                [class]="message().type === 'success' ? 'alert-custom-success' : 'alert-custom-error'"
+                class="mb-3">
+            <i [class]="message().type === 'success' ? 'bi bi-check-circle-fill' : 'bi bi-exclamation-triangle-fill'" class="me-2"></i>
+            {{ message().text }}
         </div>
 
         <form *ngIf="maestroType() === 'tipo'" [formGroup]="tipoForm" (ngSubmit)="saveMaestro()">
@@ -431,7 +497,7 @@
                 <input type="text" class="form-control" formControlName="nombre">
             </div>
             <div class="d-flex justify-content-end gap-2 mt-4">
-                <button type="button" class="btn btn-light rounded-pill px-4" (click)="showMaestroModal.set(false)">Cancelar</button>
+                <button type="button" class="btn btn-light rounded-pill px-4" (click)="closeMaestroModal()">Cancelar</button>
                 <button type="submit" class="btn btn-primary rounded-pill px-4" [disabled]="tipoForm.invalid">Guardar</button>
             </div>
         </form>
@@ -452,7 +518,7 @@
                 </div>
             </div>
             <div class="d-flex justify-content-end gap-2 mt-4">
-                <button type="button" class="btn btn-light rounded-pill px-4" (click)="showMaestroModal.set(false)">Cancelar</button>
+                <button type="button" class="btn btn-light rounded-pill px-4" (click)="closeMaestroModal()">Cancelar</button>
                 <button type="submit" class="btn btn-primary rounded-pill px-4" [disabled]="horarioMaestroForm.invalid">Guardar</button>
             </div>
         </form>

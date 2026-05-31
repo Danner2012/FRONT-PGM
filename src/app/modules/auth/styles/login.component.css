@@ -206,7 +206,7 @@
               0 0 10px rgba(23, 42, 73, 0.3);
   transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   cursor: pointer;
-  margin-top: 1rem;
+  margin-top: 0.5rem;
   position: relative;
   overflow: hidden;
 }
@@ -220,12 +220,20 @@
 }
 
 .error-box {
-  padding: 1rem;
+  padding: 0.8rem 1rem;
   background: rgba(225, 29, 72, 0.1);
   color: #fb7185;
   border: 1px solid rgba(225, 29, 72, 0.2);
   border-radius: 12px;
   font-size: 0.85rem;
+  margin-bottom: 0.5rem;
+  margin-top: -0.5rem;
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 /* --- PANEL DERECHO (UNIFICADO CON ORBITRON) --- */

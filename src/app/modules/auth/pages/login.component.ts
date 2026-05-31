@@ -150,21 +150,35 @@ export class LoginComponent implements AfterViewInit, OnDestroy {
   }
 
   onSubmit() {
-    if (this.loginForm.valid) {
-      this.isLoading.set(true);
-      this.errorMessage.set(null);
-      this.authService.login(this.loginForm.value).subscribe({
-        next: () => {
-          setTimeout(() => {
-            this.isLoading.set(false);
-            this.router.navigate(['/dashboard']);
-          }, 600);
-        },
-        error: (err) => {
-          this.isLoading.set(false);
-          this.errorMessage.set(err.error?.error || 'Credenciales no válidas');
-        }
-      });
+    if (this.loginForm.invalid) {
+      const correoErr = this.loginForm.get('correo')?.invalid;
+      const claveErr = this.loginForm.get('clave')?.invalid;
+
+      if (correoErr && claveErr) {
+        this.errorMessage.set('Por favor, ingresa tu correo y contraseña.');
+      } else if (correoErr) {
+        this.errorMessage.set('Por favor, ingresa un correo electrónico válido.');
+      } else if (claveErr) {
+        this.errorMessage.set('La contraseña es obligatoria.');
+      } else {
+        this.errorMessage.set('Por favor, completa los campos requeridos.');
+      }
+      return;
     }
+
+    this.isLoading.set(true);
+    this.errorMessage.set(null);
+    this.authService.login(this.loginForm.value).subscribe({
+      next: () => {
+        setTimeout(() => {
+          this.isLoading.set(false);
+          this.router.navigate(['/dashboard']);
+        }, 600);
+      },
+      error: (err) => {
+        this.isLoading.set(false);
+        this.errorMessage.set(err.error?.error || 'Credenciales no válidas');
+      }
+    });
   }
 }

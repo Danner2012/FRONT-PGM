@@ -45,13 +45,13 @@
 
           <!-- Alerta de Error -->
           @if (errorMessage()) {
-            <div class="error-box mb-4">
+            <div class="error-box">
               <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ errorMessage() }}
             </div>
           }
 
           <!-- BOTÓN INICIAR SESIÓN -->
-          <button type="submit" class="btn-login" [disabled]="loginForm.invalid || isLoading()">
+          <button type="submit" class="btn-login" [disabled]="isLoading()">
             @if (!isLoading()) {
               <div class="d-flex align-items-center justify-content-center">
                 <span>INICIAR SESIÓN</span>

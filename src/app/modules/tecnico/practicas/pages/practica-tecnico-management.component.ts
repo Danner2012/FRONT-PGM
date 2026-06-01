@@ -49,6 +49,9 @@ export class PracticaTecnicoManagementComponent implements OnInit {
   showViewResourcesModal = signal(false);
   selectedPracticaDetails = signal<any>(null);
 
+  // Señales para mensajes de feedback
+  message = signal<{ text: string, type: 'success' | 'error' | null }>({ text: '', type: null });
+
   practicaForm = {
     id_curso: '',
     id_tipo_practica: '',
@@ -114,16 +117,15 @@ export class PracticaTecnicoManagementComponent implements OnInit {
   }
 
   loadData() {
-    const currentUserId = this.authService.currentUser()?.id;
-
     this.practicaService.getPracticas().subscribe(data => {
-      // Filtrar prácticas que pertenezcan a los cursos del técnico Y hayan sido creadas por él
+      // Obtener los cursos asignados al técnico
       this.cursoService.getCursosPorTecnico().subscribe(cursosTecnico => {
         const cursoIds = cursosTecnico.map((c: any) => c.id);
-        const filtered = data.filter(p => 
-          cursoIds.includes(p.id_curso) && 
-          p.id_usuario_creador === currentUserId
-        );
+        
+        // Filtrar prácticas que pertenezcan a los cursos del técnico
+        // Quitamos el filtro de p.id_usuario_creador para que vea "todas" las de sus cursos
+        const filtered = data.filter(p => cursoIds.includes(p.id_curso));
+        
         this.practicas.set(filtered);
         this.cursos.set(cursosTecnico);
 
@@ -162,6 +164,7 @@ export class PracticaTecnicoManagementComponent implements OnInit {
   }
 
   openViewResourcesModal(practica: any) {
+    this.message.set({ text: '', type: null }); // Limpiar mensajes al abrir detalles
     this.selectedPracticaDetails.set(practica);
     this.showViewResourcesModal.set(true);
   }
@@ -171,7 +174,7 @@ export class PracticaTecnicoManagementComponent implements OnInit {
     if (url) {
       window.open(url, '_blank');
     } else {
-      Swal.fire('Info', 'Este recurso no tiene un archivo o enlace asociado', 'info');
+      this.message.set({ text: 'Este recurso no tiene un archivo o enlace asociado', type: 'error' });
     }
   }
 
@@ -194,6 +197,7 @@ export class PracticaTecnicoManagementComponent implements OnInit {
   }
 
   openPracticaModal(practica?: any) {
+    this.message.set({ text: '', type: null }); // Limpiar mensajes al abrir
     if (practica) {
       this.isEditing.set(true);
       this.selectedPractica.set(practica);
@@ -213,23 +217,45 @@ export class PracticaTecnicoManagementComponent implements OnInit {
   }
 
   savePractica() {
+    // Validar campos vacíos manualmente para mostrar mensaje personalizado
+    if (!this.practicaForm.id_curso || !this.practicaForm.id_tipo_practica || !this.practicaForm.titulo) {
+      this.message.set({ 
+        text: 'Debe llenar todos los campos obligatorios (Curso, Tipo y Título).', 
+        type: 'error' 
+      });
+      return;
+    }
+
+    this.message.set({ text: '', type: null }); // Limpiar mensajes previos
+    
     if (this.isEditing()) {
       this.practicaService.updatePractica(this.selectedPractica().id, this.practicaForm).subscribe({
         next: () => {
-          Swal.fire('Éxito', 'Práctica actualizada correctamente', 'success');
-          this.loadData();
-          this.showPracticaModal.set(false);
+          this.message.set({ text: 'Práctica actualizada correctamente.', type: 'success' });
+          setTimeout(() => {
+            this.loadData();
+            this.showPracticaModal.set(false);
+          }, 1500);
         },
-        error: (err) => this.showError(err, 'No se pudo actualizar la práctica')
+        error: (err) => {
+          const errorMsg = err.error?.non_field_errors?.[0] || 'No se pudo actualizar la práctica.';
+          this.message.set({ text: errorMsg, type: 'error' });
+        }
       });
     } else {
       this.practicaService.createPractica(this.practicaForm).subscribe({
         next: () => {
-          Swal.fire('Éxito', 'Práctica creada correctamente', 'success');
-          this.loadData();
-          this.showPracticaModal.set(false);
+          this.message.set({ text: '¡Práctica creada exitosamente!', type: 'success' });
+          setTimeout(() => {
+            this.loadData();
+            this.showPracticaModal.set(false);
+          }, 1500);
         },
-        error: (err) => this.showError(err, 'No se pudo crear la práctica')
+        error: (err) => {
+          // El backend ahora devuelve un error si hay duplicados gracias al UniqueTogetherValidator
+          const errorMsg = err.error?.non_field_errors?.[0] || 'No se pudo crear la práctica.';
+          this.message.set({ text: errorMsg, type: 'error' });
+        }
       });
     }
   }
@@ -439,15 +465,17 @@ export class PracticaTecnicoManagementComponent implements OnInit {
       text: "Se quitará esta herramienta de la práctica",
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonText: 'Sí, eliminar'
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
     }).then((result) => {
       if (result.isConfirmed) {
         this.practicaService.deletePracticaHerramienta(phId).subscribe({
           next: () => {
-            Swal.fire('Eliminado', 'Herramienta quitada de la práctica', 'success');
+            this.message.set({ text: 'Herramienta eliminada exitosamente.', type: 'success' });
             this.loadData();
+            setTimeout(() => this.message.set({ text: '', type: null }), 3000);
           },
-          error: (err) => this.showError(err, 'No se pudo quitar la herramienta')
+          error: (err) => this.message.set({ text: 'No se pudo quitar la herramienta.', type: 'error' })
         });
       }
     });
@@ -459,15 +487,17 @@ export class PracticaTecnicoManagementComponent implements OnInit {
       text: "El recurso ya no estará disponible para los alumnos",
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonText: 'Sí, eliminar'
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
     }).then((result) => {
       if (result.isConfirmed) {
         this.practicaService.deleteRecurso(recursoId).subscribe({
           next: () => {
-            Swal.fire('Eliminado', 'Recurso eliminado', 'success');
+            this.message.set({ text: 'Recurso eliminado exitosamente.', type: 'success' });
             this.loadData();
+            setTimeout(() => this.message.set({ text: '', type: null }), 3000);
           },
-          error: (err) => this.showError(err, 'No se pudo eliminar el recurso')
+          error: (err) => this.message.set({ text: 'No se pudo eliminar el recurso.', type: 'error' })
         });
       }
     });

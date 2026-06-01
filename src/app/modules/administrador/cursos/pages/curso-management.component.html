@@ -283,6 +283,9 @@
                             <td class="p-0">
                                 <div *ngFor="let h of group.horarios; let last = last" class="p-2 px-3 d-flex justify-content-between align-items-center" [class.border-bottom]="!last">
                                     <span>{{ h.horario_detalle }}</span>
+                                    <button class="btn btn-link text-danger p-0" (click)="quitarHorario(h.id)" title="Quitar este horario">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
                                 </div>
                             </td>
                         </tr>
@@ -356,6 +359,15 @@
             <h5 class="fw-bold mb-0">Asignar Técnicos</h5>
             <button class="btn-close" (click)="showTecnicosModal.set(false)"></button>
         </div>
+
+        <!-- Mensajes de Feedback -->
+        <div *ngIf="message().type" 
+                [class]="message().type === 'success' ? 'alert-custom-success' : 'alert-custom-error'"
+                class="mb-3">
+            <i [class]="message().type === 'success' ? 'bi bi-check-circle-fill' : 'bi bi-exclamation-triangle-fill'" class="me-2"></i>
+            {{ message().text }}
+        </div>
+
         <div class="list-group list-group-flush border rounded-4 overflow-hidden mb-4">
             <div *ngFor="let tecnico of tecnicosDisponibles()" class="list-group-item d-flex justify-content-between align-items-center py-3 px-4">
                 <span>{{ tecnico.nombre }} {{ tecnico.apellido_paterno }}</span>

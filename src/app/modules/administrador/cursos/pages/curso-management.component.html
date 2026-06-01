@@ -1,6 +1,6 @@
 <div class="management-container">
     <!-- Mensajes Globales de Feedback (Fuera de Modales) -->
-    <div *ngIf="message().type && !showCursoModal() && !showMaestroModal() && !showTecnicosModal() && !showDetailsModal()" 
+    <div *ngIf="message().type && !showCursoModal() && !showMaestroModal() && !showTecnicosModal() && !showDetailsModal() && !showAsignarForm()" 
          [class]="message().type === 'success' ? 'alert-custom-success' : 'alert-custom-error'"
          class="mb-3 animate-fade-in shadow-sm">
         <div class="d-flex justify-content-between align-items-center">
@@ -156,8 +156,8 @@
                             </td>
                             <td>
                                 <div class="d-flex flex-wrap gap-1 align-items-center">
-                                    <span *ngFor="let h of curso.horarios" class="day-chip" [title]="h.horario_detalle">
-                                        {{ h.dia_nombre.substring(0,2).toUpperCase() }}
+                                    <span *ngFor="let day of getUniqueDays(curso.horarios)" class="day-chip">
+                                        {{ day }}
                                     </span>
                                     <button class="btn btn-link btn-sm p-0 ms-1" (click)="toggleAsignarForm(curso.id)" title="Gestionar Horarios">
                                         <i class="bi bi-gear-fill text-muted"></i>
@@ -181,7 +181,9 @@
                                                     <label class="form-label small fw-bold">Horario</label>
                                                     <select class="form-select form-select-sm" formControlName="id_horario">
                                                         <option value="">Seleccione...</option>
-                                                        <option *ngFor="let h of horarios()" [value]="h.id">{{ h.nombre }} ({{h.hora_inicio}})</option>
+                                                        <option *ngFor="let h of horarios()" [value]="h.id">
+                                                            {{ h.nombre }} ({{ h.hora_inicio }} - {{ h.hora_fin }})
+                                                        </option>
                                                     </select>
                                                 </div>
                                                 <div class="d-flex gap-2 pt-2">
@@ -215,7 +217,7 @@
                             </td>
                         </tr>
                         <tr *ngIf="cursos().length === 0">
-                            <td colspan="7" class="text-center py-5 text-muted">
+                            <td colspan="9" class="text-center py-5 text-muted">
                                 <i class="bi bi-journal-x fs-1 d-block mb-2 opacity-50"></i>
                                 No hay cursos registrados.
                             </td>
@@ -341,25 +343,49 @@
                     <thead class="bg-light text-center small">
                         <tr>
                             <th>Día</th>
-                            <th>Horario</th>
-                            <th>Acción</th>
+                            <th>Schedules / Turnos</th>
                         </tr>
                     </thead>
-                    <tbody class="text-center">
-                        <tr *ngFor="let h of curso.horarios">
-                            <td class="fw-bold text-primary">{{ h.dia_nombre }}</td>
-                            <td>{{ h.horario_detalle }}</td>
-                            <td>
-                                <button class="btn btn-link text-danger p-0" (click)="quitarHorario(h.id); showDetailsModal.set(false)">
-                                    <i class="bi bi-trash"></i>
-                                </button>
+                    <tbody>
+                        <tr *ngFor="let group of getGroupedHorarios(curso.horarios)">
+                            <td class="fw-bold text-primary text-center" style="width: 120px; vertical-align: middle; background-color: #f8fafc; border-right: 1px solid #e2e8f0;">
+                                {{ group.dia }}
+                            </td>
+                            <td class="p-0">
+                                <div *ngFor="let h of group.horarios; let last = last" 
+                                     class="d-flex justify-content-between align-items-center p-2 px-3"
+                                     [class.border-bottom]="!last">
+                                    <div>
+                                        <span class="fw-semibold text-dark">{{ h.horario_detalle.includes(' (') ? h.horario_detalle.split(' (')[0] : h.horario_detalle }}</span>
+                                        <span *ngIf="h.horario_detalle.includes(' (')" class="badge bg-light text-muted border ms-2" style="font-size: 0.7rem;">
+                                            {{ h.horario_detalle.split(' (')[1].replace(')', '') }}
+                                        </span>
+                                    </div>
+                                    <button class="btn btn-link text-danger p-0 ms-3" (click)="quitarHorario(h.id)">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                         <tr *ngIf="curso.horarios.length === 0">
-                            <td colspan="4" class="text-muted py-3">No hay horarios asignados</td>
+                            <td colspan="2" class="text-muted py-3 text-center">No hay horarios asignados</td>
                         </tr>
                     </tbody>
                 </table>
+            </div>
+
+            <!-- Sección de Técnicos Asignados -->
+            <h6 class="fw-bold text-uppercase small text-secondary mb-3">Técnicos Encargados</h6>
+            <div class="d-flex flex-wrap gap-2 mb-4">
+                <div *ngFor="let t of curso.tecnicos" class="d-flex align-items-center bg-white border rounded-pill px-3 py-1 shadow-sm">
+                    <div class="avatar-xs bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold me-2" style="width: 24px; height: 24px; font-size: 0.65rem;">
+                        {{ t.tecnico_detalle?.nombre?.charAt(0) || 'T' }}
+                    </div>
+                    <span class="small fw-semibold text-dark">{{ t.tecnico_detalle?.nombre_completo || 'Sin nombre' }}</span>
+                </div>
+                <div *ngIf="!curso.tecnicos || curso.tecnicos.length === 0" class="text-muted small italic w-100 p-2 bg-light rounded-3 text-center">
+                    No hay técnicos asignados a este curso.
+                </div>
             </div>
 
             <div class="d-flex justify-content-between align-items-center bg-light p-3 rounded-4">
@@ -443,6 +469,14 @@
                 <p class="text-muted small mb-0">{{ selectedCursoDetails()?.nombre }}</p>
             </div>
             <button class="btn-close" (click)="showTecnicosModal.set(false)"></button>
+        </div>
+
+        <!-- Mensajes de Feedback -->
+        <div *ngIf="message().type" 
+             [class]="message().type === 'success' ? 'alert-custom-success' : 'alert-custom-error'"
+             class="mb-3">
+            <i [class]="message().type === 'success' ? 'bi bi-check-circle-fill' : 'bi bi-exclamation-triangle-fill'" class="me-2"></i>
+            {{ message().text }}
         </div>
 
         <div class="list-group list-group-flush border rounded-4 overflow-hidden mb-4">

@@ -166,6 +166,7 @@ export class CursoManagementComponent implements OnInit {
   // --- Gestión de Técnicos en Curso ---
   openTecnicosModal(curso: any) {
     this.selectedCursoDetails.set(curso);
+    this.message.set({ text: '', type: null });
     this.showTecnicosModal.set(true);
   }
 
@@ -181,12 +182,16 @@ export class CursoManagementComponent implements OnInit {
 
     if (asignacion) {
       this.cursoService.quitarTecnico(asignacion.id).subscribe(() => {
+        this.message.set({ text: 'Técnico removido exitosamente.', type: 'success' });
         this.refreshCursoData();
+        setTimeout(() => this.message.set({ text: '', type: null }), 3000);
       });
     } else {
       const data = { id_curso: curso.id, id_tecnico: tecnicoId };
       this.cursoService.asignarTecnico(data).subscribe(() => {
+        this.message.set({ text: 'Técnico asignado exitosamente.', type: 'success' });
         this.refreshCursoData();
+        setTimeout(() => this.message.set({ text: '', type: null }), 3000);
       });
     }
   }
@@ -303,11 +308,12 @@ export class CursoManagementComponent implements OnInit {
       next: () => {
         this.loadCursos();
         this.horarioAsignacionForm.reset();
-        this.showAsignarForm.set(null); // Cerrar el formulario tras éxito
+        this.showAsignarForm.set(null); 
         this.message.set({ text: 'Horario asignado exitosamente.', type: 'success' });
         setTimeout(() => this.message.set({ text: '', type: null }), 3000);
       },
       error: (err) => {
+        this.showAsignarForm.set(null); // Cerrar también en error para ver el mensaje global
         this.message.set({ text: err.error.error || 'Error al asignar horario', type: 'error' });
         setTimeout(() => this.message.set({ text: '', type: null }), 3000);
       }
@@ -322,7 +328,7 @@ export class CursoManagementComponent implements OnInit {
         this.message.set({ text: '', type: null });
         this.cursoService.quitarHorario(asignacionId).subscribe({
           next: () => {
-            this.loadCursos();
+            this.refreshCursoData(); // Refrescar detalles para que se vea el cambio en el modal
             this.message.set({ text: 'Horario removido del curso.', type: 'success' });
             setTimeout(() => this.message.set({ text: '', type: null }), 3000);
           },
@@ -501,5 +507,28 @@ export class CursoManagementComponent implements OnInit {
       }
     });
     this.showConfirmModal.set(true);
+  }
+
+  // --- Helpers de Visualización ---
+  getUniqueDays(horarios: any[]): string[] {
+    if (!horarios) return [];
+    const days = horarios.map(h => h.dia_nombre.trim().substring(0, 2).toUpperCase());
+    return [...new Set(days)];
+  }
+
+  getGroupedHorarios(horarios: any[]): any[] {
+    if (!horarios) return [];
+    const grouped: { [key: string]: any[] } = {};
+    horarios.forEach(h => {
+      const dia = h.dia_nombre.trim();
+      if (!grouped[dia]) {
+        grouped[dia] = [];
+      }
+      grouped[dia].push(h);
+    });
+    return Object.keys(grouped).map(dia => ({
+      dia,
+      horarios: grouped[dia]
+    }));
   }
 }

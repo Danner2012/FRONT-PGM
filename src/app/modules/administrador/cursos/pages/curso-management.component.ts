@@ -303,6 +303,7 @@ export class CursoManagementComponent implements OnInit {
       next: () => {
         this.loadCursos();
         this.horarioAsignacionForm.reset();
+        this.showAsignarForm.set(null); // Cerrar el formulario tras éxito
         this.message.set({ text: 'Horario asignado exitosamente.', type: 'success' });
         setTimeout(() => this.message.set({ text: '', type: null }), 3000);
       },

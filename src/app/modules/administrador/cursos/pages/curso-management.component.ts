@@ -160,7 +160,13 @@ export class CursoManagementComponent implements OnInit {
   // --- Ver Detalles ---
   openDetails(curso: any) {
     this.selectedCursoDetails.set(curso);
+    this.message.set({ text: '', type: null }); // Limpiar mensajes previos
     this.showDetailsModal.set(true);
+  }
+
+  closeDetails() {
+    this.showDetailsModal.set(false);
+    this.message.set({ text: '', type: null }); // Limpiar mensaje al salir
   }
 
   // --- Gestión de Técnicos en Curso ---
@@ -328,7 +334,7 @@ export class CursoManagementComponent implements OnInit {
         this.message.set({ text: '', type: null });
         this.cursoService.quitarHorario(asignacionId).subscribe({
           next: () => {
-            this.refreshCursoData(); // Refrescar detalles para que se vea el cambio en el modal
+            this.refreshCursoData(); 
             this.message.set({ text: 'Horario removido del curso.', type: 'success' });
             setTimeout(() => this.message.set({ text: '', type: null }), 3000);
           },

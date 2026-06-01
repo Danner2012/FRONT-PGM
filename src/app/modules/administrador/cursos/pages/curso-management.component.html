@@ -327,7 +327,15 @@
     <div class="modal-content-custom">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h5 class="fw-bold mb-0">Información Detallada</h5>
-            <button class="btn-close" (click)="showDetailsModal.set(false)"></button>
+            <button class="btn-close" (click)="closeDetails()"></button>
+        </div>
+
+        <!-- Mensajes de Feedback -->
+        <div *ngIf="message().type" 
+                [class]="message().type === 'success' ? 'alert-custom-success' : 'alert-custom-error'"
+                class="mb-3">
+            <i [class]="message().type === 'success' ? 'bi bi-check-circle-fill' : 'bi bi-exclamation-triangle-fill'" class="me-2"></i>
+            {{ message().text }}
         </div>
 
         <div *ngIf="selectedCursoDetails() as curso">
@@ -393,7 +401,7 @@
                     <div class="small text-muted text-uppercase fw-bold">Precio</div>
                     <div class="h5 fw-bold text-dark m-0">Bs. {{ curso.precio }}</div>
                 </div>
-                <button class="btn btn-primary rounded-pill px-4" (click)="showDetailsModal.set(false)">Cerrar</button>
+                <button class="btn btn-primary rounded-pill px-4" (click)="closeDetails()">Cerrar</button>
             </div>
         </div>
     </div>

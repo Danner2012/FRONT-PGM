@@ -97,7 +97,7 @@ export class LoginComponent implements AfterViewInit, OnDestroy {
 
   animate() {
     const canvas = this.canvas.nativeElement;
-    this.ctx.fillStyle = 'rgba(15, 23, 42, 0.2)';
+    this.ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
     this.ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     this.paths.forEach((path, index) => {
@@ -106,7 +106,7 @@ export class LoginComponent implements AfterViewInit, OnDestroy {
       for(let i=1; i<path.points.length; i++) {
         this.ctx.lineTo(path.points[i].x, path.points[i].y);
       }
-      this.ctx.strokeStyle = `rgba(59, 130, 246, ${path.opacity * 0.25})`;
+      this.ctx.strokeStyle = `rgba(2, 158, 164, ${path.opacity * 0.25})`;
       this.ctx.lineWidth = 1.5;
       this.ctx.stroke();
 
@@ -135,7 +135,7 @@ export class LoginComponent implements AfterViewInit, OnDestroy {
       const y = p1.y + (p2.y - p1.y) * segmentProgress;
 
       this.ctx.shadowBlur = 12;
-      this.ctx.shadowColor = '#60a5fa';
+      this.ctx.shadowColor = '#029ea4';
       this.ctx.beginPath();
       this.ctx.arc(x, y, 2.5, 0, Math.PI * 2);
       this.ctx.fillStyle = '#ffffff';
@@ -144,7 +144,7 @@ export class LoginComponent implements AfterViewInit, OnDestroy {
 
       this.ctx.beginPath();
       this.ctx.arc(x, y, 4, 0, Math.PI * 2);
-      this.ctx.fillStyle = 'rgba(96, 165, 250, 0.3)';
+      this.ctx.fillStyle = 'rgba(2, 158, 164, 0.3)';
       this.ctx.fill();
     }
   }

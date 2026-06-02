@@ -56,6 +56,7 @@ export class DashboardComponent implements OnInit {
 
   toggleSidebar() {
     this.isCollapsed.update(val => !val);
+    // Si se colapsa, cerramos cualquier acordeón abierto inmediatamente
     if (this.isCollapsed()) {
       this.activeAccordion.set(null);
     }

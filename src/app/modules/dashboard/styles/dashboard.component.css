@@ -217,6 +217,11 @@
 /* SUBMENÚ */
 .nav-sub-links {
   overflow: hidden;
+  display: block;
+}
+
+.sidebar.collapsed .nav-sub-links {
+  display: none !important;
 }
 .nav-link-sub {
   color: var(--text-muted);

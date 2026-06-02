@@ -1,14 +1,14 @@
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
 
 :host { 
-  --primary: #3b82f6;
-  --primary-dark: #2563eb;
-  --primary-glow: rgba(59, 130, 246, 0.5);
-  --bg-dark: #0f172a;
-  --sidebar-bg: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
-  --text-white: #f8fafc;
+  --primary: #029ea4;
+  --primary-dark: #017a7f;
+  --primary-glow: rgba(2, 158, 164, 0.4);
+  --bg-dark: #000000;
+  --sidebar-bg: #000000;
+  --text-white: #ffffff;
   --text-muted: #94a3b8;
-  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-bg: rgba(255, 255, 255, 0.05);
   --glass-border: rgba(255, 255, 255, 0.1);
   --input-bg: rgba(255, 255, 255, 0.05);
 }
@@ -22,8 +22,8 @@
   flex-shrink: 0;
   background: var(--sidebar-bg); 
   display: flex; flex-direction: column; 
-  border-right: 1px solid rgba(255, 255, 255, 0.05);
-  box-shadow: 10px 0 30px rgba(0,0,0,0.2);
+  border-right: 1px solid rgba(2, 158, 164, 0.2);
+  box-shadow: 10px 0 30px rgba(0,0,0,0.5);
   z-index: 1000;
   overflow: hidden;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -38,8 +38,8 @@
 /* Personalización del Scrollbar del Sidebar */
 .nav-scroll::-webkit-scrollbar { width: 4px; }
 .nav-scroll::-webkit-scrollbar-track { background: transparent; }
-.nav-scroll::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
-.nav-scroll::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); }
+.nav-scroll::-webkit-scrollbar-thumb { background: rgba(2, 158, 164, 0.3); border-radius: 10px; }
+.nav-scroll::-webkit-scrollbar-thumb:hover { background: var(--primary); }
 
 /* Header Compacto */
 .sidebar-header { padding: 24px 20px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
@@ -59,11 +59,15 @@
 .logo-circle { 
   width: 45px; height: 45px; border-radius: 12px; 
   display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(2, 158, 164, 0.1);
+  border: 1px solid rgba(2, 158, 164, 0.3);
   transition: all 0.3s ease;
 }
-.sidebar:not(.collapsed) .logo-circle:hover { transform: scale(1.05) rotate(5deg); }
+.sidebar:not(.collapsed) .logo-circle:hover { 
+  transform: scale(1.05) rotate(5deg); 
+  border-color: var(--primary);
+  box-shadow: 0 0 15px var(--primary-glow);
+}
 
 .bg-primary-gradient { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); }
 
@@ -73,14 +77,14 @@
   font-size: 1.1rem; 
   letter-spacing: 2px;
   color: white;
-  text-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
+  text-shadow: 0 0 10px var(--primary-glow);
   white-space: nowrap;
 }
 
 /* Navegación */
 .nav-scroll { flex-grow: 1; overflow-y: auto; overflow-x: hidden; padding: 0.5rem 0; }
 .nav-link-pro { 
-  color: var(--text-muted); padding: 10px 14px; border-radius: 12px; 
+  color: #cbd5e1; padding: 10px 14px; border-radius: 12px; 
   text-decoration: none; display: flex; align-items: center; 
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
   margin: 2px 10px;
@@ -93,6 +97,8 @@
   display: flex;
   justify-content: center;
   margin-right: 12px;
+  color: #64748b;
+  transition: color 0.3s;
 }
 
 .nav-link-pro span {
@@ -114,32 +120,37 @@
 }
 
 .nav-link-pro:hover { 
-  background: rgba(255,255,255,0.06); 
-  color: #fff; 
+  background: rgba(2, 158, 164, 0.1); 
+  color: var(--primary); 
   transform: translateX(4px);
+}
+
+.nav-link-pro:hover i:first-child {
+  color: var(--primary);
 }
 
 .sidebar.collapsed .nav-link-pro:hover { transform: scale(1.1); }
 
 .nav-link-pro.active { 
-  background: rgba(59, 130, 246, 0.15); 
+  background: rgba(2, 158, 164, 0.15); 
   color: #ffffff; 
   font-weight: 600;
-  border: 1px solid rgba(59, 130, 246, 0.2);
+  border: 1px solid rgba(2, 158, 164, 0.3);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
 .nav-link-pro.active i:first-child { 
   color: var(--primary); 
-  text-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
+  text-shadow: 0 0 10px var(--primary-glow);
 }
 
 .section-title { 
   font-family: 'Orbitron', sans-serif;
-  color: #475569; 
+  color: var(--primary); 
   font-size: 9px; 
   font-weight: 800; 
   letter-spacing: 1.5px; 
-  opacity: 0.6;
+  opacity: 0.7;
   padding: 0.8rem 1.5rem 0.4rem;
   white-space: nowrap;
   text-transform: uppercase;

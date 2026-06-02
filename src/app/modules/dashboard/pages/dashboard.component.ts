@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router, RouterOutlet } from '@angular/router';
+import { trigger, state, style, transition, animate } from '@angular/animations';
 import { AuthService } from '../../../services/auth.service';
 
 @Component({
@@ -8,7 +9,23 @@ import { AuthService } from '../../../services/auth.service';
   standalone: true,
   imports: [CommonModule, RouterModule, RouterOutlet],
   templateUrl: './dashboard.component.html',
-  styleUrls: ['../styles/dashboard.component.css']
+  styleUrls: ['../styles/dashboard.component.css'],
+  animations: [
+    trigger('expandCollapse', [
+      state('collapsed', style({ height: '0px', opacity: '0', overflow: 'hidden' })),
+      state('expanded', style({ height: '*', opacity: '1' })),
+      transition('collapsed <=> expanded', [
+        animate('300ms cubic-bezier(0.4, 0, 0.2, 1)')
+      ])
+    ]),
+    trigger('sidebarAnimation', [
+      state('full', style({ width: '260px' })),
+      state('collapsed', style({ width: '85px' })),
+      transition('full <=> collapsed', [
+        animate('400ms cubic-bezier(0.4, 0, 0.2, 1)')
+      ])
+    ])
+  ]
 })
 export class DashboardComponent implements OnInit {
   private authService = inject(AuthService);

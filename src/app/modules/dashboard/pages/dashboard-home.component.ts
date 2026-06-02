@@ -342,10 +342,13 @@ Chart.register(...registerables);
     </div>
   `,
   styles: [`
-    .bg-main { background-color: #f8fafc; min-height: 100vh; }
+    .bg-main { background-color: #f8fafc; min-height: 100vh; padding-top: 2rem !important; }
+    
     .hero-section { 
       background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
       position: relative; overflow: hidden;
+      border-radius: 30px !important;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
     }
     
     .hero-section::before {
@@ -355,32 +358,56 @@ Chart.register(...registerables);
     }
     
     .card-glass {
-      background: #ffffff;
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(10px);
       border-radius: 24px;
-      transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      border: 1px solid #f1f5f9 !important;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      border: 1px solid rgba(255, 255, 255, 0.5) !important;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
     }
-    .card-glass:hover { transform: translateY(-8px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05) !important; }
+    
+    .card-glass:hover { 
+      transform: translateY(-10px); 
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1) !important;
+      border-color: var(--primary) !important;
+    }
 
     .icon-circle {
       width: 56px; height: 56px;
-      border-radius: 18px;
+      border-radius: 16px;
       display: flex; align-items: center; justify-content: center;
+      transition: all 0.3s;
     }
-    .bg-primary-soft { background: #eff6ff; }
-    .bg-info-soft { background: #ecfeff; }
-    .bg-warning-soft { background: #fffbeb; }
-    .bg-success-soft { background: #f0fdf4; }
+    
+    .card-glass:hover .icon-circle { transform: scale(1.1) rotate(5deg); }
+    
+    .bg-primary-soft { background: #eff6ff; color: #3b82f6; }
+    .bg-info-soft { background: #ecfeff; color: #0891b2; }
+    .bg-warning-soft { background: #fffbeb; color: #d97706; }
+    .bg-success-soft { background: #f0fdf4; color: #16a34a; }
 
-    .quick-link-box { background: #ffffff; transition: 0.2s; }
-    .quick-link-box:hover { background: #f8fafc; border-color: #cbd5e1 !important; }
-
-    .icon-sm { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; }
+    .quick-link-box { 
+      background: #ffffff; 
+      transition: all 0.3s;
+      border: 1px solid #f1f5f9 !important;
+    }
+    .quick-link-box:hover { 
+      background: #f8fafc; 
+      border-color: var(--primary) !important; 
+      transform: translateY(-5px);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+    }
 
     .floating { animation: float 6s ease-in-out infinite; }
-    @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
-    .fade-in { animation: fadeIn 0.8s ease-out; }
+    @keyframes float { 0%, 100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-20px) rotate(5deg); } }
+    
+    .fade-in { animation: fadeIn 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+    .chart-container { 
+      border-radius: 20px;
+      overflow: hidden;
+    }
   `]
 })
 export class DashboardHomeComponent implements OnInit, AfterViewInit {
@@ -430,7 +457,7 @@ export class DashboardHomeComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    // Si los datos ya están cargados (o cuando se carguen), se inicializarán los charts
+    // Los charts se inicializan después de cargar los datos
   }
 
   loadAdminStats(): void {
@@ -472,6 +499,11 @@ export class DashboardHomeComponent implements OnInit, AfterViewInit {
 
   initCharts(): void {
     if (this.rendimientoCanvas) {
+      const ctx = this.rendimientoCanvas.nativeElement.getContext('2d');
+      const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+      gradient.addColorStop(0, 'rgba(59, 130, 246, 0.8)');
+      gradient.addColorStop(1, 'rgba(59, 130, 246, 0.1)');
+
       new Chart(this.rendimientoCanvas.nativeElement, {
         type: 'bar',
         data: {
@@ -479,17 +511,28 @@ export class DashboardHomeComponent implements OnInit, AfterViewInit {
           datasets: [{
             label: 'Promedio de Calificación',
             data: this.studentStats().grafica_rendimiento.data,
-            backgroundColor: 'rgba(54, 162, 235, 0.6)',
-            borderColor: 'rgba(54, 162, 235, 1)',
-            borderWidth: 1,
-            borderRadius: 8
+            backgroundColor: gradient,
+            borderColor: '#3b82f6',
+            borderWidth: 2,
+            borderRadius: 12,
+            hoverBackgroundColor: '#2563eb'
           }]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false }
+          },
           scales: {
-            y: { beginAtZero: true, max: 100 }
+            y: { 
+              beginAtZero: true, 
+              max: 100,
+              grid: { color: 'rgba(0,0,0,0.05)' }
+            },
+            x: {
+              grid: { display: false }
+            }
           }
         }
       });
@@ -503,20 +546,30 @@ export class DashboardHomeComponent implements OnInit, AfterViewInit {
           datasets: [{
             data: this.studentStats().grafica_estados.data,
             backgroundColor: [
-              'rgba(255, 206, 86, 0.6)', // Pendiente
-              'rgba(75, 192, 192, 0.6)', // Entregada / Aprobada
-              'rgba(255, 99, 132, 0.6)', // Reprobada
-              'rgba(54, 162, 235, 0.6)'  // Otros
+              '#f59e0b', // Pendiente
+              '#10b981', // Entregada / Aprobada
+              '#ef4444', // Reprobada
+              '#3b82f6'  // Otros
             ],
-            borderWidth: 0
+            hoverOffset: 15,
+            borderWidth: 0,
+            spacing: 5
           }]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
           plugins: {
-            legend: { position: 'bottom' }
-          }
+            legend: { 
+              position: 'bottom',
+              labels: {
+                usePointStyle: true,
+                padding: 20,
+                font: { size: 12, weight: 600 }
+              }
+            }
+          },
+          cutout: '70%'
         }
       });
     }

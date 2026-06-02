@@ -258,7 +258,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 1040; /* Reducido para que SweetAlert (1060) quede arriba */
+    z-index: 2000;
 }
 
 .modal-content-custom {

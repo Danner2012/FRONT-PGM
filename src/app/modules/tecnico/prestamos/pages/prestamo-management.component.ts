@@ -237,8 +237,28 @@ export class PrestamoManagementComponent implements OnInit {
     if (this.prestamoForm.get('id_inscripcion')?.invalid || 
         this.prestamoForm.get('id_practica')?.invalid) return;
 
+    // Si no ha hecho clic en el botón "+", pero tiene una herramienta seleccionada, la añadimos automáticamente
+    const hId = this.prestamoForm.get('id_herramienta')?.value;
+    const cant = this.prestamoForm.get('cantidad_prestada')?.value;
+    
+    if (this.selectedHerramientas().length === 0 && hId && cant >= 1) {
+        const tool = this.herramientas().find(h => h.id == hId);
+        if (tool && tool.stock_disponible >= cant) {
+            this.selectedHerramientas.set([{
+                id_herramienta: hId,
+                nombre: tool.nombre,
+                cantidad_prestada: cant
+            }]);
+        }
+    }
+
     if (this.selectedHerramientas().length === 0) {
-        Swal.fire('Error', 'Debe añadir al menos una herramienta al préstamo.', 'error');
+        Swal.fire({
+            title: 'Atención',
+            text: 'Debe añadir al menos una herramienta al préstamo. Use el botón "+" después de seleccionar la herramienta.',
+            icon: 'warning',
+            confirmButtonColor: '#3085d6'
+        });
         return;
     }
 
@@ -262,32 +282,45 @@ export class PrestamoManagementComponent implements OnInit {
 
     this.practicaService.createPrestamo(data).subscribe({
         next: () => {
-            Swal.fire('Éxito', 'Préstamo registrado correctamente', 'success');
+            Swal.fire({
+                title: 'Éxito',
+                text: 'Préstamo registrado correctamente',
+                icon: 'success',
+                confirmButtonColor: '#3085d6'
+            });
             this.loadPrestamos();
             this.closePrestamoModal();
         },
         error: (err) => {
             console.error('Error completo del servidor:', err);
-            let msg = 'Error al registrar préstamo';
+            let msg = 'Ocurrió un error al procesar el préstamo';
             
             if (err.error) {
                 if (typeof err.error === 'string') {
                     msg = err.error;
                 } else if (err.error.error) {
                     msg = err.error.error;
+                } else if (err.error.message) {
+                    msg = err.error.message;
                 } else if (err.error.non_field_errors) {
                     msg = err.error.non_field_errors[0];
                 } else if (typeof err.error === 'object') {
-                    // Intentar extraer el primer error de cualquier campo
-                    const keys = Object.keys(err.error);
-                    if (keys.length > 0) {
-                        const firstError = err.error[keys[0]];
-                        msg = Array.isArray(firstError) ? firstError[0] : firstError;
-                    }
+                    // Extraer todos los mensajes de error de los campos
+                    msg = Object.entries(err.error)
+                        .map(([key, value]) => {
+                            const detail = Array.isArray(value) ? value.join(', ') : JSON.stringify(value);
+                            return `${key.toUpperCase()}: ${detail}`;
+                        })
+                        .join('\n');
                 }
             }
             
-            Swal.fire('Error', msg, 'error');
+            Swal.fire({
+                title: 'Error en el Registro',
+                text: msg,
+                icon: 'error',
+                confirmButtonColor: '#d33'
+            });
         }
     });
   }

@@ -239,103 +239,65 @@
 
     <!-- MODAL REVISIÓN (Calificar) -->
     <div class="modal-overlay" *ngIf="showReviewModal()">
-        <div class="modal-content-custom animate-slide-up" style="max-width: 650px; padding: 0; overflow: hidden; border: none; border-radius: 24px;">
-            <!-- Header con Gradient -->
-            <div class="p-4 text-white d-flex justify-content-between align-items-center" style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%);">
-                <div>
-                    <h5 class="fw-bold mb-0 text-uppercase letter-spacing-1">Panel de Calificación</h5>
-                    <p class="mb-0 small text-white-50">Evaluación de desempeño del estudiante</p>
-                </div>
-                <button class="btn-close btn-close-white shadow-none" (click)="showReviewModal.set(false)"></button>
+        <div class="modal-content-custom animate-slide-up" style="max-width: 550px;">
+            <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+                <h5 class="fw-bold mb-0">CALIFICAR PRÁCTICA</h5>
+                <button class="btn-close" (click)="showReviewModal.set(false)"></button>
             </div>
             
-            <div class="p-4">
-                <!-- Info del Estudiante y Práctica -->
-                <div class="row g-3 mb-4">
-                    <div class="col-md-7">
-                        <div class="p-3 bg-light rounded-4 h-100 border border-light-subtle">
-                            <div class="small text-muted text-uppercase fw-bold mb-2" style="font-size: 0.65rem; letter-spacing: 0.5px;">Información del Alumno</div>
-                            <div class="fw-bold text-dark fs-5">{{ selectedEntrega()?.estudiante_nombre }}</div>
-                            <div class="small text-muted mb-3">{{ selectedEntrega()?.estudiante_correo }}</div>
-                            
-                            <div class="small text-muted text-uppercase fw-bold mb-1" style="font-size: 0.65rem; letter-spacing: 0.5px;">Actividad</div>
-                            <div class="fw-bold text-primary">{{ selectedEntrega()?.practica_detalle?.titulo }}</div>
-                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle mt-1" style="font-size: 0.6rem;">
-                                {{ selectedEntrega()?.practica_detalle?.tipo_practica_nombre }}
+            <div class="mb-4 p-3 bg-light rounded-4 border">
+                <div class="row">
+                    <div class="col-7">
+                        <div class="small text-muted text-uppercase fw-bold mb-1" style="font-size: 0.6rem;">Estudiante</div>
+                        <div class="fw-bold text-dark">{{ selectedEntrega()?.estudiante_nombre }}</div>
+                        <div class="small text-muted mt-2 text-uppercase fw-bold mb-1" style="font-size: 0.6rem;">Práctica</div>
+                        <div class="fw-bold text-primary">{{ selectedEntrega()?.practica_detalle?.titulo }}</div>
+                    </div>
+                    <div class="col-5 text-end border-start">
+                        <div class="small text-muted text-uppercase fw-bold mb-1" style="font-size: 0.6rem;">Fecha de Envío</div>
+                        <div class="fw-bold text-dark small" *ngIf="selectedEntrega()?.fecha_entrega">
+                            {{ selectedEntrega()?.fecha_entrega | date:'short' }}
+                        </div>
+                        <div class="text-danger fw-bold small" *ngIf="!selectedEntrega()?.fecha_entrega">
+                            NO ENTREGADO
+                        </div>
+                        <div class="mt-2">
+                            <span class="badge" [ngClass]="getStatusBadgeClass(selectedEntrega()?.estado)">
+                                {{ (selectedEntrega()?.estado === 'pendiente' ? 'no entregado' : selectedEntrega()?.estado) | uppercase }}
                             </span>
                         </div>
                     </div>
-                    <div class="col-md-5">
-                        <div class="p-3 bg-white rounded-4 h-100 border border-light-subtle shadow-sm">
-                            <div class="small text-muted text-uppercase fw-bold mb-2" style="font-size: 0.65rem; letter-spacing: 0.5px;">Detalles de Entrega</div>
-                            <div class="mb-2">
-                                <span class="small text-muted">Estado:</span>
-                                <span class="badge ms-2" [ngClass]="getStatusBadgeClass(selectedEntrega()?.estado)">
-                                    {{ (selectedEntrega()?.estado === 'pendiente' ? 'no entregado' : selectedEntrega()?.estado) | uppercase }}
-                                </span>
-                            </div>
-                            <div>
-                                <span class="small text-muted d-block mb-1">Fecha de Envío:</span>
-                                <span class="fw-bold text-dark small" *ngIf="selectedEntrega()?.fecha_entrega">
-                                    <i class="bi bi-calendar-check me-1 text-success"></i> {{ selectedEntrega()?.fecha_entrega | date:'medium' }}
-                                </span>
-                                <span class="text-danger small fw-bold" *ngIf="!selectedEntrega()?.fecha_entrega">
-                                    <i class="bi bi-exclamation-circle me-1"></i> SIN ENVÍO (PENDIENTE)
-                                </span>
-                            </div>
-                        </div>
+                </div>
+            </div>
+
+            <form (ngSubmit)="submitReview()">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">Calificación</label>
+                        <input type="number" class="form-control rounded-4 shadow-none" 
+                               [(ngModel)]="reviewForm.calificacion" name="cal" min="0" max="5" step="0.1" required>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">Estado Final</label>
+                        <select class="form-select rounded-4 shadow-none" [(ngModel)]="reviewForm.estado" name="est">
+                            <option value="aprobada">Aprobada</option>
+                            <option value="reprobada">Reprobada</option>
+                        </select>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label small fw-bold">Retroalimentación / Comentarios</label>
+                        <textarea class="form-control rounded-4 shadow-none" rows="4" 
+                                  [(ngModel)]="reviewForm.comentario" name="com" placeholder="Escribe tus observaciones aquí..."></textarea>
                     </div>
                 </div>
 
-                <!-- Formulario -->
-                <form (ngSubmit)="submitReview()">
-                    <div class="row g-4">
-                        <div class="col-md-5">
-                            <label class="form-label small fw-bold text-uppercase text-muted" style="font-size: 0.7rem;">Calificación Final</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-white border-end-0 rounded-start-4"><i class="bi bi-star-fill text-warning"></i></span>
-                                <input type="number" class="form-control form-control-lg border-start-0 rounded-end-4 shadow-none fw-bold" 
-                                       [(ngModel)]="reviewForm.calificacion" name="cal" min="0" max="5" step="0.1" required>
-                            </div>
-                            <div class="form-text text-center mt-2 small">Rango permitido: 0.0 - 5.0</div>
-                        </div>
-                        
-                        <div class="col-md-7">
-                            <label class="form-label small fw-bold text-uppercase text-muted" style="font-size: 0.7rem;">Acción sobre la Práctica</label>
-                            <div class="d-flex gap-2">
-                                <div class="flex-grow-1">
-                                    <input type="radio" class="btn-check" name="est" id="ap" value="aprobada" [(ngModel)]="reviewForm.estado" autocomplete="off">
-                                    <label class="btn btn-outline-success w-100 rounded-pill fw-bold py-2" for="ap">
-                                        <i class="bi bi-check-circle me-1"></i> APROBAR
-                                    </label>
-                                </div>
-
-                                <div class="flex-grow-1">
-                                    <input type="radio" class="btn-check" name="est" id="re" value="reprobada" [(ngModel)]="reviewForm.estado" autocomplete="off">
-                                    <label class="btn btn-outline-danger w-100 rounded-pill fw-bold py-2" for="re">
-                                        <i class="bi bi-x-circle me-1"></i> REPROBAR
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-12">
-                            <label class="form-label small fw-bold text-uppercase text-muted" style="font-size: 0.7rem;">Retroalimentación / Comentarios</label>
-                            <textarea class="form-control rounded-4 shadow-none p-3 border-2 border-light-subtle" rows="3" 
-                                      [(ngModel)]="reviewForm.comentario" name="com" placeholder="Escribe tus observaciones y recomendaciones aquí..."></textarea>
-                        </div>
-                    </div>
-
-                    <!-- Botones de Acción -->
-                    <div class="d-flex justify-content-end gap-3 mt-4 pt-4 border-top">
-                        <button type="button" class="btn btn-light rounded-pill px-4 fw-bold text-muted" (click)="showReviewModal.set(false)">CANCELAR</button>
-                        <button type="submit" class="btn btn-primary rounded-pill px-5 fw-bold shadow-sm d-flex align-items-center gap-2">
-                            <span>GUARDAR EVALUACIÓN</span>
-                            <i class="bi bi-send-check-fill"></i>
-                        </button>
-                    </div>
-                </form>
-            </div>
+                <div class="d-flex justify-content-end gap-2 pt-4 mt-2 border-top">
+                    <button type="button" class="btn btn-light rounded-pill px-4" (click)="showReviewModal.set(false)">Cancelar</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4 shadow-sm">GUARDAR CALIFICACIÓN</button>
+                </div>
+            </form>
         </div>
     </div>
 

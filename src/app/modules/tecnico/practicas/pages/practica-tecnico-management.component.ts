@@ -51,6 +51,7 @@ export class PracticaTecnicoManagementComponent implements OnInit {
   filterTextRevision = signal('');
   filterEstadoRevision = signal('todos');
   filterPracticaRevision = signal('todos');
+  filterCategoriaRevision = signal('todos');
 
   filteredPracticas = computed(() => {
     return this.practicas().filter(p => {
@@ -70,7 +71,8 @@ export class PracticaTecnicoManagementComponent implements OnInit {
                         e.practica_detalle?.titulo?.toLowerCase().includes(text);
       const matchEstado = this.filterEstadoRevision() === 'todos' || e.estado === this.filterEstadoRevision();
       const matchPractica = this.filterPracticaRevision() === 'todos' || e.id_practica?.toString() === this.filterPracticaRevision();
-      return matchText && matchEstado && matchPractica;
+      const matchCategoria = this.filterCategoriaRevision() === 'todos' || e.practica_detalle?.id_tipo_practica?.toString() === this.filterCategoriaRevision();
+      return matchText && matchEstado && matchPractica && matchCategoria;
     });
   });
 
@@ -123,6 +125,7 @@ export class PracticaTecnicoManagementComponent implements OnInit {
     this.isLoadingRevision.set(true);
     this.practicaService.getEntregasParaTecnico().subscribe({
       next: (data: any[]) => {
+        // Filtrar entregas solo de este curso
         const filtered = data.filter(e => e.practica_detalle?.id_curso === this.cursoId());
         this.entregas.set(filtered);
         this.isLoadingRevision.set(false);
@@ -286,5 +289,6 @@ export class PracticaTecnicoManagementComponent implements OnInit {
     this.filterTextRevision.set(''); 
     this.filterEstadoRevision.set('todos'); 
     this.filterPracticaRevision.set('todos');
+    this.filterCategoriaRevision.set('todos');
   }
 }

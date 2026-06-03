@@ -131,8 +131,8 @@
     <!-- CONTENIDO PESTAÑA: REVISIÓN DE PRÁCTICAS -->
     <div *ngIf="activeTab() === 'revision'" class="animate-fade-in">
         <div class="filters-bar mb-4">
-            <div class="row g-3 align-items-end">
-                <div class="col-md-4">
+            <div class="row g-2 align-items-end">
+                <div class="col-md-3">
                     <div class="filter-group">
                         <label class="filter-label">Estudiante o Práctica</label>
                         <div class="search-input-group">
@@ -150,12 +150,21 @@
                         </select>
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <div class="filter-group">
-                        <label class="filter-label">Estado de Entrega</label>
+                        <label class="filter-label">Categoría</label>
+                        <select class="filter-control shadow-none" [ngModel]="filterCategoriaRevision()" (ngModelChange)="filterCategoriaRevision.set($event)">
+                            <option value="todos">Cualquier Tipo</option>
+                            <option *ngFor="let tp of tiposPractica()" [value]="tp.id">{{ tp.nombre }}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="filter-group">
+                        <label class="filter-label">Estado</label>
                         <select class="filter-control shadow-none" [ngModel]="filterEstadoRevision()" (ngModelChange)="filterEstadoRevision.set($event)">
                             <option value="todos">Todos los estados</option>
-                            <option value="entregada">Pendiente de Revisión</option>
+                            <option value="entregada">Pendiente</option>
                             <option value="aprobada">Aprobadas</option>
                             <option value="reprobada">Reprobadas</option>
                         </select>
@@ -174,8 +183,10 @@
                 <table class="table table-custom table-hover mb-0">
                     <thead>
                         <tr>
+                            <th class="text-center" style="width: 50px;">#</th>
                             <th class="ps-4">Estudiante</th>
                             <th>Práctica</th>
+                            <th>Categoría</th>
                             <th class="text-center">Fecha Entrega</th>
                             <th class="text-center">Calificación</th>
                             <th class="text-center">Estado</th>
@@ -183,13 +194,19 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr *ngFor="let entrega of filteredEntregas()">
+                        <tr *ngFor="let entrega of filteredEntregas(); let idx = index">
+                            <td class="text-center fw-bold text-muted small">{{ idx + 1 }}</td>
                             <td class="ps-4">
                                 <div class="fw-bold text-dark">{{ entrega.estudiante_nombre }}</div>
                                 <div class="small text-muted">{{ entrega.estudiante_correo }}</div>
                             </td>
                             <td>
                                 <div class="fw-semibold text-primary">{{ entrega.practica_detalle?.titulo }}</div>
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-primary border border-primary-subtle px-3 py-2" style="font-size: 0.7rem; font-weight: 600;">
+                                    {{ entrega.practica_detalle?.tipo_practica_nombre || 'General' }}
+                                </span>
                             </td>
                             <td class="text-center">
                                 <div class="small text-muted">{{ entrega.fecha_entrega | date:'short' }}</div>

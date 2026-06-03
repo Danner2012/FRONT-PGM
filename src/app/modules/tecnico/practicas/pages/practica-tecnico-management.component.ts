@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, computed } from '@angular/core';
+import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PracticaService } from '../../../../services/practica.service';
@@ -7,6 +7,7 @@ import { HerramientaService } from '../../../../services/herramienta.service';
 import { CursoService } from '../../../../services/curso.service';
 import { AuthService } from '../../../../services/auth.service';
 import Swal from 'sweetalert2';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-practica-tecnico-management',
@@ -16,6 +17,12 @@ import Swal from 'sweetalert2';
   styleUrls: ['../styles/practica-tecnico-management.component.css']
 })
 export class PracticaTecnicoManagementComponent implements OnInit {
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  
+  cursoId = signal<number | null>(null);
+  cursoNombre = signal<string>('');
+
   practicas = signal<any[]>([]);
   cursos = signal<any[]>([]);
   herramientas = signal<any[]>([]);
@@ -24,30 +31,26 @@ export class PracticaTecnicoManagementComponent implements OnInit {
   
   // Filtros
   filterTitulo = signal('');
-  filterCurso = signal('todos');
   filterEstado = signal('todos');
   
   filteredPracticas = computed(() => {
     return this.practicas().filter(p => {
       const matchTitulo = p.titulo.toLowerCase().includes(this.filterTitulo().toLowerCase());
-      const matchCurso = this.filterCurso() === 'todos' || (p.id_curso && p.id_curso.toString() === this.filterCurso());
       const matchEstado = this.filterEstado() === 'todos' || 
                          (this.filterEstado() === 'activo' && p.estado) || 
                          (this.filterEstado() === 'inactivo' && !p.estado);
-      return matchTitulo && matchCurso && matchEstado;
+      return matchTitulo && matchEstado;
     });
   });
 
-  // Modales
+  // Modales y Estados
   showPracticaModal = signal(false);
   isEditing = signal(false);
   selectedPractica = signal<any>(null);
   
-  // Nuevo modal para ver detalles
   showViewResourcesModal = signal(false);
   selectedPracticaDetails = signal<any>(null);
 
-  // Señales para mensajes de feedback
   message = signal<{ text: string, type: 'success' | 'error' | null }>({ text: '', type: null });
 
   practicaForm = {
@@ -90,7 +93,12 @@ export class PracticaTecnicoManagementComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.loadData();
+    this.route.params.subscribe(params => {
+      if (params['id']) {
+        this.cursoId.set(+params['id']);
+        this.loadData();
+      }
+    });
   }
 
   showError(err: any, defaultMsg: string) {
@@ -110,33 +118,35 @@ export class PracticaTecnicoManagementComponent implements OnInit {
 
   clearFilters() {
     this.filterTitulo.set('');
-    this.filterCurso.set('todos');
     this.filterEstado.set('todos');
   }
 
   loadData() {
-    this.practicaService.getPracticas().subscribe(data => {
-      // Obtener los cursos asignados al técnico
-      this.cursoService.getCursosPorTecnico().subscribe(cursosTecnico => {
-        const cursoIds = cursosTecnico.map((c: any) => c.id);
-        
-        // Filtrar prácticas que pertenezcan a los cursos del técnico
-        // Quitamos el filtro de p.id_usuario_creador para que vea "todas" las de sus cursos
-        const filtered = data.filter(p => cursoIds.includes(p.id_curso));
-        
-        this.practicas.set(filtered);
-        this.cursos.set(cursosTecnico);
+    if (!this.cursoId()) return;
 
-        if (this.showViewResourcesModal() && this.selectedPracticaDetails()) {
-          const updated = filtered.find(p => p.id === this.selectedPracticaDetails().id);
-          if (updated) this.selectedPracticaDetails.set(updated);
-        }
+    this.practicaService.getPracticas().subscribe(data => {
+      const filtered = data.filter(p => p.id_curso === this.cursoId());
+      this.practicas.set(filtered);
+      
+      this.cursoService.getCursosPorTecnico().subscribe(cursos => {
+        const current = cursos.find((c: any) => c.id === this.cursoId());
+        if (current) this.cursoNombre.set(current.nombre);
+        this.cursos.set(cursos);
       });
+
+      if (this.showViewResourcesModal() && this.selectedPracticaDetails()) {
+        const updated = filtered.find(p => p.id === this.selectedPracticaDetails().id);
+        if (updated) this.selectedPracticaDetails.set(updated);
+      }
     });
 
     this.herramientaService.getHerramientas().subscribe(data => this.herramientas.set(data));
     this.practicaService.getTiposRecurso().subscribe(data => this.tiposRecurso.set(data));
     this.practicaService.getTiposPractica().subscribe(data => this.tiposPractica.set(data));
+  }
+
+  goBack() {
+    this.router.navigate(['/dashboard/mis-practicas-tecnico']);
   }
 
   togglePracticaStatus(practica: any) {
@@ -162,7 +172,7 @@ export class PracticaTecnicoManagementComponent implements OnInit {
   }
 
   openViewResourcesModal(practica: any) {
-    this.message.set({ text: '', type: null }); // Limpiar mensajes al abrir detalles
+    this.message.set({ text: '', type: null });
     this.selectedPracticaDetails.set(practica);
     this.showViewResourcesModal.set(true);
   }
@@ -195,12 +205,12 @@ export class PracticaTecnicoManagementComponent implements OnInit {
   }
 
   openPracticaModal(practica?: any) {
-    this.message.set({ text: '', type: null }); // Limpiar mensajes al abrir
+    this.message.set({ text: '', type: null });
     if (practica) {
       this.isEditing.set(true);
       this.selectedPractica.set(practica);
       this.practicaForm = { 
-        id_curso: practica.id_curso,
+        id_curso: practica.id_curso.toString(),
         id_tipo_practica: practica.id_tipo_practica,
         titulo: practica.titulo,
         descripcion: practica.descripcion,
@@ -209,22 +219,31 @@ export class PracticaTecnicoManagementComponent implements OnInit {
     } else {
       this.isEditing.set(false);
       this.selectedPractica.set(null);
-      this.practicaForm = { id_curso: '', id_tipo_practica: '', titulo: '', descripcion: '', estado: true };
+      this.practicaForm = { 
+        id_curso: this.cursoId()?.toString() || '', 
+        id_tipo_practica: '', 
+        titulo: '', 
+        descripcion: '', 
+        estado: true 
+      };
     }
     this.showPracticaModal.set(true);
   }
 
   savePractica() {
-    // Validar campos vacíos manualmente para mostrar mensaje personalizado
+    if (this.cursoId()) {
+      this.practicaForm.id_curso = this.cursoId()!.toString();
+    }
+
     if (!this.practicaForm.id_curso || !this.practicaForm.id_tipo_practica || !this.practicaForm.titulo) {
       this.message.set({ 
-        text: 'Debe llenar todos los campos obligatorios (Curso, Tipo y Título).', 
+        text: 'Debe llenar todos los campos obligatorios (Tipo y Título).', 
         type: 'error' 
       });
       return;
     }
 
-    this.message.set({ text: '', type: null }); // Limpiar mensajes previos
+    this.message.set({ text: '', type: null });
     
     if (this.isEditing()) {
       this.practicaService.updatePractica(this.selectedPractica().id, this.practicaForm).subscribe({
@@ -250,7 +269,6 @@ export class PracticaTecnicoManagementComponent implements OnInit {
           }, 1500);
         },
         error: (err) => {
-          // El backend ahora devuelve un error si hay duplicados gracias al UniqueTogetherValidator
           const errorMsg = err.error?.non_field_errors?.[0] || 'No se pudo crear la práctica.';
           this.message.set({ text: errorMsg, type: 'error' });
         }
@@ -280,7 +298,6 @@ export class PracticaTecnicoManagementComponent implements OnInit {
     });
   }
 
-  // Lógica para Recursos
   openRecursoModal(practicaId: number, recurso?: any) {
     if (recurso) {
       this.isEditingRecurso.set(true);
@@ -329,7 +346,7 @@ export class PracticaTecnicoManagementComponent implements OnInit {
             this.showViewResourcesModal.set(true);
           }
         },
-        error: (err) => this.showError(err, 'No se pudo actualizar the recurso')
+        error: (err) => this.showError(err, 'No se pudo actualizar el recurso')
       });
     } else {
       this.practicaService.createRecurso(formData).subscribe({
@@ -338,12 +355,11 @@ export class PracticaTecnicoManagementComponent implements OnInit {
           this.loadData();
           this.showRecursoModal.set(false);
         },
-        error: (err) => this.showError(err, 'No se pudo añadir the recurso')
+        error: (err) => this.showError(err, 'No se pudo añadir el recurso')
       });
     }
   }
 
-  // Lógica para Herramientas
   openHerramientaModal(practicaId: number, ph?: any) {
     if (ph) {
       this.isEditingHerramienta.set(true);

@@ -1,9 +1,13 @@
 <div class="management-container">
-    <!-- ENCABEZADO Y ACCIÓN -->
+    <!-- NAVEGACIÓN POR PESTAÑAS Y ACCIÓN -->
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h4 class="fw-bold mb-0">Mis Prácticas</h4>
-            <p class="text-muted small">Crea y gestiona las guías de aprendizaje para tus cursos asignados.</p>
+        <div class="tabs-container">
+            <button class="tab-btn" (click)="goBack()">
+                <i class="bi bi-chevron-left me-1"></i> Cursos
+            </button>
+            <button class="tab-btn active">
+                <i class="bi bi-journal-bookmark-fill me-1"></i> {{ cursoNombre() }}
+            </button>
         </div>
         <button class="btn btn-primary rounded-pill px-4 shadow-sm d-flex align-items-center gap-2" (click)="openPracticaModal()">
             <i class="bi bi-plus-circle fs-5"></i>
@@ -15,7 +19,7 @@
     <div class="animate-fade-in">
         <div class="filters-bar mb-4">
             <div class="row g-2 align-items-end">
-                <div class="col-md-5">
+                <div class="col-md-8">
                     <div class="filter-group">
                         <label class="filter-label">Título de la Práctica</label>
                         <div class="search-input-group">
@@ -24,16 +28,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="filter-group">
-                        <label class="filter-label">Curso</label>
-                        <select class="filter-control shadow-none" [ngModel]="filterCurso()" (ngModelChange)="filterCurso.set($event)">
-                            <option value="todos">Todos mis Cursos</option>
-                            <option *ngFor="let c of cursos()" [value]="c.id">{{ c.nombre }}</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="col-md-2">
+                <div class="col-md-3">
                     <div class="filter-group">
                         <label class="filter-label">Estado</label>
                         <select class="filter-control shadow-none" [ngModel]="filterEstado()" (ngModelChange)="filterEstado.set($event)">

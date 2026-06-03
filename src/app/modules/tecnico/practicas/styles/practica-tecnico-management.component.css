@@ -1,6 +1,8 @@
 .management-container {
-    padding: 1.5rem;
+    padding: 2.5rem;
     animation: fadeIn 0.4s ease-out;
+    max-width: 1600px;
+    margin: 0 auto;
 }
 
 .card-custom {

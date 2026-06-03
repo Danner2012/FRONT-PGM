@@ -22,8 +22,6 @@ export class PracticaTecnicoManagementComponent implements OnInit {
   tiposRecurso = signal<any[]>([]);
   tiposPractica = signal<any[]>([]);
   
-  activeTab = signal<'practicas' | 'maestros'>('practicas');
-  
   // Filtros
   filterTitulo = signal('');
   filterCurso = signal('todos');
@@ -277,76 +275,6 @@ export class PracticaTecnicoManagementComponent implements OnInit {
             this.loadData();
           },
           error: (err) => this.showError(err, 'No se pudo desactivar la práctica')
-        });
-      }
-    });
-  }
-
-  // Maestros: Tipos de Recurso y Práctica
-  showTipoModal = signal(false);
-  showTipoPracticaModal = signal(false);
-  tipoForm = { nombre: '' };
-  tipoPracticaForm = { nombre: '' };
-
-  saveTipoRecurso() {
-    this.practicaService.createTipoRecurso(this.tipoForm).subscribe({
-      next: () => {
-        Swal.fire('Éxito', 'Tipo de recurso creado', 'success');
-        this.loadData();
-        this.showTipoModal.set(false);
-        this.tipoForm.nombre = '';
-      },
-      error: (err) => this.showError(err, 'No se pudo crear el tipo de recurso')
-    });
-  }
-
-  saveTipoPractica() {
-    this.practicaService.createTipoPractica(this.tipoPracticaForm).subscribe({
-      next: () => {
-        Swal.fire('Éxito', 'Tipo de práctica creado', 'success');
-        this.loadData();
-        this.showTipoPracticaModal.set(false);
-        this.tipoPracticaForm.nombre = '';
-      },
-      error: (err) => this.showError(err, 'No se pudo crear el tipo de práctica')
-    });
-  }
-
-  removeTipoRecurso(id: number) {
-    Swal.fire({
-      title: '¿Eliminar tipo de recurso?',
-      text: "Esta acción no se puede deshacer",
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Sí, eliminar'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        this.practicaService.deleteTipoRecurso(id).subscribe({
-          next: () => {
-            Swal.fire('Eliminado', 'El tipo de recurso ha sido eliminado', 'success');
-            this.loadData();
-          },
-          error: (err) => this.showError(err, 'No se puede eliminar porque está en uso')
-        });
-      }
-    });
-  }
-
-  removeTipoPractica(id: number) {
-    Swal.fire({
-      title: '¿Eliminar tipo de práctica?',
-      text: "Esta acción no se puede deshacer",
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Sí, eliminar'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        this.practicaService.deleteTipoPractica(id).subscribe({
-          next: () => {
-            Swal.fire('Eliminado', 'El tipo de práctica ha sido eliminado', 'success');
-            this.loadData();
-          },
-          error: (err) => this.showError(err, 'No se puede eliminar porque está en uso')
         });
       }
     });

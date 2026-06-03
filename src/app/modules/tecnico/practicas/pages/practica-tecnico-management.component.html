@@ -1,26 +1,18 @@
 <div class="management-container">
-    <!-- ENCABEZADO SIMPLE -->
+    <!-- ENCABEZADO Y ACCIÓN -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h4 class="fw-bold mb-0">Mis Prácticas</h4>
             <p class="text-muted small">Crea y gestiona las guías de aprendizaje para tus cursos asignados.</p>
         </div>
-    </div>
-
-    <!-- PESTAÑAS Y ACCIÓN -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div class="tabs-container">
-            <button class="tab-btn" [class.active]="activeTab() === 'practicas'" (click)="activeTab.set('practicas')">Prácticas</button>
-            <button class="tab-btn" [class.active]="activeTab() === 'maestros'" (click)="activeTab.set('maestros')">Configuración</button>
-        </div>
-        <button *ngIf="activeTab() === 'practicas'" class="btn btn-primary rounded-pill px-4 shadow-sm d-flex align-items-center gap-2" (click)="openPracticaModal()">
+        <button class="btn btn-primary rounded-pill px-4 shadow-sm d-flex align-items-center gap-2" (click)="openPracticaModal()">
             <i class="bi bi-plus-circle fs-5"></i>
             <span>Nueva Práctica</span>
         </button>
     </div>
 
-    <!-- PESTAÑA 1: GESTIÓN DE PRÁCTICAS -->
-    <div *ngIf="activeTab() === 'practicas'" class="animate-fade-in">
+    <!-- GESTIÓN DE PRÁCTICAS -->
+    <div class="animate-fade-in">
         <div class="filters-bar mb-4">
             <div class="row g-2 align-items-end">
                 <div class="col-md-5">
@@ -139,75 +131,6 @@
         </div>
     </div>
 
-    <!-- PESTAÑA 2: CONFIGURACIÓN (Maestros) -->
-    <div *ngIf="activeTab() === 'maestros'" class="animate-fade-in">
-        <div class="row g-4">
-            <!-- Tipos de Recurso -->
-            <div class="col-md-6">
-                <div class="card card-custom h-100 overflow-hidden">
-                    <div class="p-3 border-bottom d-flex justify-content-between align-items-center bg-light-subtle">
-                        <h6 class="m-0 fw-bold text-uppercase small letter-spacing-1">Tipos de Recurso</h6>
-                        <button class="btn btn-primary btn-sm rounded-pill px-3 shadow-sm" (click)="showTipoModal.set(true)">
-                            <i class="bi bi-plus-lg me-1"></i> Nuevo
-                        </button>
-                    </div>
-                    <div class="table-responsive">
-                        <table class="table table-custom table-hover mb-0">
-                            <thead>
-                                <tr class="bg-light">
-                                    <th class="ps-4" style="width: 80px;">ID</th>
-                                    <th>Nombre</th>
-                                    <th class="text-end pe-4">Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr *ngFor="let t of tiposRecurso()">
-                                    <td class="ps-4 fw-bold text-muted">#{{ t.id }}</td>
-                                    <td><div class="fw-bold text-primary">{{ t.nombre }}</div></td>
-                                    <td class="text-end pe-4">
-                                        <button class="btn btn-sm btn-light-delete text-danger" (click)="removeTipoRecurso(t.id)"><i class="bi bi-trash"></i></button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Tipos de Práctica -->
-            <div class="col-md-6">
-                <div class="card card-custom h-100 overflow-hidden">
-                    <div class="p-3 border-bottom d-flex justify-content-between align-items-center bg-light-subtle">
-                        <h6 class="m-0 fw-bold text-uppercase small letter-spacing-1">Tipos de Práctica</h6>
-                        <button class="btn btn-primary btn-sm rounded-pill px-3 shadow-sm" (click)="showTipoPracticaModal.set(true)">
-                            <i class="bi bi-plus-lg me-1"></i> Nuevo
-                        </button>
-                    </div>
-                    <div class="table-responsive">
-                        <table class="table table-custom table-hover mb-0">
-                            <thead>
-                                <tr class="bg-light">
-                                    <th class="ps-4" style="width: 80px;">ID</th>
-                                    <th>Categoría</th>
-                                    <th class="text-end pe-4">Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr *ngFor="let tp of tiposPractica()">
-                                    <td class="ps-4 fw-bold text-muted">#{{ tp.id }}</td>
-                                    <td><div class="fw-bold text-primary">{{ tp.nombre }}</div></td>
-                                    <td class="text-end pe-4">
-                                        <button class="btn btn-sm btn-light-delete text-danger" (click)="removeTipoPractica(tp.id)"><i class="bi bi-trash"></i></button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- MODALES -->
 
     <!-- MODAL PRÁCTICA -->
@@ -258,32 +181,7 @@
         </div>
     </div>
 
-    <!-- OTROS MODALES -->
-    <div class="modal-overlay" *ngIf="showTipoModal()">
-        <div class="modal-content-custom animate-slide-up" style="max-width: 400px;">
-            <h5 class="fw-bold mb-4">Nuevo Tipo de Recurso</h5>
-            <form (ngSubmit)="saveTipoRecurso()">
-                <input type="text" class="form-control rounded-4 mb-4" name="t_nombre" [(ngModel)]="tipoForm.nombre" required placeholder="Ej: Video, PDF">
-                <div class="d-flex justify-content-end gap-2">
-                    <button type="button" class="btn btn-light rounded-pill px-4" (click)="showTipoModal.set(false)">Cancelar</button>
-                    <button type="submit" class="btn btn-primary rounded-pill px-4">Guardar</button>
-                </div>
-            </form>
-        </div>
-    </div>
 
-    <div class="modal-overlay" *ngIf="showTipoPracticaModal()">
-        <div class="modal-content-custom animate-slide-up" style="max-width: 400px;">
-            <h5 class="fw-bold mb-4">Nueva Categoría de Práctica</h5>
-            <form (ngSubmit)="saveTipoPractica()">
-                <input type="text" class="form-control rounded-4 mb-4" name="tp_nombre" [(ngModel)]="tipoPracticaForm.nombre" required placeholder="Ej: Teórica, Evaluación">
-                <div class="d-flex justify-content-end gap-2">
-                    <button type="button" class="btn btn-light rounded-pill px-4" (click)="showTipoPracticaModal.set(false)">Cancelar</button>
-                    <button type="submit" class="btn btn-info text-white rounded-pill px-4">Guardar</button>
-                </div>
-            </form>
-        </div>
-    </div>
 
     <!-- MODAL VER DETALLES -->
     <div class="modal-overlay" *ngIf="showViewResourcesModal()">

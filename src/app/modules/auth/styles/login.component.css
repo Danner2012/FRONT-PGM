@@ -65,8 +65,9 @@
   justify-content: center;
   align-items: center;
   width: 100%;
-  margin-bottom: 0.5rem;
-  min-height: 200px;
+  margin-bottom: 0;
+  padding-top: 1rem;
+  min-height: 320px;
 }
 
 .logo-glow-container {
@@ -74,16 +75,16 @@
 }
 
 .login-logo {
-  height: 180px !important;
+  height: 320px !important;
   width: auto !important;
   display: block;
   object-fit: contain;
-  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-  filter: drop-shadow(0 0 20px rgba(2, 158, 164, 0.2));
+  transition: filter 0.5s ease;
+  filter: drop-shadow(0 0 25px rgba(2, 158, 164, 0.3));
 }
 .login-logo:hover { 
-  transform: scale(1.05) rotate(2deg); 
-  filter: drop-shadow(0 0 30px rgba(2, 158, 164, 0.4));
+  transform: none; 
+  filter: drop-shadow(0 0 40px rgba(2, 158, 164, 0.5));
 }
 
 /* TÍTULO CELUCENTRO REFINADO */

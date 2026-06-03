@@ -1,9 +1,13 @@
 <div class="management-container animate-fade-in">
-    <div class="header-section mb-4">
+    <div class="header-section mb-4 d-flex justify-content-between align-items-center">
         <div>
             <h4 class="fw-bold mb-0">Reporte de Inventario de Herramientas</h4>
             <p class="text-muted small mb-0">Visualiza el stock total y disponible de todas las herramientas del sistema.</p>
         </div>
+        <button class="btn btn-primary d-flex align-items-center gap-2" (click)="downloadPDF()" [disabled]="isLoading() || filteredHerramientas().length === 0">
+            <i class="bi bi-file-earmark-pdf-fill"></i>
+            Exportar PDF
+        </button>
     </div>
 
     <!-- BARRA DE FILTROS -->

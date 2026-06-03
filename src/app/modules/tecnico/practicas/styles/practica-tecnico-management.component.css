@@ -372,6 +372,225 @@
     background-color: #f8fafc;
 }
 
+/* Evidence List Compact V2 */
+.evidence-list-compact {
+    display: flex;
+    flex-direction: column;
+}
+
+.evidence-item-compact {
+    cursor: pointer;
+    background: #ffffff;
+    border-color: #e2e8f0 !important;
+    transition: all 0.2s;
+}
+.evidence-item-compact:hover {
+    background: #f8fafc;
+    border-color: #cbd5e0 !important;
+}
+.evidence-item-compact.active-item {
+    background: #ebf8ff;
+    border-color: #3182ce !important;
+    border-bottom-left-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+}
+
+.btn-icon-sm {
+    width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
+    border-radius: 50%; border: none; background: transparent; color: #64748b;
+    transition: all 0.2s;
+}
+.btn-icon-sm:hover {
+    background: #e2e8f0; color: #1e293b;
+}
+
+.preview-container-compact {
+    border-color: #3182ce !important;
+}
+
+.preview-box-mini {
+    box-shadow: inset 0 2px 10px rgba(0,0,0,0.2);
+}
+
+.empty-compact {
+    border-color: #cbd5e0 !important;
+}
+
+/* Status Buttons Compact - Redundant, replaced by btn-status-toggle */
+
+/* Modal Review V2 - Rediseño UX unificado */
+.modal-content-custom.review-modal {
+    width: 95%;
+    max-width: 950px;
+    height: auto;
+    max-height: 90vh;
+    border-radius: 20px;
+    overflow: hidden;
+    background: white;
+    display: flex;
+    flex-direction: column;
+    padding: 2rem; /* Restauramos padding estándar */
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+}
+
+.modal-content-custom.review-modal .modal-body {
+    padding: 0;
+    overflow-y: auto;
+    flex: 1;
+}
+
+/* Paneles de revisión más limpios */
+.review-panel-container {
+    display: flex;
+    gap: 1.5rem;
+    height: 100%;
+}
+
+.evidence-side {
+    flex: 1;
+    max-height: 500px;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+}
+
+.form-side {
+    flex: 1;
+    background: #f8fafc;
+    border-radius: 15px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Re-estilizar botones de estado para ser más sobrios */
+.btn-status-toggle {
+    flex: 1;
+    padding: 0.6rem;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    background: white;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #64748b;
+    transition: all 0.2s;
+}
+
+.btn-status-toggle.active-success {
+    background: #dcfce7;
+    color: #166534;
+    border-color: #86efac;
+}
+
+.btn-status-toggle.active-danger {
+    background: #fee2e2;
+    color: #991b1b;
+    border-color: #fca5a5;
+}
+
+/* Header del modal consistente con Admin */
+.modal-header-clean {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+/* Estilo para las barras de scroll */
+.review-modal *::-webkit-scrollbar {
+    width: 6px;
+}
+.review-modal *::-webkit-scrollbar-track {
+    background: transparent;
+}
+.review-modal *::-webkit-scrollbar-thumb {
+    background: #cbd5e0;
+    border-radius: 10px;
+}
+
+.btn-close-circle {
+    width: 35px; height: 35px; border-radius: 50%; border: none;
+    background: #f1f5f9; color: #64748b; display: flex;
+    align-items: center; justify-content: center; transition: all 0.2s;
+}
+.btn-close-circle:hover { background: #ef4444; color: white; transform: rotate(90deg); }
+
+/* Evidence Styles V2 */
+.file-icon-box {
+    width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem;
+}
+
+.evidence-card-v2 {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.evidence-card-v2:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.zoom-overlay {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.3); opacity: 0; transition: 0.2s;
+    display: flex; align-items: center; justify-content: center;
+}
+.evidence-preview-v2:hover .zoom-overlay { opacity: 1; }
+
+.empty-evidence-box {
+    border-color: #e2e8f0 !important;
+}
+
+/* Review Form V2 */
+.score-input {
+    border: none;
+    font-size: 2.5rem;
+    color: #2b6cb0;
+    padding: 0;
+    background: transparent;
+}
+.score-input:focus { box-shadow: none; background: transparent; }
+
+.btn-status-select {
+    background: white;
+    border-color: #e2e8f0;
+    color: #718096;
+    transition: all 0.2s;
+}
+.btn-status-select.active-success {
+    background: #f0fff4;
+    border-color: #48bb78;
+    color: #2f855a;
+    box-shadow: 0 4px 6px -1px rgba(72, 187, 120, 0.2);
+}
+.btn-status-select.active-danger {
+    background: #fff5f5;
+    border-color: #f56565;
+    color: #c53030;
+    box-shadow: 0 4px 6px -1px rgba(245, 101, 101, 0.2);
+}
+
+/* Lightbox */
+.lightbox-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.9); z-index: 2000;
+    display: flex; align-items: center; justify-content: center;
+}
+.btn-close-lightbox {
+    position: absolute; top: 20px; right: 20px;
+    background: transparent; border: none; color: white; font-size: 2rem;
+}
+.lightbox-content img {
+    max-width: 90vw;
+    max-height: 90vh;
+}
+
+.animate-zoom-in { animation: zoomIn 0.3s ease-out; }
+@keyframes zoomIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+.letter-spacing-1 { letter-spacing: 1px; }
+.italic { font-style: italic; }
+
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 

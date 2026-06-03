@@ -111,91 +111,145 @@
     <!-- MODAL DE REVISIÓN -->
     <div class="modal-overlay" *ngIf="showReviewModal()">
         <div class="modal-content-custom review-modal animate-slide-up">
-            <div class="modal-header-custom border-bottom p-4 d-flex justify-content-between align-items-center">
+            <!-- Header Unificado -->
+            <div class="modal-header-clean">
                 <div>
-                    <h5 class="fw-bold mb-0">Revisar Práctica</h5>
-                    <p class="extra-small text-muted mb-0">Estudiante: {{ selectedEntrega()?.estudiante_nombre }}</p>
+                    <h5 class="fw-bold mb-0">Revisión de Práctica</h5>
+                    <p class="text-muted small mb-0">Estudiante: <span class="fw-bold text-dark">{{ selectedEntrega()?.estudiante_nombre }}</span></p>
                 </div>
-                <button class="btn-close-circle" (click)="closeReview()"><i class="bi bi-x-lg"></i></button>
+                <button class="btn-close" (click)="closeReview()"></button>
             </div>
 
-            <div class="modal-body p-4">
-                <div class="row g-4">
-                    <!-- Evidencias -->
-                    <div class="col-md-7">
-                        <h6 class="fw-bold mb-3"><i class="bi bi-folder2-open me-2 text-warning"></i>Evidencias del Estudiante</h6>
-                        <div class="evidence-gallery bg-light rounded-4 p-3 overflow-auto" style="max-height: 400px;">
-                            <div *ngFor="let ev of selectedEntrega()?.evidencias" class="evidence-card bg-white rounded-3 border p-3 mb-3 shadow-sm">
-                                <div class="d-flex align-items-center gap-3 mb-2">
-                                    <div class="icon-box bg-primary-subtle text-primary rounded-3 p-2">
-                                        <i class="bi bi-file-earmark-check fs-4"></i>
+            <!-- Mensajes de Feedback (Persistentes, fuera del scroll) -->
+            <div *ngIf="message().text" class="px-4 pt-0">
+                <div [class]="message().type === 'success' ? 'alert-custom-success' : 'alert-custom-error'" class="mb-3 shadow-sm">
+                    <i [class]="message().type === 'success' ? 'bi bi-check-circle-fill' : 'bi bi-exclamation-triangle-fill'" class="me-2"></i>
+                    {{ message().text }}
+                </div>
+            </div>
+
+            <!-- Body del Modal -->
+            <div class="modal-body">
+                <div class="review-panel-container">
+                    
+                    <!-- PANEL IZQUIERDO: EVIDENCIAS -->
+                    <div class="evidence-side">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <label class="form-label small fw-bold text-muted text-uppercase mb-0">Evidencias Recibidas</label>
+                            <span class="badge bg-light text-dark border">{{ selectedEntrega()?.evidencias?.length || 0 }} archivos</span>
+                        </div>
+
+                        <div class="evidence-list-compact">
+                            <div *ngFor="let ev of selectedEntrega()?.evidencias" class="evidence-row mb-2">
+                                <div class="evidence-item-compact p-2 rounded-3 border d-flex align-items-center justify-content-between transition-all"
+                                     [class.active-item]="activePreviewId() === ev.id"
+                                     (click)="activePreviewId.set(activePreviewId() === ev.id ? null : ev.id)">
+                                    
+                                    <div class="d-flex align-items-center gap-2 overflow-hidden">
+                                        <i class="bi" [class.bi-image]="isImage(getEvidenceUrl(ev))"
+                                                     [class.bi-play-circle]="isVideo(getEvidenceUrl(ev))"
+                                                     [class.bi-file-pdf]="isPdf(getEvidenceUrl(ev))"
+                                                     style="font-size: 0.85rem; color: #64748b;"></i>
+                                        <div class="text-truncate">
+                                            <div class="fw-bold text-dark" style="font-size: 0.75rem;">Archivo #{{ ev.id }}</div>
+                                            <div class="text-muted" style="font-size: 0.6rem;">{{ ev.fecha_subida | date:'short' }}</div>
+                                        </div>
                                     </div>
-                                    <div class="flex-grow-1 overflow-hidden">
-                                        <div class="fw-bold text-truncate small">Evidencia #{{ ev.id }}</div>
-                                        <div class="extra-small text-muted">{{ ev.fecha_subida | date:'medium' }}</div>
-                                    </div>
-                                    <a [href]="ev.archivo" target="_blank" class="btn btn-sm btn-primary rounded-pill px-3">
-                                        <i class="bi bi-box-arrow-up-right me-1"></i> Ver Original
-                                    </a>
+                                    <i class="bi small text-muted" [class.bi-chevron-down]="activePreviewId() !== ev.id" [class.bi-chevron-up]="activePreviewId() === ev.id"></i>
                                 </div>
-                                <div class="mt-2 text-center" *ngIf="ev.archivo.endsWith('.jpg') || ev.archivo.endsWith('.png')">
-                                    <img [src]="ev.archivo" class="img-fluid rounded border shadow-sm" style="max-height: 200px;" alt="Evidencia">
+
+                                <!-- Previsualización Expandible -->
+                                <div class="preview-container-compact bg-light border-start border-end border-bottom rounded-bottom-3 p-2" 
+                                     *ngIf="activePreviewId() === ev.id">
+                                    <div class="preview-box-mini bg-dark rounded-2 overflow-hidden d-flex align-items-center justify-content-center"
+                                         style="min-height: 120px; max-height: 250px;">
+                                        
+                                        <img *ngIf="isImage(getEvidenceUrl(ev))" [src]="getEvidenceUrl(ev)" 
+                                             class="img-fluid object-fit-contain w-100" style="max-height: 230px; cursor: zoom-in;"
+                                             (click)="openLightbox(getEvidenceUrl(ev))">
+                                        
+                                        <video *ngIf="isVideo(getEvidenceUrl(ev))" controls class="w-100" style="max-height: 230px;">
+                                            <source [src]="getEvidenceUrl(ev)" type="video/mp4">
+                                        </video>
+
+                                        <div *ngIf="isPdf(getEvidenceUrl(ev))" class="text-center p-3 text-white">
+                                            <i class="bi bi-file-earmark-pdf fs-2 text-danger"></i>
+                                            <div class="extra-small mt-1">Documento PDF</div>
+                                            <button class="btn btn-xs btn-outline-light mt-2 rounded-pill" (click)="viewResource(ev)">Abrir</button>
+                                        </div>
+                                    </div>
+                                    <p class="mt-2 text-muted italic mb-0 px-1" style="font-size: 0.65rem;" *ngIf="ev.descripcion">
+                                        {{ ev.descripcion }}
+                                    </p>
                                 </div>
                             </div>
-                            <div *ngIf="!selectedEntrega()?.evidencias?.length" class="text-center py-5 opacity-50">
-                                <i class="bi bi-slash-circle display-4"></i>
-                                <p class="mt-2 small">No se subieron evidencias</p>
-                            </div>
+                        </div>
+
+                        <!-- Estado Vacío -->
+                        <div *ngIf="!selectedEntrega()?.evidencias?.length" class="text-center py-4 bg-light rounded-3 border-2 border-dashed">
+                            <i class="bi bi-folder-x fs-2 text-muted opacity-50"></i>
+                            <p class="text-muted small mt-2 mb-0">No se adjuntaron evidencias</p>
                         </div>
                     </div>
 
-                    <!-- Calificación -->
-                    <div class="col-md-5">
-                        <div class="review-form-box p-4 bg-white rounded-4 border shadow-sm">
-                            <h6 class="fw-bold mb-3"><i class="bi bi-clipboard-check me-2 text-primary"></i>Evaluación</h6>
-                            
-                            <div class="mb-4">
-                                <label class="form-label small fw-bold text-muted">CALIFICACIÓN</label>
-                                <div class="input-group input-group-lg">
-                                    <input type="number" class="form-control text-center fw-bold" 
-                                           [(ngModel)]="reviewForm.calificacion" min="0" max="5" step="0.1">
-                                    <span class="input-group-text">/ 5</span>
+                    <!-- PANEL DERECHO: FORMULARIO -->
+                    <div class="form-side shadow-sm border">
+                        <div class="mb-4">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Calificación Final (0 - 100)</label>
+                            <div class="d-flex align-items-center gap-3 bg-white p-3 rounded-3 border">
+                                <div class="flex-grow-1">
+                                    <input type="number" class="form-control form-control-lg border-0 text-center fw-bold p-0" 
+                                           style="font-size: 1.8rem; height: auto;"
+                                           [(ngModel)]="reviewForm.calificacion" min="0" max="100" step="1">
                                 </div>
+                                <div class="text-muted fw-bold h4 mb-0 border-start ps-3">/ 100</div>
                             </div>
+                        </div>
 
-                            <div class="mb-4">
-                                <label class="form-label small fw-bold text-muted">ESTADO FINAL</label>
-                                <div class="d-flex gap-2">
-                                    <button class="btn flex-fill rounded-pill py-2 fw-bold"
-                                            [class.btn-success]="reviewForm.estado === 'aprobada'"
-                                            [class.btn-outline-success]="reviewForm.estado !== 'aprobada'"
-                                            (click)="reviewForm.estado = 'aprobada'">
-                                        <i class="bi bi-check-circle me-1"></i> Aprobar
-                                    </button>
-                                    <button class="btn flex-fill rounded-pill py-2 fw-bold"
-                                            [class.btn-danger]="reviewForm.estado === 'reprobada'"
-                                            [class.btn-outline-danger]="reviewForm.estado !== 'reprobada'"
-                                            (click)="reviewForm.estado = 'reprobada'">
-                                        <i class="bi bi-x-circle me-1"></i> Reprobar
-                                    </button>
-                                </div>
+                        <div class="mb-4">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Resultado</label>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-status-toggle"
+                                        [class.active-success]="reviewForm.estado === 'aprobada'"
+                                        (click)="reviewForm.estado = 'aprobada'">
+                                    <i class="bi bi-check-circle-fill me-1"></i> APROBADA
+                                </button>
+                                <button class="btn btn-status-toggle"
+                                        [class.active-danger]="reviewForm.estado === 'reprobada'"
+                                        (click)="reviewForm.estado = 'reprobada'">
+                                    <i class="bi bi-x-circle-fill me-1"></i> REPROBADA
+                                </button>
                             </div>
+                        </div>
 
-                            <div class="mb-4">
-                                <label class="form-label small fw-bold text-muted">RETROALIMENTACIÓN</label>
-                                <textarea class="form-control" rows="5" placeholder="Escribe aquí tus observaciones..."
-                                          [(ngModel)]="reviewForm.comentario"></textarea>
-                            </div>
+                        <div class="mb-4 flex-grow-1 d-flex flex-column">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Retroalimentación</label>
+                            <textarea class="form-control border-0 shadow-none p-3 rounded-3 flex-grow-1" 
+                                      style="background: white; font-size: 0.85rem; min-height: 150px; resize: none;"
+                                      placeholder="Escribe tus observaciones técnicas aquí..."
+                                      [(ngModel)]="reviewForm.comentario"></textarea>
+                        </div>
 
-                            <button class="btn btn-primary w-100 rounded-pill py-3 fw-bold shadow-sm mt-2"
+                        <div class="pt-3 border-top d-flex justify-content-end gap-2">
+                            <button class="btn btn-light rounded-pill px-4" (click)="closeReview()">Cancelar</button>
+                            <button class="btn btn-primary rounded-pill px-4 shadow-sm fw-bold" 
                                     (click)="submitReview()"
-                                    [disabled]="reviewForm.calificacion < 0 || reviewForm.calificacion > 5">
-                                <i class="bi bi-send-fill me-2"></i>Guardar Calificación
+                                    [disabled]="reviewForm.calificacion < 0 || reviewForm.calificacion > 100">
+                                Guardar Revisión
                             </button>
                         </div>
                     </div>
+
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- LIGHTBOX PARA IMÁGENES -->
+    <div class="lightbox-overlay" *ngIf="showLightbox()" (click)="closeLightbox()">
+        <button class="btn-close-lightbox" (click)="closeLightbox()"><i class="bi bi-x-lg"></i></button>
+        <div class="lightbox-content animate-zoom-in" (click)="$event.stopPropagation()">
+            <img [src]="lightboxUrl()" class="img-fluid rounded shadow-lg">
         </div>
     </div>
 </div>

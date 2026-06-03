@@ -239,65 +239,146 @@
 
     <!-- MODAL REVISIÓN (Calificar) -->
     <div class="modal-overlay" *ngIf="showReviewModal()">
-        <div class="modal-content-custom animate-slide-up" style="max-width: 550px;">
-            <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
-                <h5 class="fw-bold mb-0">CALIFICAR PRÁCTICA</h5>
+        <div class="modal-content-custom review-modal animate-slide-up">
+            <!-- Header Unificado -->
+            <div class="modal-header-clean">
+                <div>
+                    <h5 class="fw-bold mb-0">Revisión de Práctica</h5>
+                    <p class="text-muted small mb-0">Estudiante: <span class="fw-bold text-dark">{{ selectedEntrega()?.estudiante_nombre }}</span></p>
+                </div>
                 <button class="btn-close" (click)="showReviewModal.set(false)"></button>
             </div>
-            
-            <div class="mb-4 p-3 bg-light rounded-4 border">
-                <div class="row">
-                    <div class="col-7">
-                        <div class="small text-muted text-uppercase fw-bold mb-1" style="font-size: 0.6rem;">Estudiante</div>
-                        <div class="fw-bold text-dark">{{ selectedEntrega()?.estudiante_nombre }}</div>
-                        <div class="small text-muted mt-2 text-uppercase fw-bold mb-1" style="font-size: 0.6rem;">Práctica</div>
-                        <div class="fw-bold text-primary">{{ selectedEntrega()?.practica_detalle?.titulo }}</div>
-                    </div>
-                    <div class="col-5 text-end border-start">
-                        <div class="small text-muted text-uppercase fw-bold mb-1" style="font-size: 0.6rem;">Fecha de Envío</div>
-                        <div class="fw-bold text-dark small" *ngIf="selectedEntrega()?.fecha_entrega">
-                            {{ selectedEntrega()?.fecha_entrega | date:'short' }}
-                        </div>
-                        <div class="text-danger fw-bold small" *ngIf="!selectedEntrega()?.fecha_entrega">
-                            NO ENTREGADO
-                        </div>
-                        <div class="mt-2">
-                            <span class="badge" [ngClass]="getStatusBadgeClass(selectedEntrega()?.estado)">
-                                {{ (selectedEntrega()?.estado === 'pendiente' ? 'no entregado' : selectedEntrega()?.estado) | uppercase }}
-                            </span>
-                        </div>
-                    </div>
+
+            <!-- Mensajes de Feedback (Persistentes, fuera del scroll) -->
+            <div *ngIf="message().text && showReviewModal()" class="px-4 pt-0">
+                <div [class]="message().type === 'success' ? 'alert-custom-success' : 'alert-custom-error'" class="mb-3 shadow-sm">
+                    <i [class]="message().type === 'success' ? 'bi bi-check-circle-fill' : 'bi bi-exclamation-triangle-fill'" class="me-2"></i>
+                    {{ message().text }}
                 </div>
             </div>
 
-            <form (ngSubmit)="submitReview()">
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <label class="form-label small fw-bold">Calificación</label>
-                        <input type="number" class="form-control rounded-4 shadow-none" 
-                               [(ngModel)]="reviewForm.calificacion" name="cal" min="0" max="5" step="0.1" required>
-                    </div>
+            <!-- Body del Modal -->
+            <div class="modal-body">
+                <div class="review-panel-container">
                     
-                    <div class="col-md-6">
-                        <label class="form-label small fw-bold">Estado Final</label>
-                        <select class="form-select rounded-4 shadow-none" [(ngModel)]="reviewForm.estado" name="est">
-                            <option value="aprobada">Aprobada</option>
-                            <option value="reprobada">Reprobada</option>
-                        </select>
+                    <!-- PANEL IZQUIERDO: EVIDENCIAS -->
+                    <div class="evidence-side">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <label class="form-label small fw-bold text-muted text-uppercase mb-0">Evidencias Recibidas</label>
+                            <span class="badge bg-light text-dark border">{{ selectedEntrega()?.evidencias?.length || 0 }} archivos</span>
+                        </div>
+
+                        <div class="evidence-list-compact">
+                            <div *ngFor="let ev of selectedEntrega()?.evidencias" class="evidence-row mb-2">
+                                <div class="evidence-item-compact p-2 rounded-3 border d-flex align-items-center justify-content-between transition-all"
+                                     [class.active-item]="activePreviewId() === ev.id"
+                                     (click)="activePreviewId.set(activePreviewId() === ev.id ? null : ev.id)">
+                                    
+                                    <div class="d-flex align-items-center gap-2 overflow-hidden">
+                                        <i class="bi" [class.bi-image]="isImage(getEvidenceUrl(ev))"
+                                                     [class.bi-play-circle]="isVideoFile(getEvidenceUrl(ev))"
+                                                     [class.bi-file-pdf]="isPdfFile(getEvidenceUrl(ev))"
+                                                     style="font-size: 0.85rem; color: #64748b;"></i>
+                                        <div class="text-truncate">
+                                            <div class="fw-bold text-dark" style="font-size: 0.75rem;">Archivo #{{ ev.id }}</div>
+                                            <div class="text-muted" style="font-size: 0.6rem;">{{ ev.fecha_subida | date:'short' }}</div>
+                                        </div>
+                                    </div>
+                                    <i class="bi small text-muted" [class.bi-chevron-down]="activePreviewId() !== ev.id" [class.bi-chevron-up]="activePreviewId() === ev.id"></i>
+                                </div>
+
+                                <!-- Previsualización Expandible -->
+                                <div class="preview-container-compact bg-light border-start border-end border-bottom rounded-bottom-3 p-2" 
+                                     *ngIf="activePreviewId() === ev.id">
+                                    <div class="preview-box-mini bg-dark rounded-2 overflow-hidden d-flex align-items-center justify-content-center"
+                                         style="min-height: 120px; max-height: 250px;">
+                                        
+                                        <img *ngIf="isImage(getEvidenceUrl(ev))" [src]="getEvidenceUrl(ev)" 
+                                             class="img-fluid object-fit-contain w-100" style="max-height: 230px; cursor: zoom-in;"
+                                             (click)="openLightbox(getEvidenceUrl(ev))">
+                                        
+                                        <video *ngIf="isVideoFile(getEvidenceUrl(ev))" controls class="w-100" style="max-height: 230px;">
+                                            <source [src]="getEvidenceUrl(ev)" type="video/mp4">
+                                        </video>
+
+                                        <div *ngIf="isPdfFile(getEvidenceUrl(ev))" class="text-center p-3 text-white">
+                                            <i class="bi bi-file-earmark-pdf fs-2 text-danger"></i>
+                                            <div class="extra-small mt-1">Documento PDF</div>
+                                            <a [href]="getEvidenceUrl(ev)" target="_blank" class="btn btn-xs btn-outline-light mt-2 rounded-pill">Abrir</a>
+                                        </div>
+                                    </div>
+                                    <p class="mt-2 text-muted italic mb-0 px-1" style="font-size: 0.65rem;" *ngIf="ev.descripcion">
+                                        {{ ev.descripcion }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Estado Vacío -->
+                        <div *ngIf="!selectedEntrega()?.evidencias?.length" class="text-center py-4 bg-light rounded-3 border-2 border-dashed">
+                            <i class="bi bi-folder-x fs-2 text-muted opacity-50"></i>
+                            <p class="text-muted small mt-2 mb-0">No se adjuntaron evidencias</p>
+                        </div>
                     </div>
 
-                    <div class="col-12">
-                        <label class="form-label small fw-bold">Retroalimentación / Comentarios</label>
-                        <textarea class="form-control rounded-4 shadow-none" rows="4" 
-                                  [(ngModel)]="reviewForm.comentario" name="com" placeholder="Escribe tus observaciones aquí..."></textarea>
-                    </div>
-                </div>
+                    <!-- PANEL DERECHO: FORMULARIO -->
+                    <div class="form-side shadow-sm border">
+                        <div class="mb-4">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Calificación Final (0 - 100)</label>
+                            <div class="d-flex align-items-center gap-3 bg-white p-3 rounded-3 border">
+                                <div class="flex-grow-1">
+                                    <input type="number" class="form-control form-control-lg border-0 text-center fw-bold p-0" 
+                                           style="font-size: 1.8rem; height: auto;"
+                                           [(ngModel)]="reviewForm.calificacion" min="0" max="100" step="1" name="cal">
+                                </div>
+                                <div class="text-muted fw-bold h4 mb-0 border-start ps-3">/ 100</div>
+                            </div>
+                        </div>
 
-                <div class="d-flex justify-content-end gap-2 pt-4 mt-2 border-top">
-                    <button type="button" class="btn btn-light rounded-pill px-4" (click)="showReviewModal.set(false)">Cancelar</button>
-                    <button type="submit" class="btn btn-primary rounded-pill px-4 shadow-sm">GUARDAR CALIFICACIÓN</button>
+                        <div class="mb-4">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Resultado</label>
+                            <div class="d-flex gap-2">
+                                <button type="button" class="btn btn-status-toggle"
+                                        [class.active-success]="reviewForm.estado === 'aprobada'"
+                                        (click)="reviewForm.estado = 'aprobada'">
+                                    <i class="bi bi-check-circle-fill me-1"></i> APROBADA
+                                </button>
+                                <button type="button" class="btn btn-status-toggle"
+                                        [class.active-danger]="reviewForm.estado === 'reprobada'"
+                                        (click)="reviewForm.estado = 'reprobada'">
+                                    <i class="bi bi-x-circle-fill me-1"></i> REPROBADA
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="mb-4 flex-grow-1 d-flex flex-column">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Retroalimentación</label>
+                            <textarea class="form-control border-0 shadow-none p-3 rounded-3 flex-grow-1" 
+                                      style="background: white; font-size: 0.85rem; min-height: 150px; resize: none;"
+                                      placeholder="Escribe tus observaciones técnicas aquí..."
+                                      [(ngModel)]="reviewForm.comentario" name="com"></textarea>
+                        </div>
+
+                        <div class="pt-3 border-top d-flex justify-content-end gap-2">
+                            <button type="button" class="btn btn-light rounded-pill px-4" (click)="showReviewModal.set(false)">Cancelar</button>
+                            <button type="button" class="btn btn-primary rounded-pill px-4 shadow-sm fw-bold" 
+                                    (click)="submitReview()"
+                                    [disabled]="reviewForm.calificacion < 0 || reviewForm.calificacion > 100">
+                                Guardar Revisión
+                            </button>
+                        </div>
+                    </div>
+
                 </div>
-            </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- LIGHTBOX PARA IMÁGENES -->
+    <div class="lightbox-overlay" *ngIf="showLightbox()" (click)="closeLightbox()">
+        <button class="btn-close-lightbox" (click)="closeLightbox()"><i class="bi bi-x-lg"></i></button>
+        <div class="lightbox-content animate-zoom-in" (click)="$event.stopPropagation()">
+            <img [src]="lightboxUrl()" class="img-fluid rounded shadow-lg">
         </div>
     </div>
 

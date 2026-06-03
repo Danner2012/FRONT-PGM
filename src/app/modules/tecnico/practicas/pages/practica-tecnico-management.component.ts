@@ -43,6 +43,11 @@ export class PracticaTecnicoManagementComponent implements OnInit {
   showReviewModal = signal(false);
   reviewForm = { calificacion: 0, comentario: '', estado: 'aprobada' };
 
+  // Previsualización de Imagen (Lightbox)
+  showLightbox = signal(false);
+  lightboxUrl = signal('');
+  activePreviewId = signal<number | null>(null);
+
   // Filtros Prácticas
   filterTitulo = signal('');
   filterEstado = signal('todos');
@@ -204,16 +209,91 @@ export class PracticaTecnicoManagementComponent implements OnInit {
 
   openReview(entrega: any) {
     this.selectedEntrega.set(entrega);
-    this.reviewForm = { calificacion: entrega.calificacion || 0, comentario: entrega.comentario_tecnico || '', estado: entrega.estado === 'entregada' ? 'aprobada' : entrega.estado };
+    this.reviewForm = { 
+      calificacion: entrega.calificacion || 0, 
+      comentario: entrega.comentario_tecnico || '', 
+      estado: entrega.estado === 'entregada' ? 'aprobada' : (entrega.estado === 'pendiente' ? 'aprobada' : entrega.estado)
+    };
     this.showReviewModal.set(true);
   }
 
+  getEvidenceUrl(ev: any): string {
+    if (!ev.archivo) return '';
+    return ev.archivo.startsWith('http') ? ev.archivo : `http://localhost:8000${ev.archivo}`;
+  }
+
+  isImage(url: string): boolean {
+    if (!url) return false;
+    const cleanUrl = url.split('?')[0].split('#')[0];
+    return /\.(jpg|jpeg|png|webp|avif|gif|svg)$/i.test(cleanUrl);
+  }
+
+  isVideoFile(url: string): boolean {
+    if (!url) return false;
+    const cleanUrl = url.split('?')[0].split('#')[0];
+    return /\.(mp4|webm|ogg|mkv|mov)$/i.test(cleanUrl);
+  }
+
+  isPdfFile(url: string): boolean {
+    if (!url) return false;
+    const cleanUrl = url.split('?')[0].split('#')[0];
+    return cleanUrl.toLowerCase().endsWith('.pdf');
+  }
+
+  openLightbox(url: string) {
+    this.lightboxUrl.set(url);
+    this.showLightbox.set(true);
+  }
+
+  closeLightbox() {
+    this.showLightbox.set(false);
+    this.lightboxUrl.set('');
+  }
+
   submitReview() {
-    const id = this.selectedEntrega().id;
-    this.showReviewModal.set(false);
-    this.practicaService.calificarPractica(id, this.reviewForm).subscribe({
-      next: () => { Swal.fire('Éxito', 'Calificado', 'success'); this.loadEntregas(); },
-      error: () => this.showReviewModal.set(true)
+    this.message.set({ text: '', type: null });
+    const entregaActual = this.selectedEntrega();
+    if (!entregaActual) return;
+
+    // VALIDACIONES
+    if (this.reviewForm.calificacion === null || this.reviewForm.calificacion === undefined) {
+      this.message.set({ text: 'La calificación es obligatoria', type: 'error' });
+      return;
+    }
+
+    if (this.reviewForm.calificacion < 0 || this.reviewForm.calificacion > 100) {
+      this.message.set({ text: 'La calificación debe estar entre 0 y 100', type: 'error' });
+      return;
+    }
+
+    if (!this.reviewForm.comentario || this.reviewForm.comentario.trim().length < 5) {
+      this.message.set({ text: 'Debes ingresar una retroalimentación técnica (mín. 5 caracteres)', type: 'error' });
+      return;
+    }
+
+    const entregaId = entregaActual.id;
+
+    Swal.fire({
+      title: '¿Confirmar calificación?',
+      text: `Calificarás con ${this.reviewForm.calificacion}/100 y estado ${this.reviewForm.estado.toUpperCase()}`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, calificar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.practicaService.calificarPractica(entregaId, this.reviewForm).subscribe({
+          next: () => { 
+            Swal.fire('Éxito', 'Práctica calificada correctamente', 'success'); 
+            this.showReviewModal.set(false);
+            this.loadEntregas(); 
+          },
+          error: (err: any) => {
+            const errorMsg = err.error?.error || 'No se pudo guardar la calificación';
+            this.message.set({ text: errorMsg, type: 'error' });
+          }
+        });
+      }
     });
   }
 

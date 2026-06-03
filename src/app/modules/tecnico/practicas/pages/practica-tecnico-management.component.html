@@ -5,18 +5,21 @@
             <button class="tab-btn" (click)="goBack()">
                 <i class="bi bi-chevron-left me-1"></i> Cursos
             </button>
-            <button class="tab-btn active">
-                <i class="bi bi-journal-bookmark-fill me-1"></i> {{ cursoNombre() }}
+            <button class="tab-btn" [class.active]="activeTab() === 'practicas'" (click)="activeTab.set('practicas')">
+                <i class="bi bi-journal-bookmark-fill me-1"></i> Gestión: {{ cursoNombre() }}
+            </button>
+            <button class="tab-btn" [class.active]="activeTab() === 'revision'" (click)="activeTab.set('revision')">
+                <i class="bi bi-check2-square me-1"></i> Revisión
             </button>
         </div>
-        <button class="btn btn-primary rounded-pill px-4 shadow-sm d-flex align-items-center gap-2" (click)="openPracticaModal()">
+        <button *ngIf="activeTab() === 'practicas'" class="btn btn-primary rounded-pill px-4 shadow-sm d-flex align-items-center gap-2" (click)="openPracticaModal()">
             <i class="bi bi-plus-circle fs-5"></i>
             <span>Nueva Práctica</span>
         </button>
     </div>
 
-    <!-- GESTIÓN DE PRÁCTICAS -->
-    <div class="animate-fade-in">
+    <!-- CONTENIDO PESTAÑA: GESTIÓN DE PRÁCTICAS -->
+    <div *ngIf="activeTab() === 'practicas'" class="animate-fade-in">
         <div class="filters-bar mb-4">
             <div class="row g-2 align-items-end">
                 <div class="col-md-8">
@@ -46,7 +49,6 @@
             </div>
         </div>
 
-        <!-- TABLA DE PRÁCTICAS -->
         <div class="card card-custom overflow-hidden">
             <div class="table-responsive">
                 <table class="table table-custom table-hover">
@@ -126,6 +128,99 @@
         </div>
     </div>
 
+    <!-- CONTENIDO PESTAÑA: REVISIÓN DE PRÁCTICAS -->
+    <div *ngIf="activeTab() === 'revision'" class="animate-fade-in">
+        <div class="filters-bar mb-4">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <div class="filter-group">
+                        <label class="filter-label">Estudiante o Práctica</label>
+                        <div class="search-input-group">
+                            <i class="bi bi-search"></i>
+                            <input type="text" class="filter-control" placeholder="Buscar entrega..." [ngModel]="filterTextRevision()" (ngModelChange)="filterTextRevision.set($event)">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="filter-group">
+                        <label class="filter-label">Filtrar por Práctica</label>
+                        <select class="filter-control shadow-none" [ngModel]="filterPracticaRevision()" (ngModelChange)="filterPracticaRevision.set($event)">
+                            <option value="todos">Todas las prácticas</option>
+                            <option *ngFor="let p of practicas()" [value]="p.id">{{ p.titulo }}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="filter-group">
+                        <label class="filter-label">Estado de Entrega</label>
+                        <select class="filter-control shadow-none" [ngModel]="filterEstadoRevision()" (ngModelChange)="filterEstadoRevision.set($event)">
+                            <option value="todos">Todos los estados</option>
+                            <option value="entregada">Pendiente de Revisión</option>
+                            <option value="aprobada">Aprobadas</option>
+                            <option value="reprobada">Reprobadas</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-auto">
+                    <button class="btn-clear-icon" (click)="clearFiltersRevision()" title="Limpiar Filtros">
+                        <i class="bi bi-eraser-fill"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card card-custom overflow-hidden">
+            <div class="table-responsive">
+                <table class="table table-custom table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th class="ps-4">Estudiante</th>
+                            <th>Práctica</th>
+                            <th class="text-center">Fecha Entrega</th>
+                            <th class="text-center">Calificación</th>
+                            <th class="text-center">Estado</th>
+                            <th class="text-end pe-4">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let entrega of filteredEntregas()">
+                            <td class="ps-4">
+                                <div class="fw-bold text-dark">{{ entrega.estudiante_nombre }}</div>
+                                <div class="small text-muted">{{ entrega.estudiante_correo }}</div>
+                            </td>
+                            <td>
+                                <div class="fw-semibold text-primary">{{ entrega.practica_detalle?.titulo }}</div>
+                            </td>
+                            <td class="text-center">
+                                <div class="small text-muted">{{ entrega.fecha_entrega | date:'short' }}</div>
+                            </td>
+                            <td class="text-center">
+                                <span class="fw-bold fs-5" [class.text-success]="entrega.calificacion >= 3" [class.text-danger]="entrega.calificacion < 3 && entrega.calificacion > 0">
+                                    {{ entrega.calificacion || '-' }}
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge rounded-pill px-3 py-2" [ngClass]="getStatusBadgeClass(entrega.estado)">
+                                    {{ entrega.estado | uppercase }}
+                                </span>
+                            </td>
+                            <td class="text-end pe-4">
+                                <button class="btn btn-primary btn-sm rounded-pill px-3" (click)="openReview(entrega)">
+                                    <i class="bi bi-pencil-square me-1"></i> Revisar
+                                </button>
+                            </td>
+                        </tr>
+                        <tr *ngIf="filteredEntregas().length === 0">
+                            <td colspan="6" class="text-center py-5 text-muted">
+                                No hay entregas pendientes para este curso.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
     <!-- MODALES -->
 
     <!-- MODAL PRÁCTICA -->
@@ -136,7 +231,6 @@
                 <button class="btn-close" (click)="showPracticaModal.set(false)"></button>
             </div>
             <form #pForm="ngForm" (ngSubmit)="savePractica()">
-                <!-- Mensajes de Feedback -->
                 <div *ngIf="message().type" 
                      [class]="message().type === 'success' ? 'alert-custom-success' : 'alert-custom-error'"
                      class="mb-3">
@@ -176,8 +270,6 @@
         </div>
     </div>
 
-
-
     <!-- MODAL VER DETALLES -->
     <div class="modal-overlay" *ngIf="showViewResourcesModal()">
         <div class="modal-content-custom animate-slide-up">
@@ -191,7 +283,6 @@
                 <button class="btn-close" (click)="showViewResourcesModal.set(false)"></button>
             </div>
 
-            <!-- Alertas de Feedback dentro del Modal -->
             <div class="mt-3" *ngIf="message().text">
                 <div [class]="'alert-custom-' + message().type">
                     <i [class]="message().type === 'success' ? 'bi bi-check-circle-fill me-2' : 'bi bi-exclamation-triangle-fill me-2'"></i>
@@ -326,6 +417,56 @@
                 <div class="d-flex justify-content-end gap-2">
                     <button type="button" class="btn btn-light rounded-pill px-4" (click)="showHerramientaModal.set(false)">Cancelar</button>
                     <button type="submit" class="btn btn-primary rounded-pill px-4">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL REVISIÓN (Calificar) -->
+    <div class="modal-overlay" *ngIf="showReviewModal()">
+        <div class="modal-content-custom animate-slide-up" style="max-width: 550px;">
+            <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+                <h5 class="fw-bold mb-0">CALIFICAR PRÁCTICA</h5>
+                <button class="btn-close" (click)="showReviewModal.set(false)"></button>
+            </div>
+            
+            <div class="mb-4 p-3 bg-light rounded-4">
+                <div class="small text-muted text-uppercase fw-bold mb-1">Estudiante</div>
+                <div class="fw-bold text-dark">{{ selectedEntrega()?.estudiante_nombre }}</div>
+                <div class="small text-muted mt-2 text-uppercase fw-bold mb-1">Práctica</div>
+                <div class="fw-bold text-primary">{{ selectedEntrega()?.practica_detalle?.titulo }}</div>
+            </div>
+
+            <form (ngSubmit)="submitReview()">
+                <div class="mb-4">
+                    <label class="form-label small fw-bold">Calificación (0 - 5)</label>
+                    <input type="number" class="form-control form-control-lg rounded-4 shadow-none" 
+                           [(ngModel)]="reviewForm.calificacion" name="cal" min="0" max="5" step="0.1" required>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="form-label small fw-bold">Estado Final</label>
+                    <div class="d-flex gap-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="est" id="ap" value="aprobada" [(ngModel)]="reviewForm.estado">
+                            <label class="form-check-label text-success fw-bold" for="ap">APROBADA</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="est" id="re" value="reprobada" [(ngModel)]="reviewForm.estado">
+                            <label class="form-check-label text-danger fw-bold" for="re">REPROBADA</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label small fw-bold">Retroalimentación / Comentarios</label>
+                    <textarea class="form-control rounded-4 shadow-none" rows="4" 
+                              [(ngModel)]="reviewForm.comentario" name="com" placeholder="Escribe tus observaciones aquí..."></textarea>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 pt-3 border-top">
+                    <button type="button" class="btn btn-light rounded-pill px-4" (click)="showReviewModal.set(false)">Cancelar</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4 shadow-sm">GUARDAR CALIFICACIÓN</button>
                 </div>
             </form>
         </div>

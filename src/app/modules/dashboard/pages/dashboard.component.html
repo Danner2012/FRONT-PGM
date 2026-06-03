@@ -95,13 +95,6 @@
           </a>
         </li>
 
-        <li class="mb-1" *ngIf="isTecnico()">
-          <a routerLink="/dashboard/practicas/revision" routerLinkActive="active" class="nav-link-pro" title="Revisión de Prácticas">
-            <i class="bi bi-check2-square"></i> 
-            <span *ngIf="!isCollapsed()">Revisión de Prácticas</span>
-          </a>
-        </li>
-
         <!-- Reportes (Acordeón) -->
         <li class="mb-1" *ngIf="isAdministrador()">
           <div class="nav-item-accordion">

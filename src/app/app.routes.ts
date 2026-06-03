@@ -42,6 +42,10 @@ export const routes: Routes = [
         loadComponent: () => import('./modules/administrador/prestamos/pages/prestamo-report.component').then(m => m.PrestamoReportComponent) 
       },
       { 
+        path: 'reporte-herramientas', 
+        loadComponent: () => import('./modules/administrador/herramientas/pages/herramienta-report.component').then(m => m.HerramientaReportComponent) 
+      },
+      { 
         path: 'herramientas', 
         loadComponent: () => import('./modules/administrador/herramientas/pages/herramienta-management.component').then(m => m.HerramientaManagementComponent) 
       },

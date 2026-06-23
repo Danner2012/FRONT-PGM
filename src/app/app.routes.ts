@@ -11,6 +11,7 @@ import { authGuard } from './guards/auth.guard';
 
 import { MisCursosComponent } from './modules/estudiante/cursos/pages/mis-cursos.component';
 import { MisPracticasComponent } from './modules/estudiante/practicas/pages/mis-practicas.component';
+import { HerramientaCatalogComponent } from './modules/estudiante/herramientas/pages/herramienta-catalog/herramienta-catalog.component';
 import { PracticaTecnicoManagementComponent } from './modules/tecnico/practicas/pages/practica-tecnico-management.component';
 import { PracticaTecnicoCursoListComponent } from './modules/tecnico/practicas/pages/practica-tecnico-curso-list.component';
 
@@ -25,6 +26,7 @@ export const routes: Routes = [
       { path: 'diagnostico-fallas', component: DiagnosticoFallasComponent },
       { path: 'mis-cursos', component: MisCursosComponent },
       { path: 'mis-practicas', component: MisPracticasComponent },
+      { path: 'catalogo-herramientas', component: HerramientaCatalogComponent },
       { path: 'tecnicos', component: TecnicoManagementComponent },
       { path: 'estudiantes', component: EstudianteManagementComponent },
       { path: 'cursos', component: CursoManagementComponent },

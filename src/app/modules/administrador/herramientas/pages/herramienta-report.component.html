@@ -4,10 +4,16 @@
             <h4 class="fw-bold mb-0">Reporte de Inventario de Herramientas</h4>
             <p class="text-muted small mb-0">Visualiza el stock total y disponible de todas las herramientas del sistema.</p>
         </div>
-        <button class="btn btn-primary d-flex align-items-center gap-2" (click)="downloadPDF()" [disabled]="isLoading() || filteredHerramientas().length === 0">
-            <i class="bi bi-file-earmark-pdf-fill"></i>
-            Exportar PDF
-        </button>
+        <div class="d-flex gap-2">
+            <button class="btn btn-success d-flex align-items-center gap-2" (click)="downloadExcel()" [disabled]="isLoading() || filteredHerramientas().length === 0">
+                <i class="bi bi-file-earmark-excel-fill"></i>
+                Exportar Excel
+            </button>
+            <button class="btn btn-primary d-flex align-items-center gap-2" (click)="downloadPDF()" [disabled]="isLoading() || filteredHerramientas().length === 0">
+                <i class="bi bi-file-earmark-pdf-fill"></i>
+                Exportar PDF
+            </button>
+        </div>
     </div>
 
     <!-- BARRA DE FILTROS -->

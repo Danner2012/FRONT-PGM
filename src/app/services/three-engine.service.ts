@@ -32,24 +32,29 @@ export class ThreeEngineService {
     const height = container.clientHeight || 300;
 
     this.scene = new THREE.Scene();
-    this.scene.background = new THREE.Color(0x212529);
+    
+    // Fondo con gradiente profundo
+    this.scene.background = new THREE.Color(0x0a0e14);
+    this.scene.fog = new THREE.Fog(0x0a0e14, 20, 100);
 
     this.camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
 
     this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     this.renderer.setSize(width, height);
     this.renderer.setPixelRatio(window.devicePixelRatio);
+    this.renderer.toneMapping = THREE.ReinhardToneMapping;
+    this.renderer.toneMappingExposure = 1.2;
     
-    // Limpiar contenedor antes de añadir el nuevo canvas
+    // Limpiar contenedor
     while (container.firstChild) {
       container.removeChild(container.firstChild);
     }
     container.appendChild(this.renderer.domElement);
 
     this.setupLights();
+    this.setupEnvironment();
     this.setupControls();
     
-    // Iniciar animación FUERA de Angular para máximo rendimiento
     this.ngZone.runOutsideAngular(() => {
       this.animate();
     });
@@ -57,21 +62,38 @@ export class ThreeEngineService {
     window.addEventListener('resize', this.onWindowResize.bind(this));
   }
 
+  private setupEnvironment(): void {
+    // Rejilla tecnológica (Digital Grid)
+    const size = 100;
+    const divisions = 50;
+    const gridHelper = new THREE.GridHelper(size, divisions, 0x3182ce, 0x1a202c);
+    gridHelper.position.y = -2; // Ligeramente abajo del modelo
+    gridHelper.material.opacity = 0.4;
+    gridHelper.material.transparent = true;
+    this.scene.add(gridHelper);
+
+    // Luces de acento para el ambiente
+    const blueLight = new THREE.PointLight(0x3182ce, 2, 50);
+    blueLight.position.set(-10, 5, -10);
+    this.scene.add(blueLight);
+  }
+
   private setupLights(): void {
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+    // Iluminación de estudio
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
     this.scene.add(ambientLight);
 
-    const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1);
-    hemiLight.position.set(0, 20, 0);
-    this.scene.add(hemiLight);
+    const mainLight = new THREE.DirectionalLight(0xffffff, 1.2);
+    mainLight.position.set(5, 10, 7.5);
+    this.scene.add(mainLight);
 
-    const dirLight = new THREE.DirectionalLight(0xffffff, 1);
-    dirLight.position.set(5, 5, 5);
-    this.scene.add(dirLight);
+    const fillLight = new THREE.DirectionalLight(0x3182ce, 0.6);
+    fillLight.position.set(-5, 0, -5);
+    this.scene.add(fillLight);
 
-    const backLight = new THREE.DirectionalLight(0xffffff, 0.5);
-    backLight.position.set(-5, 5, -5);
-    this.scene.add(backLight);
+    const rimLight = new THREE.SpotLight(0xffffff, 1);
+    rimLight.position.set(0, 15, 0);
+    this.scene.add(rimLight);
   }
 
   private setupControls(): void {

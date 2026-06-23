@@ -66,4 +66,16 @@ export class HerramientaService {
       responseType: 'blob'
     });
   }
+
+  exportHerramientasExcel(filtros: any): Observable<Blob> {
+    let params: any = {};
+    if (filtros.search) params.search = filtros.search;
+    if (filtros.categoria && filtros.categoria !== 'todos') params.categoria = filtros.categoria;
+    if (filtros.stock_status && filtros.stock_status !== 'todos') params.stock_status = filtros.stock_status;
+
+    return this.http.get(`${this.apiUrl}/herramientas/export-excel/`, {
+      params,
+      responseType: 'blob'
+    });
+  }
 }

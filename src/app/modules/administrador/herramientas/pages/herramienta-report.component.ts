@@ -112,4 +112,24 @@ export class HerramientaReportComponent implements OnInit {
       error: (err) => console.error('Error al descargar el PDF', err)
     });
   }
+
+  downloadExcel() {
+    const filtros = {
+      search: this.filterText(),
+      categoria: this.filterCategoria(),
+      stock_status: this.filterStockStatus()
+    };
+
+    this.herramientaService.exportHerramientasExcel(filtros).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `reporte_herramientas_${new Date().getTime()}.xlsx`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+      },
+      error: (err) => console.error('Error al descargar el Excel', err)
+    });
+  }
 }

@@ -58,6 +58,10 @@ export const routes: Routes = [
       { path: 'practicas', 
         loadComponent: () => import('./modules/administrador/practicas/pages/practica-management.component').then(m => m.PracticaManagementComponent) 
       },
+      {
+        path: 'gestion-ia',
+        loadComponent: () => import('./modules/administrador/gestion_ia/pages/gestion-ia-management.component').then(m => m.GestionIaManagementComponent)
+      },
       { path: 'mis-practicas-tecnico', component: PracticaTecnicoCursoListComponent },
       { path: 'mis-practicas-tecnico/gestion/:id', component: PracticaTecnicoManagementComponent },
       { 

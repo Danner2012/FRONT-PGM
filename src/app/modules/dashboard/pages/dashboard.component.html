@@ -81,6 +81,13 @@
           </a>
         </li>
 
+        <li class="mb-1" *ngIf="isAdministrador()">
+          <a routerLink="/dashboard/gestion-ia" routerLinkActive="active" class="nav-link-pro" title="Gestión IA">
+            <i class="bi bi-cpu-fill"></i> 
+            <span *ngIf="!isCollapsed()">Gestión IA</span>
+          </a>
+        </li>
+
         <li class="mb-1" *ngIf="canSeePrestamos()">
           <a routerLink="/dashboard/gestion-prestamos" routerLinkActive="active" class="nav-link-pro" title="Préstamos">
             <i class="bi bi-box-arrow-right"></i> 

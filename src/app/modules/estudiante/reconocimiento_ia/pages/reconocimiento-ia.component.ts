@@ -26,6 +26,11 @@ export class ReconocimientoIaComponent implements OnInit, OnDestroy {
   cargando = signal<boolean>(false);
   isFullscreen = signal<boolean>(false);
 
+  // Estados para Ficha Técnica (Afiche)
+  aficheCargado = signal<any | null>(null);
+  cargandoAfiche = signal<boolean>(false);
+  vistaPanelDerecho = signal<string>('detecciones'); // detecciones, ficha
+
   // Configuración de URL del stream de FastAPI
   streamUrl = 'http://localhost:5000/stream';
 
@@ -73,6 +78,10 @@ export class ReconocimientoIaComponent implements OnInit, OnDestroy {
       this.errorConexion.set(false);
       this.filtroActivo.set(res.filtro || 'TODOS');
       this.cargando.set(false);
+      // Cargar afiche si el filtro inicial no es TODOS
+      if (res.filtro && res.filtro !== 'TODOS') {
+        this.cargarAficheComponente(res.filtro);
+      }
       // Iniciar la cámara por defecto si el backend responde
       this.iniciarCamara();
     });
@@ -125,12 +134,40 @@ export class ReconocimientoIaComponent implements OnInit, OnDestroy {
       next: (res: any) => {
         if (res.ok) {
           this.filtroActivo.set(filtro);
+          this.cargarAficheComponente(filtro);
         }
       },
       error: (err) => {
         console.error('Error al cambiar el filtro', err);
       }
     });
+  }
+
+  // --- MÉTODOS DE FICHA TÉCNICA (AFICHE) ---
+  
+  cargarAficheComponente(clase: string) {
+    if (!clase || clase === 'TODOS') {
+      this.aficheCargado.set(null);
+      this.vistaPanelDerecho.set('detecciones');
+      return;
+    }
+    this.cargandoAfiche.set(true);
+    this.iaService.getAfichePorClase(clase).subscribe({
+      next: (data) => {
+        this.aficheCargado.set(data);
+        this.cargandoAfiche.set(false);
+        this.vistaPanelDerecho.set('ficha'); // Cambiar automáticamente a pestaña Ficha
+      },
+      error: (err) => {
+        console.error('Error al cargar afiche para la clase:', clase, err);
+        this.aficheCargado.set(null);
+        this.cargandoAfiche.set(false);
+      }
+    });
+  }
+
+  verFichaDesdeDeteccion(clase: string) {
+    this.cargarAficheComponente(clase);
   }
 
   // Helper para obtener color asociado a cada clase

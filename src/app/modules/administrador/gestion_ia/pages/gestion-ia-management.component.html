@@ -1,0 +1,355 @@
+<div class="container-fluid p-4">
+  <!-- Cabecera de Módulo -->
+  <div class="row mb-4 align-items-center">
+    <div class="col-md-8">
+      <h2 class="title-tech m-0">GESTIÓN DE AFICHES IA</h2>
+      <p class="subtitle-tech m-0 text-muted">Configura las fichas técnicas y procedimientos que visualizan los estudiantes en el reconocimiento por IA</p>
+    </div>
+    <div class="col-md-4 text-md-end mt-3 mt-md-0">
+      <button class="btn btn-primary-tech" (click)="openCreateModal()">
+        <i class="bi bi-plus-circle-fill me-2"></i>NUEVO AFICHE
+      </button>
+    </div>
+  </div>
+
+  <!-- Filtros -->
+  <div class="light-card p-3 mb-4 shadow-sm">
+    <div class="d-flex align-items-center gap-3 flex-wrap">
+      <span class="text-muted fw-bold small"><i class="bi bi-funnel-fill me-1"></i> Filtrar Componente:</span>
+      <button class="btn-filter" [class.active]="filtroClase() === 'TODOS'" (click)="filtroClase.set('TODOS')">TODOS</button>
+      <button class="btn-filter" [class.active]="filtroClase() === 'CAPACITOR'" (click)="filtroClase.set('CAPACITOR')">CAPACITORES</button>
+      <button class="btn-filter" [class.active]="filtroClase() === 'FPC'" (click)="filtroClase.set('FPC')">FPC (Flex)</button>
+      <button class="btn-filter" [class.active]="filtroClase() === 'BOBINA'" (click)="filtroClase.set('BOBINA')">BOBINAS</button>
+    </div>
+  </div>
+
+  <!-- Listado de Afiches -->
+  <div class="row">
+    <div class="col-12" *ngIf="filteredAfiches().length === 0">
+      <div class="light-card p-5 text-center shadow-sm">
+        <i class="bi bi-file-earmark-x fs-1 text-muted"></i>
+        <h4 class="mt-3 text-secondary">No hay afiches registrados</h4>
+        <p class="text-muted text-max-width mx-auto">Comienza creando un afiche para capacitor, FPC o bobina para que los estudiantes tengan información detallada al detectarlos.</p>
+        <button class="btn btn-primary-tech mt-2" (click)="openCreateModal()">
+          <i class="bi bi-plus-fill me-1"></i>Crear Afiche
+        </button>
+      </div>
+    </div>
+
+    <!-- Tarjetas de Afiches -->
+    <div class="col-md-6 col-lg-4 mb-4" *ngFor="let afiche of filteredAfiches()">
+      <div class="card-afiche shadow-sm border-0 h-100">
+        <div class="card-afiche-header" [style.border-top-color]="getColorClase(afiche.clase_ia)">
+          <span class="badge-clase" [style.background-color]="getColorClase(afiche.clase_ia)">
+            {{ afiche.clase_ia }}
+          </span>
+          <h4 class="card-title-tech text-uppercase m-0 mt-2">{{ afiche.nombre }}</h4>
+        </div>
+        
+        <div class="card-afiche-body p-3">
+          <div class="row text-center mb-3">
+            <div class="col-6">
+              <div class="image-wrapper shadow-sm">
+                <img [src]="afiche.imagen_referencia || 'placeholder-camera.png'" alt="Referencia" class="img-fluid rounded">
+                <span class="image-label">Foto Real</span>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="image-wrapper shadow-sm">
+                <img [src]="afiche.imagen_simbolo || 'placeholder-symbol.png'" alt="Símbolo" class="img-fluid rounded">
+                <span class="image-label">Símbolo</span>
+              </div>
+            </div>
+          </div>
+
+          <p class="card-desc text-muted small">{{ afiche.descripcion_general | slice:0:120 }}...</p>
+          
+          <div class="card-details-summary border-top pt-2 mt-2">
+            <div class="d-flex justify-content-between text-muted small">
+              <span><i class="bi bi-check-circle-fill text-success"></i> Funciones:</span>
+              <span class="fw-bold">{{ afiche.funciones?.length || 0 }}</span>
+            </div>
+            <div class="d-flex justify-content-between text-muted small">
+              <span><i class="bi bi-wrench-adjustable text-primary"></i> Pasos Medición:</span>
+              <span class="fw-bold">{{ afiche.pasos_medicion?.length || 0 }}</span>
+            </div>
+            <div class="d-flex justify-content-between text-muted small">
+              <span><i class="bi bi-arrow-left-right text-warning"></i> Pasos Cambios:</span>
+              <span class="fw-bold">{{ afiche.pasos_procedimiento?.length || 0 }}</span>
+            </div>
+            <div class="d-flex justify-content-between text-muted small">
+              <span><i class="bi bi-box-fill text-info"></i> Herramientas:</span>
+              <span class="fw-bold text-truncate" style="max-width: 150px;">{{ getHerramientasNombres(afiche.herramientas) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-afiche-footer p-3 bg-light border-top d-flex gap-2">
+          <button class="btn btn-sm btn-outline-tech w-100" (click)="openEditModal(afiche)">
+            <i class="bi bi-pencil-fill me-1"></i> Editar
+          </button>
+          <button class="btn btn-sm btn-danger-tech" (click)="onDeleteAfiche(afiche.id)">
+            <i class="bi bi-trash-fill"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE FORMULARIO -->
+  <div class="modal-backdrop-tech" *ngIf="showModal">
+    <div class="modal-card-tech shadow-lg animate-fade-in">
+      <div class="modal-header-tech">
+        <h4 class="m-0 text-white">
+          <i class="bi bi-cpu-fill me-2"></i>{{ editingId ? 'EDITAR AFICHE DE COMPONENTE' : 'NUEVO AFICHE DE COMPONENTE' }}
+        </h4>
+        <button class="btn-close-modal" (click)="closeModal()"><i class="bi bi-x-lg"></i></button>
+      </div>
+
+      <div class="modal-body-tech" [formGroup]="aficheForm">
+        <!-- Tabs del Formulario -->
+        <ul class="nav-tabs-tech d-flex list-unstyled mb-4">
+          <li class="tab-item" [class.active]="activeTab() === 'general'" (click)="activeTab.set('general')">
+            <i class="bi bi-card-text me-1"></i> General
+          </li>
+          <li class="tab-item" [class.active]="activeTab() === 'funcion'" (click)="activeTab.set('funcion')">
+            <i class="bi bi-ui-checks me-1"></i> Función & Características
+          </li>
+          <li class="tab-item" [class.active]="activeTab() === 'medicion'" (click)="activeTab.set('medicion')">
+            <i class="bi bi-activity me-1"></i> Medición
+          </li>
+          <li class="tab-item" [class.active]="activeTab() === 'reparacion'" (click)="activeTab.set('reparacion')">
+            <i class="bi bi-tools me-1"></i> Cambios & Herramientas
+          </li>
+        </ul>
+
+        <!-- CONTENIDO TAB: GENERAL -->
+        <div class="tab-pane-content" *ngIf="activeTab() === 'general'">
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label-tech">Clase en Detector IA <span class="text-danger">*</span></label>
+              <select class="form-select-tech" formControlName="clase_ia">
+                <option value="">Selecciona clase...</option>
+                <option *ngFor="let clase of clasesIaDisponibles()" [value]="clase">{{ clase }}</option>
+              </select>
+              <div class="text-danger small mt-1" *ngIf="aficheForm.get('clase_ia')?.touched && aficheForm.get('clase_ia')?.invalid">
+                Este campo es requerido.
+              </div>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label class="form-label-tech">Nombre Comercial/Técnico <span class="text-danger">*</span></label>
+              <input type="text" class="form-control-tech" formControlName="nombre" placeholder="Ej: Capacitor Cerámico">
+              <div class="text-danger small mt-1" *ngIf="aficheForm.get('nombre')?.touched && aficheForm.get('nombre')?.invalid">
+                El nombre es requerido.
+              </div>
+            </div>
+
+            <div class="col-12 mb-3">
+              <label class="form-label-tech">Descripción General <span class="text-danger">*</span></label>
+              <textarea class="form-control-tech" formControlName="descripcion_general" rows="3" placeholder="Ingresa una descripción del componente para el estudiante..."></textarea>
+              <div class="text-danger small mt-1" *ngIf="aficheForm.get('descripcion_general')?.touched && aficheForm.get('descripcion_general')?.invalid">
+                La descripción es requerida.
+              </div>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label class="form-label-tech">Imagen de Referencia (Foto Real) <span class="text-danger" *ngIf="!editingId">*</span></label>
+              <input type="file" class="form-control-tech" (change)="onReferenciaSelected($event)" accept="image/*">
+              <div class="preview-upload-box mt-2 shadow-sm rounded" *ngIf="previewReferenciaUrl">
+                <img [src]="previewReferenciaUrl" alt="Previsualización" class="img-fluid rounded">
+              </div>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label class="form-label-tech">Imagen del Símbolo <span class="text-danger" *ngIf="!editingId">*</span></label>
+              <input type="file" class="form-control-tech" (change)="onSimboloSelected($event)" accept="image/*">
+              <div class="preview-upload-box mt-2 shadow-sm rounded" *ngIf="previewSimboloUrl">
+                <img [src]="previewSimboloUrl" alt="Previsualización" class="img-fluid rounded">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CONTENIDO TAB: FUNCION Y CARACTERISTICAS -->
+        <div class="tab-pane-content" *ngIf="activeTab() === 'funcion'">
+          <div class="row">
+            <!-- Funciones -->
+            <div class="col-md-6 mb-4">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="section-title-tech m-0"><i class="bi bi-check-square-fill text-success"></i> FUNCIÓN (Lista de Checks)</h5>
+                <button type="button" class="btn btn-sm btn-outline-tech" (click)="addFuncion()">
+                  <i class="bi bi-plus-lg"></i> Agregar Check
+                </button>
+              </div>
+
+              <div formArrayName="funciones" class="dynamic-inputs-list">
+                <div class="dynamic-item d-flex gap-2 align-items-center mb-2" *ngFor="let item of funciones.controls; let idx = index" [formGroupName]="idx">
+                  <span class="bullet-indicator text-success">✔</span>
+                  <input type="text" class="form-control-tech flex-grow-1" formControlName="texto" placeholder="Ej: Filtrado de ruido">
+                  <button type="button" class="btn-delete-item" (click)="removeFuncion(idx)"><i class="bi bi-trash-fill"></i></button>
+                </div>
+                <p class="text-muted small mt-2" *ngIf="funciones.length === 0">No se han agregado funciones. Agrega al menos una.</p>
+              </div>
+            </div>
+
+            <!-- Características -->
+            <div class="col-md-6 mb-4">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="section-title-tech m-0"><i class="bi bi-list-ul text-primary"></i> CARACTERÍSTICAS (Lista de Viñetas)</h5>
+                <button type="button" class="btn btn-sm btn-outline-tech" (click)="addCaracteristica()">
+                  <i class="bi bi-plus-lg"></i> Agregar Viñeta
+                </button>
+              </div>
+
+              <div formArrayName="caracteristicas" class="dynamic-inputs-list">
+                <div class="dynamic-item d-flex gap-2 align-items-center mb-2" *ngFor="let item of caracteristicas.controls; let idx = index" [formGroupName]="idx">
+                  <span class="bullet-indicator text-primary">•</span>
+                  <input type="text" class="form-control-tech flex-grow-1" formControlName="texto" placeholder="Ej: No polarizado">
+                  <button type="button" class="btn-delete-item" (click)="removeCaracteristica(idx)"><i class="bi bi-trash-fill"></i></button>
+                </div>
+                <p class="text-muted small mt-2" *ngIf="caracteristicas.length === 0">No se han agregado características. Agrega al menos una.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CONTENIDO TAB: MEDICION -->
+        <div class="tab-pane-content" *ngIf="activeTab() === 'medicion'">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="section-title-tech m-0"><i class="bi bi-activity text-info"></i> MEDICIÓN PASO A PASO</h5>
+            <button type="button" class="btn btn-sm btn-outline-tech" (click)="addPasoMedicion()">
+              <i class="bi bi-plus-circle me-1"></i> Agregar Paso
+            </button>
+          </div>
+
+          <div formArrayName="pasos_medicion" class="steps-container">
+            <div class="step-card p-3 mb-3 border rounded shadow-sm position-relative" *ngFor="let paso of pasosMedicion.controls; let idx = index" [formGroupName]="idx">
+              <button type="button" class="btn-delete-step position-absolute" style="top: 10px; right: 10px;" (click)="removePasoMedicion(idx)">
+                <i class="bi bi-trash-fill text-danger"></i>
+              </button>
+
+              <div class="d-flex gap-2 align-items-center mb-2">
+                <span class="step-number-badge">Paso {{ idx + 1 }}</span>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label-tech">Descripción del paso</label>
+                <textarea class="form-control-tech" formControlName="descripcion" rows="2" placeholder="Describe los detalles de este paso de medición..."></textarea>
+              </div>
+
+              <!-- Archivos del paso -->
+              <div class="row">
+                <div class="col-md-6">
+                  <label class="form-label-tech">Subir Fotos / Videos para este paso</label>
+                  <input type="file" class="form-control-tech form-control-sm" (change)="onPasoMedicionFileSelected($event, idx)" accept="image/*,video/*" multiple>
+                  
+                  <!-- Archivos temporales agregados para subir -->
+                  <div class="mt-2 d-flex flex-wrap gap-2" *ngIf="pasosMedicionMedios[idx]?.length">
+                    <span class="badge bg-secondary p-2 d-flex align-items-center gap-1 text-white" *ngFor="let f of pasosMedicionMedios[idx]; let fileIdx = index">
+                      {{ f.name | slice:0:15 }}...
+                      <i class="bi bi-x-circle cursor-pointer text-warning" (click)="removePasoMedicionFile(idx, fileIdx)"></i>
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Archivos existentes -->
+                <div class="col-md-6" *ngIf="paso.value.recursos_existentes?.length">
+                  <label class="form-label-tech">Multimedia Actual</label>
+                  <div class="d-flex flex-wrap gap-2">
+                    <div class="position-relative media-thumbnail" *ngFor="let rec of paso.value.recursos_existentes">
+                      <img *ngIf="rec.tipo === 'imagen' || rec.archivo.endsWith('.jpg') || rec.archivo.endsWith('.png') || rec.archivo.endsWith('.webp')" [src]="rec.archivo" class="img-thumbnail" style="width: 60px; height: 60px; object-fit: cover;">
+                      <span *ngIf="rec.tipo === 'video' || rec.archivo.endsWith('.mp4') || rec.archivo.endsWith('.webm')" class="badge bg-danger p-2"><i class="bi bi-play-fill"></i> Video</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <p class="text-muted text-center py-4" *ngIf="pasosMedicion.length === 0">No hay pasos agregados para la medición. Agrega el primer paso arriba.</p>
+          </div>
+        </div>
+
+        <!-- CONTENIDO TAB: REPARACIONES Y HERRAMIENTAS -->
+        <div class="tab-pane-content" *ngIf="activeTab() === 'reparacion'">
+          <!-- Herramientas -->
+          <div class="light-card p-3 mb-4 shadow-sm border border-primary">
+            <h5 class="section-title-tech mb-2"><i class="bi bi-box-fill text-warning"></i> HERRAMIENTAS REQUERIDAS</h5>
+            <p class="text-muted small">Selecciona qué herramientas creadas en base de datos se requieren para este componente.</p>
+            
+            <div class="tools-grid-selector">
+              <div class="tool-checkbox-wrapper" *ngFor="let tool of herramientasDisponibles()">
+                <label class="d-flex align-items-center gap-2 cursor-pointer p-2 border rounded">
+                  <input type="checkbox" 
+                         [value]="tool.id" 
+                         [checked]="isHerramientaSelected(tool.id)"
+                         (change)="onHerramientaToggle(tool.id, $event)">
+                  <span>{{ tool.nombre }}</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pasos de Procedimiento (Cambios/Reparaciones) -->
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="section-title-tech m-0"><i class="bi bi-arrow-left-right text-warning"></i> PROCEDIMIENTO DE REPARACIÓN (Cambios/Soldadura)</h5>
+            <button type="button" class="btn btn-sm btn-outline-tech" (click)="addPasoProcedimiento()">
+              <i class="bi bi-plus-circle me-1"></i> Agregar Paso
+            </button>
+          </div>
+
+          <div formArrayName="pasos_procedimiento" class="steps-container">
+            <div class="step-card p-3 mb-3 border rounded shadow-sm position-relative" *ngFor="let paso of pasosProcedimiento.controls; let idx = index" [formGroupName]="idx">
+              <button type="button" class="btn-delete-step position-absolute" style="top: 10px; right: 10px;" (click)="removePasoProcedimiento(idx)">
+                <i class="bi bi-trash-fill text-danger"></i>
+              </button>
+
+              <div class="d-flex gap-2 align-items-center mb-2">
+                <span class="step-number-badge bg-warning text-dark">Paso {{ idx + 1 }}</span>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label-tech">Descripción del paso</label>
+                <textarea class="form-control-tech" formControlName="descripcion" rows="2" placeholder="Describe los detalles de este paso de reparación o soldadura..."></textarea>
+              </div>
+
+              <!-- Archivos del paso -->
+              <div class="row">
+                <div class="col-md-6">
+                  <label class="form-label-tech">Subir Fotos / Videos para este paso</label>
+                  <input type="file" class="form-control-tech form-control-sm" (change)="onPasoProcedimientoFileSelected($event, idx)" accept="image/*,video/*" multiple>
+                  
+                  <!-- Archivos temporales agregados para subir -->
+                  <div class="mt-2 d-flex flex-wrap gap-2" *ngIf="pasosProcedimientoMedios[idx]?.length">
+                    <span class="badge bg-secondary p-2 d-flex align-items-center gap-1 text-white" *ngFor="let f of pasosProcedimientoMedios[idx]; let fileIdx = index">
+                      {{ f.name | slice:0:15 }}...
+                      <i class="bi bi-x-circle cursor-pointer text-warning" (click)="removePasoProcedimientoFile(idx, fileIdx)"></i>
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Archivos existentes -->
+                <div class="col-md-6" *ngIf="paso.value.recursos_existentes?.length">
+                  <label class="form-label-tech">Multimedia Actual</label>
+                  <div class="d-flex flex-wrap gap-2">
+                    <div class="position-relative media-thumbnail" *ngFor="let rec of paso.value.recursos_existentes">
+                      <img *ngIf="rec.tipo === 'imagen' || rec.archivo.endsWith('.jpg') || rec.archivo.endsWith('.png') || rec.archivo.endsWith('.webp')" [src]="rec.archivo" class="img-thumbnail" style="width: 60px; height: 60px; object-fit: cover;">
+                      <span *ngIf="rec.tipo === 'video' || rec.archivo.endsWith('.mp4') || rec.archivo.endsWith('.webm')" class="badge bg-danger p-2"><i class="bi bi-play-fill"></i> Video</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <p class="text-muted text-center py-4" *ngIf="pasosProcedimiento.length === 0">No hay pasos agregados para el procedimiento de reparación. Agrega el primer paso arriba.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer-tech d-flex justify-content-between p-3 bg-light border-top">
+        <button class="btn btn-outline-tech" (click)="closeModal()">Cancelar</button>
+        <button class="btn btn-primary-tech px-4" (click)="onSubmit()">
+          <i class="bi bi-save me-1"></i> Guardar Afiche
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

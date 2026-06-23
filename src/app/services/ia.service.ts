@@ -8,18 +8,21 @@ import { Observable } from 'rxjs';
 export class IaService {
   private http = inject(HttpClient);
   
-  // URL de FastAPI para detección en vivo y diagnósticos
-  private fastapiUrl = 'http://localhost:5000';
+  // URL de FastAPI para detección en vivo (detector de componentes)
+  private fastapiUrl = 'http://localhost:5001';
+  
+  // URL de Flask para diagnóstico de fallas (Asistente IA)
+  private flaskUrl = 'http://localhost:5000';
   
   // URL de Django para persistencia de datos (afiches, herramientas, etc.)
   private djangoUrl = 'http://localhost:8000/api';
 
   diagnosticar(sintomas: string[]): Observable<any> {
-    return this.http.post(`${this.fastapiUrl}/diagnostico`, { sintomas });
+    return this.http.post(`${this.flaskUrl}/diagnostico`, { sintomas });
   }
 
   checkHealth(): Observable<any> {
-    return this.http.get(`${this.fastapiUrl}/health`);
+    return this.http.get(`${this.flaskUrl}/health`);
   }
 
   getDetecciones(): Observable<any> {

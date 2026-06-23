@@ -56,7 +56,7 @@ export class ReconocimientoIaComponent implements OnInit, OnDestroy {
   carruselProcedimientoIdx = signal<number>(0);
 
   // Configuración de URL del stream de FastAPI
-  streamUrl = 'http://localhost:5000/stream';
+  streamUrl = 'http://localhost:5001/stream';
 
   // Suscripción de polling
   private pollingSub: Subscription | null = null;

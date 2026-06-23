@@ -236,8 +236,8 @@ Chart.register(...registerables);
           </div>
         </div>
 
-        <h5 class="fw-bold mb-4 px-2 d-flex align-items-center gap-2 text-dark opacity-75">
-          <i class="bi bi-activity text-primary"></i> Mi Progreso Académico
+        <h5 class="fw-bold mb-4 px-2 text-dark opacity-75">
+          Mi Progreso Académico
         </h5>
 
         <div class="row g-4 mb-5">
@@ -298,8 +298,8 @@ Chart.register(...registerables);
         <div class="row g-4 mb-5">
           <div class="col-md-8">
             <div class="p-4 rounded-4 bg-white shadow-sm border h-100">
-              <h5 class="fw-bold mb-4 d-flex align-items-center gap-2">
-                <i class="bi bi-bar-chart-line text-primary"></i> Rendimiento por Curso
+              <h5 class="fw-bold mb-4 text-dark opacity-75">
+                Rendimiento por Curso
               </h5>
               <div class="chart-container" style="position: relative; height:300px;">
                 <canvas #rendimientoChart></canvas>
@@ -308,8 +308,8 @@ Chart.register(...registerables);
           </div>
           <div class="col-md-4">
             <div class="p-4 rounded-4 bg-white shadow-sm border h-100">
-              <h5 class="fw-bold mb-4 d-flex align-items-center gap-2">
-                <i class="bi bi-pie-chart text-info"></i> Estado de Prácticas
+              <h5 class="fw-bold mb-4 text-dark opacity-75">
+                Estado de Prácticas
               </h5>
               <div class="chart-container" style="position: relative; height:300px;">
                 <canvas #estadoChart></canvas>
@@ -501,8 +501,8 @@ export class DashboardHomeComponent implements OnInit, AfterViewInit {
     if (this.rendimientoCanvas) {
       const ctx = this.rendimientoCanvas.nativeElement.getContext('2d');
       const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-      gradient.addColorStop(0, 'rgba(59, 130, 246, 0.8)');
-      gradient.addColorStop(1, 'rgba(59, 130, 246, 0.1)');
+      gradient.addColorStop(0, 'rgba(2, 158, 164, 0.85)');
+      gradient.addColorStop(1, 'rgba(2, 158, 164, 0.1)');
 
       new Chart(this.rendimientoCanvas.nativeElement, {
         type: 'bar',
@@ -512,10 +512,10 @@ export class DashboardHomeComponent implements OnInit, AfterViewInit {
             label: 'Promedio de Calificación',
             data: this.studentStats().grafica_rendimiento.data,
             backgroundColor: gradient,
-            borderColor: '#3b82f6',
+            borderColor: '#029ea4',
             borderWidth: 2,
             borderRadius: 12,
-            hoverBackgroundColor: '#2563eb'
+            hoverBackgroundColor: '#017a7f'
           }]
         },
         options: {
@@ -549,7 +549,7 @@ export class DashboardHomeComponent implements OnInit, AfterViewInit {
               '#f59e0b', // Pendiente
               '#10b981', // Entregada / Aprobada
               '#ef4444', // Reprobada
-              '#3b82f6'  // Otros
+              '#029ea4'  // Otros
             ],
             hoverOffset: 15,
             borderWidth: 0,

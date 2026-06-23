@@ -83,6 +83,14 @@ export class DiagnosticoFallasComponent {
       this.chart.destroy();
     }
 
+    const ctx = this.chartRef.nativeElement.getContext('2d');
+    let gradient: any = 'rgba(2, 158, 164, 0.8)';
+    if (ctx) {
+      gradient = ctx.createLinearGradient(0, 0, 0, 300);
+      gradient.addColorStop(0, 'rgba(2, 158, 164, 0.85)');
+      gradient.addColorStop(1, 'rgba(2, 158, 164, 0.15)');
+    }
+
     this.chart = new Chart(this.chartRef.nativeElement, {
       type: 'bar',
       data: {
@@ -92,8 +100,9 @@ export class DiagnosticoFallasComponent {
           data: valores,
           borderWidth: 2,
           borderRadius: 10,
-          backgroundColor: 'rgba(23, 42, 73, 0.7)',
-          borderColor: 'rgba(23, 42, 73, 1)'
+          backgroundColor: gradient,
+          borderColor: '#029ea4',
+          hoverBackgroundColor: '#017a7f'
         }]
       },
       options: {

@@ -28,6 +28,7 @@ export class ReconocimientoIaComponent implements OnInit, OnDestroy {
 
   // Estados para Ficha Técnica (Afiche)
   aficheCargado = signal<any | null>(null);
+  todosLosAfiches = signal<any[]>([]);
   cargandoAfiche = signal<boolean>(false);
   vistaPanelDerecho = signal<string>('detecciones'); // detecciones, ficha
 
@@ -44,6 +45,7 @@ export class ReconocimientoIaComponent implements OnInit, OnDestroy {
   ngOnInit() {
     // Verificar si el servidor FastAPI está corriendo al iniciar
     this.verificarConexion();
+    this.cargarTodosLosAfiches();
     document.addEventListener('fullscreenchange', this.onFullscreenChange);
   }
 
@@ -85,9 +87,22 @@ export class ReconocimientoIaComponent implements OnInit, OnDestroy {
       // Cargar afiche si el filtro inicial no es TODOS
       if (res.filtro && res.filtro !== 'TODOS') {
         this.cargarAficheComponente(res.filtro);
+      } else {
+        this.aficheCargado.set(null);
       }
       // Iniciar la cámara por defecto si el backend responde
       this.iniciarCamara();
+    });
+  }
+
+  cargarTodosLosAfiches() {
+    this.iaService.getAfiches().subscribe({
+      next: (data) => {
+        this.todosLosAfiches.set(data || []);
+      },
+      error: (err) => {
+        console.error('Error al cargar todos los afiches:', err);
+      }
     });
   }
 
@@ -138,7 +153,11 @@ export class ReconocimientoIaComponent implements OnInit, OnDestroy {
       next: (res: any) => {
         if (res.ok) {
           this.filtroActivo.set(filtro);
-          this.cargarAficheComponente(filtro);
+          if (filtro === 'TODOS') {
+            this.aficheCargado.set(null);
+          } else {
+            this.cargarAficheComponente(filtro);
+          }
         }
       },
       error: (err) => {
@@ -200,6 +219,10 @@ export class ReconocimientoIaComponent implements OnInit, OnDestroy {
 
   verFichaDesdeDeteccion(clase: string) {
     this.cargarAficheComponente(clase);
+  }
+
+  regresarAListado() {
+    this.aficheCargado.set(null);
   }
 
   // Helper para obtener color asociado a cada clase

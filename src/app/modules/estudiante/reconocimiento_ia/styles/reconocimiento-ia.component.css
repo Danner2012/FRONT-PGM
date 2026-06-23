@@ -323,113 +323,7 @@
 .btn-primary-tech:disabled { opacity: 0.5; cursor: not-allowed; }
 .text-max-width { max-width: 280px; }
 
-/* Detecciones en vivo */
-.detecciones-card {
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 16px;
-  padding: 14px 16px;
-  box-shadow: 0 2px 8px rgba(0,0,0,.04);
-  flex-shrink: 0;
-  max-height: 160px;
-  overflow-y: auto;
-}
 
-.detecciones-card::-webkit-scrollbar { width: 5px; }
-.detecciones-card::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
-
-.detecciones-list { display: flex; flex-direction: column; gap: 8px; }
-
-.detection-item {
-  padding: 8px 10px;
-  background: #f8fafc;
-  border-radius: 10px;
-  border: 1px solid #e2e8f0;
-  transition: all 0.2s;
-}
-
-.detection-item:hover { background: #f1f5f9; transform: translateX(3px); }
-
-.detection-badge {
-  font-size: 0.72rem;
-  font-weight: 700;
-  padding: 3px 8px;
-  border-radius: 6px;
-  background: white;
-  border: 1px solid;
-  letter-spacing: 0.5px;
-  display: inline-flex; align-items: center;
-}
-
-.detection-conf { font-size: 0.82rem; font-weight: 700; }
-
-.btn-ficha-quick {
-  background: rgba(59,130,246,.1);
-  border: none;
-  color: #3b82f6;
-  width: 26px; height: 26px;
-  border-radius: 6px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 0.85rem;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.btn-ficha-quick:hover { background: rgba(59,130,246,.2); transform: scale(1.1); }
-
-.progress-container-tech {
-  height: 5px;
-  background: #e2e8f0;
-  border-radius: 10px;
-  overflow: hidden;
-  margin-top: 6px;
-}
-
-.progress-bar-tech {
-  height: 100%;
-  border-radius: 10px;
-  transition: width 0.4s cubic-bezier(.1,.8,.3,1);
-}
-
-.badge-detecciones {
-  background: var(--accent-soft);
-  color: var(--accent);
-  font-size: 0.68rem;
-  padding: 4px 10px;
-  border-radius: 50px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  border: 1px solid rgba(23,42,73,.15);
-}
-
-.no-det-placeholder {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 1rem 0;
-}
-
-/* Radar */
-.radar-scan-container {
-  position: relative; width: 70px; height: 70px;
-  display: flex; align-items: center; justify-content: center;
-}
-
-.radar-ring {
-  position: absolute;
-  border: 1px solid rgba(23,42,73,.2);
-  border-radius: 50%;
-  animation: radar 2.5s infinite linear;
-}
-
-.radar-ring:nth-child(1) { width:28px; height:28px; animation-delay:0s; }
-.radar-ring:nth-child(2) { width:50px; height:50px; animation-delay:.8s; }
-.radar-ring:nth-child(3) { width:72px; height:72px; animation-delay:1.6s; }
-
-@keyframes radar {
-  0%   { transform: scale(.5); opacity:.8; }
-  100% { transform: scale(1.3); opacity: 0; }
-}
 
 /* ═══════════════════════════════════
    COLUMNA DERECHA — FICHA (AFICHE)
@@ -478,7 +372,6 @@
 
 /* ── Cabecera ── */
 .ficha-header {
-  border-top: 5px solid #94a3b8;
   padding: 16px 18px 12px;
   border-bottom: 1px solid #f1f5f9;
   flex-shrink: 0;

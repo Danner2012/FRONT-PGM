@@ -4,15 +4,10 @@
   <!-- ── CABECERA ───────────────────────────────────────────── -->
   <div class="page-header">
     <div class="header-left">
-      <div class="header-icon"><i class="bi bi-robot"></i></div>
       <div>
         <h2 class="title-tech m-0">RECONOCIMIENTO IA</h2>
         <p class="subtitle-tech m-0">Detector de componentes electrónicos en tiempo real</p>
       </div>
-    </div>
-    <div class="status-badge" [class.online]="conectado() && !errorConexion()" [class.offline]="!conectado() || errorConexion()">
-      <span class="status-dot"></span>
-      <span class="status-text">{{ conectado() && !errorConexion() ? 'SERVICIO IA ACTIVO' : 'SERVICIO IA APAGADO' }}</span>
     </div>
   </div>
 
@@ -98,43 +93,6 @@
         </div>
       </div>
 
-      <!-- DETECCIONES EN VIVO (bajo la cámara) -->
-      <div class="detecciones-card">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-          <span class="section-title-tech"><i class="bi bi-cpu-fill me-2 text-primary"></i>DETECCIONES EN VIVO</span>
-          <span class="badge badge-detecciones" *ngIf="camaraActiva()">{{ totalDetecciones() }} ACTIVAS</span>
-        </div>
-
-        <div *ngIf="camaraActiva() && totalDetecciones() > 0; else noDetTpl" class="detecciones-list">
-          <div class="detection-item" *ngFor="let det of detecciones()">
-            <div class="d-flex justify-content-between align-items-center mb-1">
-              <span class="detection-badge" [style.border-color]="getColorClase(det.clase)" [style.color]="getColorClase(det.clase)">
-                <i class="bi bi-cpu me-1"></i>{{ getNombreClase(det.clase) }}
-              </span>
-              <div class="d-flex align-items-center gap-2">
-                <span class="detection-conf" [style.color]="getColorClase(det.clase)">{{ det.confianza | percent:'1.0-0' }}</span>
-                <button class="btn-ficha-quick" (click)="verFichaDesdeDeteccion(det.clase)" title="Ver Ficha Técnica">
-                  <i class="bi bi-info-circle-fill"></i>
-                </button>
-              </div>
-            </div>
-            <div class="progress-container-tech">
-              <div class="progress-bar-tech" [style.width]="(det.confianza * 100)+'%'" [style.background-color]="getColorClase(det.clase)"></div>
-            </div>
-          </div>
-        </div>
-
-        <ng-template #noDetTpl>
-          <div class="no-det-placeholder">
-            <div class="radar-scan-container" *ngIf="camaraActiva()">
-              <div class="radar-ring"></div><div class="radar-ring"></div><div class="radar-ring"></div>
-              <i class="bi bi-eye fs-3 text-primary animate-pulse"></i>
-            </div>
-            <i class="bi bi-camera-video text-secondary fs-2 mb-2" *ngIf="!camaraActiva()"></i>
-            <p class="text-muted small mt-2 mb-0">{{ camaraActiva() ? 'Apunta la cámara a la placa...' : 'Enciende la cámara para iniciar.' }}</p>
-          </div>
-        </ng-template>
-      </div>
 
     </div><!-- /col-camara -->
 
@@ -160,10 +118,10 @@
       <div class="ficha-content animate-fade-in" *ngIf="aficheCargado() && !cargandoAfiche()">
 
         <!-- ── CABECERA DEL AFICHE ────────────── -->
-        <div class="ficha-header" [style.border-top-color]="getColorClase(aficheCargado().clase_ia)">
+        <div class="ficha-header">
           <div class="d-flex align-items-center gap-2 mb-1">
             <span class="clase-badge" [style.background]="getColorClase(aficheCargado().clase_ia)">
-              📌 {{ aficheCargado().clase_ia }}
+              {{ aficheCargado().clase_ia }}
             </span>
           </div>
           <h3 class="ficha-nombre text-uppercase">{{ aficheCargado().nombre }}</h3>
@@ -174,12 +132,12 @@
           <div class="img-box shadow-sm">
             <img [src]="aficheCargado().imagen_referencia" alt="Foto Real" *ngIf="aficheCargado().imagen_referencia">
             <div class="img-placeholder" *ngIf="!aficheCargado().imagen_referencia"><i class="bi bi-image text-muted fs-3"></i></div>
-            <span class="img-label">📷 Foto Real</span>
+            <span class="img-label">Foto Real</span>
           </div>
           <div class="img-box shadow-sm">
             <img [src]="aficheCargado().imagen_simbolo" alt="Símbolo" *ngIf="aficheCargado().imagen_simbolo">
             <div class="img-placeholder" *ngIf="!aficheCargado().imagen_simbolo"><i class="bi bi-diagram-3 text-muted fs-3"></i></div>
-            <span class="img-label">⚡ Símbolo</span>
+            <span class="img-label">Símbolo</span>
           </div>
         </div>
 
@@ -190,16 +148,16 @@
         <div class="ficha-row-2col" *ngIf="aficheCargado().funciones?.length || aficheCargado().caracteristicas?.length">
           <!-- Función -->
           <div class="ficha-bloque" *ngIf="aficheCargado().funciones?.length">
-            <div class="bloque-title"><i class="bi bi-check-circle-fill text-success me-1"></i>FUNCIÓN</div>
+            <div class="bloque-title">FUNCIÓN</div>
             <div class="bloque-list">
               <div class="bloque-item" *ngFor="let fn of aficheCargado().funciones">
-                <span class="check-icon">✔</span>{{ fn.texto }}
+                {{ fn.texto }}
               </div>
             </div>
           </div>
           <!-- Características -->
           <div class="ficha-bloque" *ngIf="aficheCargado().caracteristicas?.length">
-            <div class="bloque-title"><i class="bi bi-list-ul text-primary me-1"></i>CARACTERÍSTICAS</div>
+            <div class="bloque-title">CARACTERÍSTICAS</div>
             <div class="bloque-list">
               <div class="bloque-item" *ngFor="let c of aficheCargado().caracteristicas">
                 <span class="bullet-icon">•</span>{{ c.texto }}
@@ -211,7 +169,7 @@
         <!-- ── CARRUSEL MEDICIÓN ──────────────── -->
         <div class="carrusel-section" *ngIf="aficheCargado().pasos_medicion?.length">
           <div class="carrusel-header">
-            <div class="bloque-title m-0"><i class="bi bi-activity text-info me-1"></i>MEDICIÓN</div>
+            <div class="bloque-title m-0">MEDICIÓN</div>
             <div class="carrusel-nav">
               <button class="btn-nav" (click)="prevMedicion()" [disabled]="aficheCargado().pasos_medicion.length <= 1">
                 <i class="bi bi-chevron-left"></i>
@@ -248,7 +206,7 @@
         <!-- ── CARRUSEL REPARACIÓN ────────────── -->
         <div class="carrusel-section carrusel-rep" *ngIf="aficheCargado().pasos_procedimiento?.length">
           <div class="carrusel-header">
-            <div class="bloque-title m-0"><i class="bi bi-tools text-warning me-1"></i>CAMBIOS / REPARACIÓN</div>
+            <div class="bloque-title m-0">CAMBIOS / REPARACIÓN</div>
             <div class="carrusel-nav">
               <button class="btn-nav btn-nav-rep" (click)="prevProcedimiento()" [disabled]="aficheCargado().pasos_procedimiento.length <= 1">
                 <i class="bi bi-chevron-left"></i>
@@ -282,10 +240,9 @@
 
         <!-- ── HERRAMIENTAS ───────────────────── -->
         <div class="ficha-herramientas" *ngIf="aficheCargado().herramientas?.length">
-          <div class="bloque-title mb-2"><i class="bi bi-box-fill text-warning me-1"></i>HERRAMIENTAS REQUERIDAS</div>
+          <div class="bloque-title mb-2">HERRAMIENTAS REQUERIDAS</div>
           <div class="tools-grid">
             <div class="tool-chip" *ngFor="let tool of aficheCargado().herramientas" [title]="tool.nombre">
-              <i class="bi bi-wrench-adjustable-fill text-warning"></i>
               <span>{{ tool.nombre }}</span>
             </div>
           </div>

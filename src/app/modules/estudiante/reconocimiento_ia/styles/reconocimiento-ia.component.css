@@ -1,0 +1,509 @@
+:host {
+  --accent: #172a49;
+  --accent-soft: rgba(23, 42, 73, 0.08);
+  --dark-glass: rgba(15, 23, 42, 0.75);
+  --border-neon: rgba(23, 42, 73, 0.2);
+}
+
+.font-orbitron {
+  font-family: 'Orbitron', sans-serif;
+}
+
+.title-tech {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: #1e293b;
+}
+
+.subtitle-tech {
+  font-size: 0.85rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.icon-orb-ia {
+  width: 50px;
+  height: 50px;
+  background: linear-gradient(135deg, var(--accent), #25406c);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  color: white;
+  box-shadow: 0 4px 15px rgba(23, 42, 73, 0.3);
+}
+
+/* Indicador de estado */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 100px;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  transition: all 0.3s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.status-badge.online {
+  background-color: rgba(16, 185, 129, 0.1);
+  color: #059669;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.status-badge.offline {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  position: relative;
+}
+
+.status-badge.online .status-dot {
+  background-color: #10b981;
+}
+
+.status-badge.online .status-dot::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: #10b981;
+  animation: pulse-green 1.5s infinite;
+  top: 0;
+  left: 0;
+}
+
+.status-badge.offline .status-dot {
+  background-color: #ef4444;
+}
+
+.status-badge.offline .status-dot::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: #ef4444;
+  animation: pulse-red 1.5s infinite;
+  top: 0;
+  left: 0;
+}
+
+@keyframes pulse-green {
+  0% { transform: scale(1); opacity: 0.8; }
+  100% { transform: scale(2.5); opacity: 0; }
+}
+
+@keyframes pulse-red {
+  0% { transform: scale(1); opacity: 0.8; }
+  100% { transform: scale(2.5); opacity: 0; }
+}
+
+/* Alerta Cyber */
+.alert-cyber {
+  background: rgba(254, 243, 199, 0.5);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-left: 5px solid #f59e0b;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.05);
+}
+
+.alert-title {
+  color: #b45309;
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.5px;
+}
+
+.alert-desc {
+  font-size: 0.85rem;
+  color: #78350f;
+  margin-top: 4px;
+}
+
+.btn-retry-tech {
+  background-color: #f59e0b;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  transition: all 0.2s;
+}
+
+.btn-retry-tech:hover {
+  background-color: #d97706;
+}
+
+/* Tarjeta principal (Light Card) */
+.light-card {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.card-header-tech {
+  padding: 20px 24px;
+  border-bottom: 1px solid #f1f5f9;
+  background: white;
+}
+
+.section-title-tech {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #475569;
+}
+
+/* Cámara Viewport */
+.camera-viewport {
+  background-color: #0b0f19;
+  min-height: 480px;
+  position: relative;
+  overflow: hidden;
+}
+
+.stream-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  max-height: 520px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.stream-img {
+  width: 100%;
+  height: auto;
+  max-height: 520px;
+  object-fit: contain;
+  display: block;
+}
+
+/* Animación de línea de escáner */
+.scanner-line {
+  position: absolute;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #00ffff, transparent);
+  box-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff;
+  top: 0;
+  animation: scan 4s linear infinite;
+  z-index: 10;
+  pointer-events: none;
+}
+
+@keyframes scan {
+  0% { top: 0%; }
+  50% { top: 100%; }
+  100% { top: 0%; }
+}
+
+.camera-overlay-info {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  z-index: 15;
+  display: flex;
+  gap: 8px;
+}
+
+.bg-dark-glass {
+  background: var(--dark-glass);
+  backdrop-filter: blur(8px);
+  color: #00ffff;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.75rem;
+  letter-spacing: 0.5px;
+  border: 1px solid rgba(0, 255, 255, 0.2);
+  padding: 6px 12px;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Botones de cámara */
+.btn-start-camera {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 8px 16px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2);
+  transition: all 0.3s;
+}
+
+.btn-start-camera:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(16, 185, 129, 0.3);
+}
+
+.btn-stop-camera {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 8px 16px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  box-shadow: 0 4px 10px rgba(239, 68, 68, 0.2);
+  transition: all 0.3s;
+}
+
+.btn-stop-camera:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(239, 68, 68, 0.3);
+}
+
+/* Botón primario tecnológico (para la cámara inactiva) */
+.btn-primary-tech {
+  background: var(--accent);
+  border: none;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 14px;
+  font-weight: 700;
+  font-family: 'Orbitron', sans-serif;
+  letter-spacing: 1px;
+  box-shadow: 0 4px 15px rgba(23, 42, 73, 0.25);
+  transition: all 0.3s;
+}
+
+.btn-primary-tech:hover:not(:disabled) {
+  background: #0f1f38;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(23, 42, 73, 0.35);
+}
+
+.btn-primary-tech:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Placeholder cámara inactiva */
+.camara-inactiva-placeholder {
+  color: #94a3b8;
+  max-width: 450px;
+}
+
+.inactive-icon-container {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background-color: #1e293b;
+  border: 2px dashed rgba(255, 255, 255, 0.1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+  color: #64748b;
+}
+
+.text-max-width {
+  max-width: 320px;
+}
+
+/* Chips de Filtro */
+.filter-chips-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.filter-chip-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 14px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-align: left;
+  border: 1px solid #e2e8f0;
+  background-color: #f8fafc;
+  color: #475569;
+  transition: all 0.2s ease-out;
+}
+
+.chip-color-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.filter-chip-btn:hover {
+  background-color: #f1f5f9;
+  transform: translateY(-1px);
+}
+
+/* Estilos de botones de filtro activos */
+.filter-chip-btn.active.chip-todos {
+  background-color: rgba(0, 204, 204, 0.08);
+  color: #008a8a;
+  border-color: #00cccc;
+}
+
+.filter-chip-btn.active.chip-fpc {
+  background-color: rgba(255, 100, 0, 0.08);
+  color: #cc5000;
+  border-color: #ff6400;
+}
+
+.filter-chip-btn.active.chip-capacitor {
+  background-color: rgba(0, 165, 255, 0.08);
+  color: #0084cc;
+  border-color: #00a5ff;
+}
+
+.filter-chip-btn.active.chip-bobina {
+  background-color: rgba(255, 0, 0, 0.08);
+  color: #cc0000;
+  border-color: #ff0000;
+}
+
+/* Detecciones */
+.badge-detecciones {
+  background-color: var(--accent-soft);
+  color: var(--accent);
+  font-size: 0.7rem;
+  padding: 6px 12px;
+  border-radius: 100px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  border: 1px solid rgba(23, 42, 73, 0.15);
+}
+
+.detecciones-list-container {
+  max-height: 300px;
+}
+
+.detection-item {
+  padding: 12px;
+  background-color: #f8fafc;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  margin-bottom: 12px;
+  transition: all 0.3s;
+}
+
+.detection-item:hover {
+  transform: translateX(4px);
+  background-color: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+.detection-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background-color: white;
+  border: 1px solid;
+  letter-spacing: 0.5px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.detection-conf {
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.progress-container-tech {
+  height: 6px;
+  background-color: #e2e8f0;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+
+.progress-bar-tech {
+  height: 100%;
+  border-radius: 10px;
+  transition: width 0.4s cubic-bezier(0.1, 0.8, 0.3, 1);
+}
+
+.text-extra-small {
+  font-size: 0.65rem;
+}
+
+/* Radar scanning animation */
+.radar-scan-container {
+  position: relative;
+  width: 90px;
+  height: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.radar-ring {
+  position: absolute;
+  border: 1px solid rgba(23, 42, 73, 0.2);
+  border-radius: 50%;
+  animation: radar 2.5s infinite linear;
+}
+
+.radar-ring:nth-child(1) {
+  width: 40px;
+  height: 40px;
+  animation-delay: 0s;
+}
+
+.radar-ring:nth-child(2) {
+  width: 70px;
+  height: 70px;
+  animation-delay: 0.8s;
+}
+
+.radar-ring:nth-child(3) {
+  width: 100px;
+  height: 100px;
+  animation-delay: 1.6s;
+}
+
+@keyframes radar {
+  0% { transform: scale(0.6); opacity: 0.8; }
+  80% { transform: scale(1.2); opacity: 0.2; }
+  100% { transform: scale(1.4); opacity: 0; }
+}
+
+.animate-pulse {
+  animation: pulse-card 2s infinite;
+}
+
+@keyframes pulse-card {
+  0% { transform: scale(0.98); }
+  50% { transform: scale(1.02); }
+  100% { transform: scale(0.98); }
+}
+
+@media (max-width: 991px) {
+  .camera-viewport {
+    min-height: 380px;
+  }
+}

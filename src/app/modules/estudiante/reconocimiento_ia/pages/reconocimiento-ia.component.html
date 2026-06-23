@@ -1,0 +1,198 @@
+<div class="container-fluid p-4">
+  <!-- Cabecera de Módulo -->
+  <div class="row mb-4 align-items-center">
+    <div class="col-md-8">
+      <div class="d-flex align-items-center gap-3">
+        <div class="icon-orb-ia animate-pulse">
+          <i class="bi bi-robot"></i>
+        </div>
+        <div>
+          <h2 class="title-tech m-0">RECONOCIMIENTO IA</h2>
+          <p class="subtitle-tech m-0">Detector de componentes electrónicos Celucentro en tiempo real</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4 text-md-end mt-3 mt-md-0">
+      <!-- Indicador de Estado del Servidor FastAPI en PyCharm -->
+      <div class="status-badge" [class.online]="conectado() && !errorConexion()" [class.offline]="!conectado() || errorConexion()">
+        <span class="status-dot"></span>
+        <span class="status-text">
+          {{ conectado() && !errorConexion() ? 'SERVICIO IA ACTIVO' : 'SERVICIO IA APAGADO' }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Alerta de Conexión en caso de que FastAPI en PyCharm no esté corriendo -->
+  <div class="alert alert-cyber mb-4" *ngIf="errorConexion()">
+    <div class="d-flex align-items-start gap-3">
+      <i class="bi bi-exclamation-triangle-fill fs-4 text-warning"></i>
+      <div>
+        <h5 class="alert-title font-orbitron m-0">CONEXIÓN REQUERIDA CON PYCHARM</h5>
+        <p class="alert-desc m-0">
+          No se ha detectado el servicio de Inteligencia Artificial en el puerto <code>5000</code>. 
+          Asegúrate de ejecutar el script de FastAPI en tu PyCharm (<code>uvicorn app:app --port 5000</code>) para habilitar la detección de componentes con YOLOv8 y tu cámara.
+        </p>
+        <button class="btn btn-sm btn-retry-tech mt-2" (click)="verificarConexion()">
+          <i class="bi bi-arrow-clockwise me-1"></i> Reintentar Conexión
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contenido Principal -->
+  <div class="row" *ngIf="!errorConexion()">
+    <!-- Panel del Stream de Cámara (Izquierda) -->
+    <div class="col-lg-8 mb-4">
+      <div class="light-card camera-card shadow-sm h-100">
+        <div class="card-header-tech d-flex justify-content-between align-items-center">
+          <span class="section-title-tech font-orbitron">
+            <i class="bi bi-camera-video-fill me-2 text-primary"></i>FEED DE CÁMARA DE DIAGNÓSTICO
+          </span>
+          <div class="camera-actions" *ngIf="conectado()">
+            <button *ngIf="camaraActiva()" class="btn btn-stop-camera" (click)="detenerCamara()">
+              <i class="bi bi-camera-video-off-fill me-2"></i>Apagar Cámara
+            </button>
+            <button *ngIf="!camaraActiva()" class="btn btn-start-camera animate-pulse" (click)="iniciarCamara()">
+              <i class="bi bi-camera-video-fill me-2"></i>Encender Cámara
+            </button>
+          </div>
+        </div>
+
+        <!-- Visor del Stream de Video -->
+        <div class="camera-viewport d-flex align-items-center justify-content-center">
+          <!-- Si la cámara está activa y hay conexión -->
+          <div class="stream-wrapper" *ngIf="camaraActiva() && conectado(); else camaraInactivaTpl">
+            <img [src]="streamUrl" alt="Detección en tiempo real" class="stream-img img-fluid">
+            <!-- Capa superpuesta del scanner de IA -->
+            <div class="scanner-line"></div>
+            <div class="camera-overlay-info">
+              <span class="badge bg-dark-glass">Filtro: {{ filtroActivo() }}</span>
+              <span class="badge bg-dark-glass ms-2">Detecciones: {{ totalDetecciones() }}</span>
+            </div>
+          </div>
+
+          <!-- Plantilla para cámara inactiva -->
+          <ng-template #camaraInactivaTpl>
+            <div class="text-center p-5 camara-inactiva-placeholder">
+              <div class="inactive-icon-container">
+                <i class="bi bi-camera-video-off fs-1"></i>
+              </div>
+              <h4 class="font-orbitron mt-3 text-secondary">CÁMARA APAGADA</h4>
+              <p class="text-muted text-max-width mx-auto">
+                Enciende la cámara para iniciar el escaneo de componentes electrónicos y su identificación automática por IA.
+              </p>
+              <button class="btn btn-primary-tech" [disabled]="!conectado()" (click)="iniciarCamara()">
+                <i class="bi bi-play-fill me-2"></i>INICIAR TRANSMISIÓN
+              </button>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+    </div>
+
+    <!-- Controles de Filtros y Detecciones (Derecha) -->
+    <div class="col-lg-4 mb-4">
+      <div class="d-flex flex-column gap-4 h-100">
+        <!-- Selector de Filtros -->
+        <div class="light-card p-4 shadow-sm">
+          <h5 class="section-title-tech font-orbitron mb-3">
+            <i class="bi bi-funnel-fill me-2 text-primary"></i>FILTROS DE DETECCIÓN
+          </h5>
+          <p class="text-muted small">Selecciona una categoría para aislar el componente en el visor de IA.</p>
+          
+          <div class="filter-chips-grid">
+            <button 
+              class="filter-chip-btn chip-todos" 
+              [class.active]="filtroActivo() === 'TODOS'"
+              (click)="cambiarFiltro('TODOS')">
+              <span class="chip-color-dot" style="background-color: #00cccc;"></span>
+              TODOS
+            </button>
+            
+            <button 
+              class="filter-chip-btn chip-fpc" 
+              [class.active]="filtroActivo() === 'FPC'"
+              (click)="cambiarFiltro('FPC')">
+              <span class="chip-color-dot" style="background-color: #ff6400;"></span>
+              FPC (Flex Connect)
+            </button>
+            
+            <button 
+              class="filter-chip-btn chip-capacitor" 
+              [class.active]="filtroActivo() === 'CAPACITOR'"
+              (click)="cambiarFiltro('CAPACITOR')">
+              <span class="chip-color-dot" style="background-color: #00a5ff;"></span>
+              CAPACITORES
+            </button>
+            
+            <button 
+              class="filter-chip-btn chip-bobina" 
+              [class.active]="filtroActivo() === 'BOBINA'"
+              (click)="cambiarFiltro('BOBINA')">
+              <span class="chip-color-dot" style="background-color: #ff0000;"></span>
+              BOBINAS
+            </button>
+          </div>
+        </div>
+
+        <!-- Panel de Detecciones en Vivo -->
+        <div class="light-card p-4 shadow-sm flex-grow-1 d-flex flex-column">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="section-title-tech font-orbitron m-0">
+              <i class="bi bi-cpu-fill me-2 text-primary"></i>DETECCIONES EN VIVO
+            </h5>
+            <span class="badge badge-detecciones font-orbitron" *ngIf="camaraActiva()">
+              {{ totalDetecciones() }} ACTIVAS
+            </span>
+          </div>
+
+          <!-- Si la cámara está activa y hay detecciones -->
+          <div class="detecciones-list-container flex-grow-1 overflow-auto pe-1" *ngIf="camaraActiva() && totalDetecciones() > 0; else noDeteccionesTpl">
+            <div class="detection-item" *ngFor="let det of detecciones(); let i = index">
+              <div class="detection-header d-flex justify-content-between align-items-center mb-1">
+                <span class="detection-badge" [style.border-color]="getColorClase(det.clase)" [style.color]="getColorClase(det.clase)">
+                  <i class="bi bi-cpu me-1"></i> {{ getNombreClase(det.clase) }}
+                </span>
+                <span class="detection-conf font-orbitron" [style.color]="getColorClase(det.clase)">
+                  {{ det.confianza | percent:'1.0-0' }}
+                </span>
+              </div>
+              <div class="detection-body">
+                <div class="progress-container-tech">
+                  <div class="progress-bar-tech" 
+                       [style.width]="(det.confianza * 100) + '%'"
+                       [style.background-color]="getColorClase(det.clase)">
+                  </div>
+                </div>
+                <div class="d-flex justify-content-between text-muted text-extra-small mt-1">
+                  <span>Coordenadas Bounding Box:</span>
+                  <span>[{{ det.bbox.join(', ') }}]</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Plantilla para cuando no hay detecciones en pantalla -->
+          <ng-template #noDeteccionesTpl>
+            <div class="text-center p-4 m-auto d-flex flex-column align-items-center justify-content-center flex-grow-1">
+              <div class="radar-scan-container" *ngIf="camaraActiva()">
+                <div class="radar-ring"></div>
+                <div class="radar-ring"></div>
+                <div class="radar-ring"></div>
+                <i class="bi bi-eye fs-2 text-primary animate-pulse"></i>
+              </div>
+              <i class="bi bi-camera-video text-secondary fs-1 mb-2" *ngIf="!camaraActiva()"></i>
+              <h6 class="font-orbitron text-secondary mt-3">
+                {{ camaraActiva() ? 'ESCANEANDO PLACA...' : 'ESPERANDO CÁMARA' }}
+              </h6>
+              <p class="text-muted small text-max-width mx-auto">
+                {{ camaraActiva() ? 'Apunta la cámara a la placa del celular para identificar los FPC, Capacitores y Bobinas.' : 'Enciende el feed de video de diagnóstico para iniciar.' }}
+              </p>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

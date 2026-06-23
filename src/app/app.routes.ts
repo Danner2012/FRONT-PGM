@@ -24,6 +24,10 @@ export const routes: Routes = [
     children: [
       { path: 'inicio', component: DashboardHomeComponent },
       { path: 'diagnostico-fallas', component: DiagnosticoFallasComponent },
+      { 
+        path: 'reconocimiento-ia', 
+        loadComponent: () => import('./modules/estudiante/reconocimiento_ia/pages/reconocimiento-ia.component').then(m => m.ReconocimientoIaComponent) 
+      },
       { path: 'mis-cursos', component: MisCursosComponent },
       { path: 'mis-practicas', component: MisPracticasComponent },
       { path: 'catalogo-herramientas', component: HerramientaCatalogComponent },

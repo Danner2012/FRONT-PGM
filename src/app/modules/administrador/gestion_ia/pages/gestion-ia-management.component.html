@@ -1,15 +1,14 @@
-<div class="container-fluid p-4">
+<div class="container-fluid py-4">
   <!-- Cabecera de Módulo -->
-  <div class="row mb-4 align-items-center">
-    <div class="col-md-8">
-      <h2 class="title-tech m-0">GESTIÓN DE AFICHES IA</h2>
-      <p class="subtitle-tech m-0 text-muted">Configura las fichas técnicas y procedimientos que visualizan los estudiantes en el reconocimiento por IA</p>
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h4 class="fw-bold mb-0 text-dark">Gestión de Afiches IA</h4>
+      <p class="text-muted mb-0 small">Configura las fichas técnicas y procedimientos que visualizan los estudiantes en el reconocimiento por IA</p>
     </div>
-    <div class="col-md-4 text-md-end mt-3 mt-md-0">
-      <button class="btn btn-primary-tech" (click)="openCreateModal()">
-        <i class="bi bi-plus-circle-fill me-2"></i>NUEVO AFICHE
-      </button>
-    </div>
+    <button class="btn btn-primary rounded-pill px-4 shadow-sm d-flex align-items-center gap-2" (click)="openCreateModal()">
+      <i class="bi bi-plus-circle-fill"></i>
+      <span>Nuevo Afiche</span>
+    </button>
   </div>
 
   <!-- Filtros -->
@@ -30,7 +29,7 @@
         <i class="bi bi-file-earmark-x fs-1 text-muted"></i>
         <h4 class="mt-3 text-secondary">No hay afiches registrados</h4>
         <p class="text-muted text-max-width mx-auto">Comienza creando un afiche para capacitor, FPC o bobina para que los estudiantes tengan información detallada al detectarlos.</p>
-        <button class="btn btn-primary-tech mt-2" (click)="openCreateModal()">
+        <button class="btn btn-primary rounded-pill px-4 shadow-sm mt-2" (click)="openCreateModal()">
           <i class="bi bi-plus-fill me-1"></i>Crear Afiche
         </button>
       </div>
@@ -85,10 +84,10 @@
         </div>
 
         <div class="card-afiche-footer p-3 bg-light border-top d-flex gap-2">
-          <button class="btn btn-sm btn-outline-tech w-100" (click)="openEditModal(afiche)">
+          <button class="btn btn-sm btn-outline-primary rounded-pill w-100" (click)="openEditModal(afiche)">
             <i class="bi bi-pencil-fill me-1"></i> Editar
           </button>
-          <button class="btn btn-sm btn-danger-tech" (click)="onDeleteAfiche(afiche.id)">
+          <button class="btn btn-sm btn-outline-danger rounded-pill px-3" (click)="onDeleteAfiche(afiche.id)">
             <i class="bi bi-trash-fill"></i>
           </button>
         </div>
@@ -97,16 +96,19 @@
   </div>
 
   <!-- MODAL DE FORMULARIO -->
-  <div class="modal-backdrop-tech" *ngIf="showModal">
-    <div class="modal-card-tech shadow-lg animate-fade-in">
-      <div class="modal-header-tech">
-        <h4 class="m-0 text-white">
-          <i class="bi bi-cpu-fill me-2"></i>{{ editingId ? 'EDITAR AFICHE DE COMPONENTE' : 'NUEVO AFICHE DE COMPONENTE' }}
-        </h4>
-        <button class="btn-close-modal" (click)="closeModal()"><i class="bi bi-x-lg"></i></button>
+  <div class="modal-overlay" *ngIf="showModal">
+    <div class="modal-content-custom modal-wide animate-fade-in">
+      <div class="modal-header-custom border-bottom mb-4 pb-3">
+        <div class="d-flex align-items-center gap-3">
+          <div>
+            <h5 class="fw-bold mb-0 text-dark">{{ editingId ? 'Editar Afiche de Componente' : 'Registrar Nuevo Afiche de Componente' }}</h5>
+            <p class="text-muted small mb-0">Complete la información técnica y suba el material de soporte</p>
+          </div>
+        </div>
+        <button class="btn-close-circle" (click)="closeModal()"><i class="bi bi-x-lg"></i></button>
       </div>
 
-      <div class="modal-body-tech" [formGroup]="aficheForm">
+      <div class="modal-body-tech form-scroll" [formGroup]="aficheForm">
         <!-- Tabs del Formulario -->
         <ul class="nav-tabs-tech d-flex list-unstyled mb-4">
           <li class="tab-item" [class.active]="activeTab() === 'general'" (click)="activeTab.set('general')">
@@ -178,7 +180,7 @@
             <div class="col-md-6 mb-4">
               <div class="d-flex justify-content-between align-items-center mb-3">
                 <h5 class="section-title-tech m-0"><i class="bi bi-check-square-fill text-success"></i> FUNCIÓN (Lista de Checks)</h5>
-                <button type="button" class="btn btn-sm btn-outline-tech" (click)="addFuncion()">
+                <button type="button" class="btn btn-outline-primary btn-sm rounded-pill" (click)="addFuncion()">
                   <i class="bi bi-plus-lg"></i> Agregar Check
                 </button>
               </div>
@@ -197,7 +199,7 @@
             <div class="col-md-6 mb-4">
               <div class="d-flex justify-content-between align-items-center mb-3">
                 <h5 class="section-title-tech m-0"><i class="bi bi-list-ul text-primary"></i> CARACTERÍSTICAS (Lista de Viñetas)</h5>
-                <button type="button" class="btn btn-sm btn-outline-tech" (click)="addCaracteristica()">
+                <button type="button" class="btn btn-outline-primary btn-sm rounded-pill" (click)="addCaracteristica()">
                   <i class="bi bi-plus-lg"></i> Agregar Viñeta
                 </button>
               </div>
@@ -218,7 +220,7 @@
         <div class="tab-pane-content" *ngIf="activeTab() === 'medicion'">
           <div class="d-flex justify-content-between align-items-center mb-3">
             <h5 class="section-title-tech m-0"><i class="bi bi-activity text-info"></i> MEDICIÓN PASO A PASO</h5>
-            <button type="button" class="btn btn-sm btn-outline-tech" (click)="addPasoMedicion()">
+            <button type="button" class="btn btn-outline-primary btn-sm rounded-pill" (click)="addPasoMedicion()">
               <i class="bi bi-plus-circle me-1"></i> Agregar Paso
             </button>
           </div>
@@ -292,7 +294,7 @@
           <!-- Pasos de Procedimiento (Cambios/Reparaciones) -->
           <div class="d-flex justify-content-between align-items-center mb-3">
             <h5 class="section-title-tech m-0"><i class="bi bi-arrow-left-right text-warning"></i> PROCEDIMIENTO DE REPARACIÓN (Cambios/Soldadura)</h5>
-            <button type="button" class="btn btn-sm btn-outline-tech" (click)="addPasoProcedimiento()">
+            <button type="button" class="btn btn-outline-primary btn-sm rounded-pill" (click)="addPasoProcedimiento()">
               <i class="bi bi-plus-circle me-1"></i> Agregar Paso
             </button>
           </div>
@@ -344,10 +346,11 @@
         </div>
       </div>
 
-      <div class="modal-footer-tech d-flex justify-content-between p-3 bg-light border-top">
-        <button class="btn btn-outline-tech" (click)="closeModal()">Cancelar</button>
-        <button class="btn btn-primary-tech px-4" (click)="onSubmit()">
-          <i class="bi bi-save me-1"></i> Guardar Afiche
+      <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top px-3 pb-3">
+        <button type="button" class="btn btn-link text-decoration-none text-muted fw-bold" (click)="closeModal()">Cancelar</button>
+        <button type="button" class="btn btn-primary rounded-pill px-5 shadow-sm fw-bold d-flex align-items-center gap-2" (click)="onSubmit()" [disabled]="aficheForm.invalid">
+          <i class="bi bi-save"></i>
+          <span>Guardar Afiche</span>
         </button>
       </div>
     </div>

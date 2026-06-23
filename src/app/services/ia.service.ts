@@ -37,6 +37,14 @@ export class IaService {
     return this.http.get(`${this.fastapiUrl}/estado`);
   }
 
+  iniciarCamara(): Observable<any> {
+    return this.http.post(`${this.fastapiUrl}/camara/iniciar`, {});
+  }
+
+  detenerCamara(): Observable<any> {
+    return this.http.post(`${this.fastapiUrl}/camara/detener`, {});
+  }
+
   // --- Endpoints de Afiches (Persistencia en Django) ---
 
   getAfiches(): Observable<any[]> {

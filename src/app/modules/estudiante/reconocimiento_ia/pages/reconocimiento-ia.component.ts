@@ -69,7 +69,7 @@ export class ReconocimientoIaComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.detenerPolling();
+    this.detenerCamara();
     document.removeEventListener('fullscreenchange', this.onFullscreenChange);
   }
 
@@ -126,15 +126,33 @@ export class ReconocimientoIaComponent implements OnInit, OnDestroy {
   }
 
   iniciarCamara() {
-    this.camaraActiva.set(true);
-    this.iniciarPolling();
+    this.iaService.iniciarCamara().subscribe({
+      next: () => {
+        this.camaraActiva.set(true);
+        this.iniciarPolling();
+      },
+      error: (err) => {
+        console.error('Error al iniciar la cámara en el backend de IA:', err);
+      }
+    });
   }
 
   detenerCamara() {
-    this.camaraActiva.set(false);
-    this.detenerPolling();
-    this.detecciones.set([]);
-    this.totalDetecciones.set(0);
+    this.iaService.detenerCamara().subscribe({
+      next: () => {
+        this.camaraActiva.set(false);
+        this.detenerPolling();
+        this.detecciones.set([]);
+        this.totalDetecciones.set(0);
+      },
+      error: (err) => {
+        console.error('Error al detener la cámara en el backend de IA:', err);
+        this.camaraActiva.set(false);
+        this.detenerPolling();
+        this.detecciones.set([]);
+        this.totalDetecciones.set(0);
+      }
+    });
   }
 
   iniciarPolling() {

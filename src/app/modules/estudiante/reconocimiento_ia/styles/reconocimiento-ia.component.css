@@ -622,30 +622,39 @@
 
 /* ── Herramientas ── */
 .ficha-herramientas {
-  padding: 12px 16px;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .tools-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-  gap: 6px;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 10px;
+  width: 100%;
 }
 
 .tool-chip {
   background: #fefce8;
-  border: 1.5px solid #fde68a;
-  border-radius: 10px;
-  padding: 7px 8px;
+  border: 1px solid #fef08a;
+  border-radius: 12px;
+  padding: 12px 10px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  font-size: 0.72rem;
+  justify-content: center;
+  gap: 8px;
+  font-size: 0.78rem;
   font-weight: 600;
-  color: #334155;
+  color: #451a03;
   text-align: center;
-  cursor: default;
-  transition: all 0.2s;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+  transition: all 0.2s ease;
+  word-wrap: break-word;
+  word-break: break-word;
 }
 
 .tool-chip:hover {
@@ -864,4 +873,44 @@
 .btn-volver:hover {
   background: #e2e8f0;
   color: #1e293b;
+}
+
+/* ── Pestañas en Afiche ── */
+.ficha-tabs {
+  display: flex;
+  background: #f1f5f9;
+  border-radius: 12px;
+  padding: 4px;
+  margin: 12px 18px 18px;
+  gap: 2px;
+  border: 1px solid #e2e8f0;
+}
+
+.ficha-tab-btn {
+  flex: 1;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 6px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+  text-transform: capitalize;
+  white-space: nowrap;
+}
+
+.ficha-tab-btn:hover {
+  color: #1e293b;
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.ficha-tab-btn.active {
+  background: #ffffff;
+  color: #2563eb;
+  font-weight: 700;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
 }

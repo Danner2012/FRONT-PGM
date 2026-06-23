@@ -30,6 +30,7 @@ export class ReconocimientoIaComponent implements OnInit, OnDestroy {
   aficheCargado = signal<any | null>(null);
   todosLosAfiches = signal<any[]>([]);
   cargandoAfiche = signal<boolean>(false);
+  tabActiva = signal<string>('general'); // general, medicion, reparacion, herramientas
   vistaPanelDerecho = signal<string>('detecciones'); // detecciones, ficha
 
   // Índices de carrusel para pasos
@@ -182,6 +183,7 @@ export class ReconocimientoIaComponent implements OnInit, OnDestroy {
         // Resetear carruseles al cambiar de componente
         this.carruselMedicionIdx.set(0);
         this.carruselProcedimientoIdx.set(0);
+        this.tabActiva.set('general');
         this.vistaPanelDerecho.set('ficha');
       },
       error: (err) => {

@@ -158,126 +158,154 @@
           <h3 class="ficha-nombre text-uppercase">{{ aficheCargado().nombre }}</h3>
         </div>
 
-        <!-- ── IMÁGENES ───────────────────────── -->
-        <div class="ficha-imagenes">
-          <div class="img-box shadow-sm">
-            <img [src]="aficheCargado().imagen_referencia" alt="Foto Real" *ngIf="aficheCargado().imagen_referencia">
-            <div class="img-placeholder" *ngIf="!aficheCargado().imagen_referencia"><i class="bi bi-image text-muted fs-3"></i></div>
-            <span class="img-label">Foto Real</span>
-          </div>
-          <div class="img-box shadow-sm">
-            <img [src]="aficheCargado().imagen_simbolo" alt="Símbolo" *ngIf="aficheCargado().imagen_simbolo">
-            <div class="img-placeholder" *ngIf="!aficheCargado().imagen_simbolo"><i class="bi bi-diagram-3 text-muted fs-3"></i></div>
-            <span class="img-label">Símbolo</span>
-          </div>
+        <!-- PESTAÑAS DENTRO DEL AFICHE -->
+        <div class="ficha-tabs mb-3">
+          <button class="ficha-tab-btn" [class.active]="tabActiva() === 'general'" (click)="tabActiva.set('general')">
+            General
+          </button>
+          <button class="ficha-tab-btn" [class.active]="tabActiva() === 'medicion'" (click)="tabActiva.set('medicion')" *ngIf="aficheCargado().pasos_medicion?.length">
+            Medición
+          </button>
+          <button class="ficha-tab-btn" [class.active]="tabActiva() === 'reparacion'" (click)="tabActiva.set('reparacion')" *ngIf="aficheCargado().pasos_procedimiento?.length">
+            Reparación
+          </button>
+          <button class="ficha-tab-btn" [class.active]="tabActiva() === 'herramientas'" (click)="tabActiva.set('herramientas')" *ngIf="aficheCargado().herramientas?.length">
+            Herramientas
+          </button>
         </div>
 
-        <!-- ── DESCRIPCIÓN ────────────────────── -->
-        <p class="ficha-desc">{{ aficheCargado().descripcion_general }}</p>
+        <!-- SECCIÓN: GENERAL -->
+        <ng-container *ngIf="tabActiva() === 'general'">
+          <!-- ── IMÁGENES ───────────────────────── -->
+          <div class="ficha-imagenes">
+            <div class="img-box shadow-sm">
+              <img [src]="aficheCargado().imagen_referencia" alt="Foto Real" *ngIf="aficheCargado().imagen_referencia">
+              <div class="img-placeholder" *ngIf="!aficheCargado().imagen_referencia"><i class="bi bi-image text-muted fs-3"></i></div>
+              <span class="img-label">Foto Real</span>
+            </div>
+            <div class="img-box shadow-sm">
+              <img [src]="aficheCargado().imagen_simbolo" alt="Símbolo" *ngIf="aficheCargado().imagen_simbolo">
+              <div class="img-placeholder" *ngIf="!aficheCargado().imagen_simbolo"><i class="bi bi-diagram-3 text-muted fs-3"></i></div>
+              <span class="img-label">Símbolo</span>
+            </div>
+          </div>
 
-        <!-- ── FUNCIÓN + CARACTERÍSTICAS ─────── -->
-        <div class="ficha-row-2col" *ngIf="aficheCargado().funciones?.length || aficheCargado().caracteristicas?.length">
-          <!-- Función -->
-          <div class="ficha-bloque" *ngIf="aficheCargado().funciones?.length">
-            <div class="bloque-title">FUNCIÓN</div>
-            <div class="bloque-list">
-              <div class="bloque-item" *ngFor="let fn of aficheCargado().funciones">
-                {{ fn.texto }}
+          <!-- ── DESCRIPCIÓN ────────────────────── -->
+          <p class="ficha-desc">{{ aficheCargado().descripcion_general }}</p>
+
+          <!-- ── FUNCIÓN + CARACTERÍSTICAS ─────── -->
+          <div class="ficha-row-2col" *ngIf="aficheCargado().funciones?.length || aficheCargado().caracteristicas?.length">
+            <!-- Función -->
+            <div class="ficha-bloque" *ngIf="aficheCargado().funciones?.length">
+              <div class="bloque-title">FUNCIÓN</div>
+              <div class="bloque-list">
+                <div class="bloque-item" *ngFor="let fn of aficheCargado().funciones">
+                  {{ fn.texto }}
+                </div>
+              </div>
+            </div>
+            <!-- Características -->
+            <div class="ficha-bloque" *ngIf="aficheCargado().caracteristicas?.length">
+              <div class="bloque-title">CARACTERÍSTICAS</div>
+              <div class="bloque-list">
+                <div class="bloque-item" *ngFor="let c of aficheCargado().caracteristicas">
+                  <span class="bullet-icon">•</span>{{ c.texto }}
+                </div>
               </div>
             </div>
           </div>
-          <!-- Características -->
-          <div class="ficha-bloque" *ngIf="aficheCargado().caracteristicas?.length">
-            <div class="bloque-title">CARACTERÍSTICAS</div>
-            <div class="bloque-list">
-              <div class="bloque-item" *ngFor="let c of aficheCargado().caracteristicas">
-                <span class="bullet-icon">•</span>{{ c.texto }}
+        </ng-container>
+
+        <!-- SECCIÓN: MEDICIÓN -->
+        <ng-container *ngIf="tabActiva() === 'medicion' && aficheCargado().pasos_medicion?.length">
+          <!-- ── CARRUSEL MEDICIÓN ──────────────── -->
+          <div class="carrusel-section">
+            <div class="carrusel-header">
+              <div class="bloque-title m-0">MEDICIÓN</div>
+              <div class="carrusel-nav">
+                <button class="btn-nav" (click)="prevMedicion()" [disabled]="aficheCargado().pasos_medicion.length <= 1">
+                  <i class="bi bi-chevron-left"></i>
+                </button>
+                <span class="carrusel-counter">
+                  {{ carruselMedicionIdx() + 1 }} / {{ aficheCargado().pasos_medicion.length }}
+                </span>
+                <button class="btn-nav" (click)="nextMedicion()" [disabled]="aficheCargado().pasos_medicion.length <= 1">
+                  <i class="bi bi-chevron-right"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Slide activo -->
+            <div class="carrusel-slide" *ngFor="let paso of aficheCargado().pasos_medicion; let i = index" [class.visible]="i === carruselMedicionIdx()">
+              <div class="slide-numero">Paso {{ paso.orden }}</div>
+              <p class="slide-desc">{{ paso.descripcion }}</p>
+              <div class="slide-media" *ngIf="paso.recursos?.length">
+                <ng-container *ngFor="let rec of paso.recursos">
+                  <img *ngIf="rec.tipo === 'imagen'" [src]="rec.archivo" alt="Imagen del paso" class="slide-img">
+                  <video *ngIf="rec.tipo === 'video'" [src]="rec.archivo" controls class="slide-video"></video>
+                </ng-container>
+              </div>
+            </div>
+
+            <!-- Dots de paginación -->
+            <div class="carrusel-dots">
+              <span class="dot" *ngFor="let paso of aficheCargado().pasos_medicion; let i = index"
+                    [class.active]="i === carruselMedicionIdx()"
+                    (click)="carruselMedicionIdx.set(i)"></span>
+            </div>
+          </div>
+        </ng-container>
+
+        <!-- SECCIÓN: REPARACIÓN -->
+        <ng-container *ngIf="tabActiva() === 'reparacion' && aficheCargado().pasos_procedimiento?.length">
+          <!-- ── CARRUSEL REPARACIÓN ────────────── -->
+          <div class="carrusel-section carrusel-rep">
+            <div class="carrusel-header">
+              <div class="bloque-title m-0">CAMBIOS / REPARACIÓN</div>
+              <div class="carrusel-nav">
+                <button class="btn-nav btn-nav-rep" (click)="prevProcedimiento()" [disabled]="aficheCargado().pasos_procedimiento.length <= 1">
+                  <i class="bi bi-chevron-left"></i>
+                </button>
+                <span class="carrusel-counter">
+                  {{ carruselProcedimientoIdx() + 1 }} / {{ aficheCargado().pasos_procedimiento.length }}
+                </span>
+                <button class="btn-nav btn-nav-rep" (click)="nextProcedimiento()" [disabled]="aficheCargado().pasos_procedimiento.length <= 1">
+                  <i class="bi bi-chevron-right"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="carrusel-slide" *ngFor="let paso of aficheCargado().pasos_procedimiento; let i = index" [class.visible]="i === carruselProcedimientoIdx()">
+              <div class="slide-numero slide-numero-rep">Paso {{ paso.orden }}</div>
+              <p class="slide-desc">{{ paso.descripcion }}</p>
+              <div class="slide-media" *ngIf="paso.recursos?.length">
+                <ng-container *ngFor="let rec of paso.recursos">
+                  <img *ngIf="rec.tipo === 'imagen'" [src]="rec.archivo" alt="Imagen del paso" class="slide-img">
+                  <video *ngIf="rec.tipo === 'video'" [src]="rec.archivo" controls class="slide-video"></video>
+                </ng-container>
+              </div>
+            </div>
+
+            <div class="carrusel-dots">
+              <span class="dot dot-rep" *ngFor="let paso of aficheCargado().pasos_procedimiento; let i = index"
+                    [class.active]="i === carruselProcedimientoIdx()"
+                    (click)="carruselProcedimientoIdx.set(i)"></span>
+            </div>
+          </div>
+        </ng-container>
+
+        <!-- SECCIÓN: HERRAMIENTAS -->
+        <ng-container *ngIf="tabActiva() === 'herramientas' && aficheCargado().herramientas?.length">
+          <!-- ── HERRAMIENTAS ───────────────────── -->
+          <div class="ficha-herramientas">
+            <div class="bloque-title mb-2">HERRAMIENTAS REQUERIDAS</div>
+            <div class="tools-grid">
+              <div class="tool-chip" *ngFor="let tool of aficheCargado().herramientas" [title]="tool.nombre">
+                <span>{{ tool.nombre }}</span>
               </div>
             </div>
           </div>
-        </div>
-
-        <!-- ── CARRUSEL MEDICIÓN ──────────────── -->
-        <div class="carrusel-section" *ngIf="aficheCargado().pasos_medicion?.length">
-          <div class="carrusel-header">
-            <div class="bloque-title m-0">MEDICIÓN</div>
-            <div class="carrusel-nav">
-              <button class="btn-nav" (click)="prevMedicion()" [disabled]="aficheCargado().pasos_medicion.length <= 1">
-                <i class="bi bi-chevron-left"></i>
-              </button>
-              <span class="carrusel-counter">
-                {{ carruselMedicionIdx() + 1 }} / {{ aficheCargado().pasos_medicion.length }}
-              </span>
-              <button class="btn-nav" (click)="nextMedicion()" [disabled]="aficheCargado().pasos_medicion.length <= 1">
-                <i class="bi bi-chevron-right"></i>
-              </button>
-            </div>
-          </div>
-
-          <!-- Slide activo -->
-          <div class="carrusel-slide" *ngFor="let paso of aficheCargado().pasos_medicion; let i = index" [class.visible]="i === carruselMedicionIdx()">
-            <div class="slide-numero">Paso {{ paso.orden }}</div>
-            <p class="slide-desc">{{ paso.descripcion }}</p>
-            <div class="slide-media" *ngIf="paso.recursos?.length">
-              <ng-container *ngFor="let rec of paso.recursos">
-                <img *ngIf="rec.tipo === 'imagen'" [src]="rec.archivo" alt="Imagen del paso" class="slide-img">
-                <video *ngIf="rec.tipo === 'video'" [src]="rec.archivo" controls class="slide-video"></video>
-              </ng-container>
-            </div>
-          </div>
-
-          <!-- Dots de paginación -->
-          <div class="carrusel-dots">
-            <span class="dot" *ngFor="let paso of aficheCargado().pasos_medicion; let i = index"
-                  [class.active]="i === carruselMedicionIdx()"
-                  (click)="carruselMedicionIdx.set(i)"></span>
-          </div>
-        </div>
-
-        <!-- ── CARRUSEL REPARACIÓN ────────────── -->
-        <div class="carrusel-section carrusel-rep" *ngIf="aficheCargado().pasos_procedimiento?.length">
-          <div class="carrusel-header">
-            <div class="bloque-title m-0">CAMBIOS / REPARACIÓN</div>
-            <div class="carrusel-nav">
-              <button class="btn-nav btn-nav-rep" (click)="prevProcedimiento()" [disabled]="aficheCargado().pasos_procedimiento.length <= 1">
-                <i class="bi bi-chevron-left"></i>
-              </button>
-              <span class="carrusel-counter">
-                {{ carruselProcedimientoIdx() + 1 }} / {{ aficheCargado().pasos_procedimiento.length }}
-              </span>
-              <button class="btn-nav btn-nav-rep" (click)="nextProcedimiento()" [disabled]="aficheCargado().pasos_procedimiento.length <= 1">
-                <i class="bi bi-chevron-right"></i>
-              </button>
-            </div>
-          </div>
-
-          <div class="carrusel-slide" *ngFor="let paso of aficheCargado().pasos_procedimiento; let i = index" [class.visible]="i === carruselProcedimientoIdx()">
-            <div class="slide-numero slide-numero-rep">Paso {{ paso.orden }}</div>
-            <p class="slide-desc">{{ paso.descripcion }}</p>
-            <div class="slide-media" *ngIf="paso.recursos?.length">
-              <ng-container *ngFor="let rec of paso.recursos">
-                <img *ngIf="rec.tipo === 'imagen'" [src]="rec.archivo" alt="Imagen del paso" class="slide-img">
-                <video *ngIf="rec.tipo === 'video'" [src]="rec.archivo" controls class="slide-video"></video>
-              </ng-container>
-            </div>
-          </div>
-
-          <div class="carrusel-dots">
-            <span class="dot dot-rep" *ngFor="let paso of aficheCargado().pasos_procedimiento; let i = index"
-                  [class.active]="i === carruselProcedimientoIdx()"
-                  (click)="carruselProcedimientoIdx.set(i)"></span>
-          </div>
-        </div>
-
-        <!-- ── HERRAMIENTAS ───────────────────── -->
-        <div class="ficha-herramientas" *ngIf="aficheCargado().herramientas?.length">
-          <div class="bloque-title mb-2">HERRAMIENTAS REQUERIDAS</div>
-          <div class="tools-grid">
-            <div class="tool-chip" *ngFor="let tool of aficheCargado().herramientas" [title]="tool.nombre">
-              <span>{{ tool.nombre }}</span>
-            </div>
-          </div>
-        </div>
+        </ng-container>
 
       </div><!-- /ficha-content -->
     </div><!-- /col-ficha -->

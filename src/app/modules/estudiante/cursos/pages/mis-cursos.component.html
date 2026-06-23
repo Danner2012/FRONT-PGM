@@ -1,80 +1,327 @@
 <div class="courses-container animate-fade-in">
-    <div class="header-section mb-4">
-        <h3 class="fw-bold text-dark mb-1">Mis Cursos Inscritos</h3>
-        <p class="text-muted">Aquí puedes ver el detalle de tus cursos y horarios asignados.</p>
-    </div>
-
-    <!-- Cargando -->
-    <div *ngIf="isLoading()" class="text-center py-5">
-        <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Cargando...</span>
+    <!-- VISTA 1: LISTADO DE CURSOS INSECRITOS -->
+    <div *ngIf="!selectedCurso()">
+        <div class="header-section mb-4 d-flex justify-content-between align-items-center">
+            <div>
+                <h3 class="fw-bold text-dark mb-1">Mis Cursos Inscritos</h3>
+                <p class="text-muted mb-0">Aquí puedes ver el detalle de tus cursos y acceder a sus prácticas asignadas.</p>
+            </div>
+            <div class="header-badge bg-primary-gradient text-white px-3 py-2 rounded-pill shadow-sm small">
+                <i class="bi bi-mortarboard-fill me-2"></i>{{ inscripciones().length }} {{ inscripciones().length === 1 ? 'Curso' : 'Cursos' }}
+            </div>
         </div>
-    </div>
 
-    <!-- Lista de Cursos -->
-    <div *ngIf="!isLoading()" class="row g-4">
-        <div *ngFor="let item of inscripciones()" class="col-md-6 col-lg-4">
-            <div class="card curso-card h-100 border-0 shadow-sm overflow-hidden">
-                <!-- Header de la tarjeta con gradiente según estado -->
-                <div class="card-header-gradient" [ngClass]="item.estado">
-                    <div class="d-flex justify-content-between align-items-start p-4 text-white">
-                        <div>
-                            <span class="badge rounded-pill bg-white text-dark mb-2 small shadow-sm">
-                                {{ item.curso_detalle?.nombre }}
-                            </span>
-                            <h4 class="fw-bold mb-0">Curso de Especialización</h4>
-                        </div>
-                        <div class="status-icon">
-                            <i *ngIf="item.estado === 'confirmado'" class="bi bi-check-circle-fill fs-2"></i>
-                            <i *ngIf="item.estado === 'pendiente'" class="bi bi-clock-history fs-2"></i>
-                        </div>
-                    </div>
-                </div>
+        <!-- Cargando -->
+        <div *ngIf="isLoading()" class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+        </div>
 
-                <div class="card-body p-4">
-                    <div class="info-row mb-3">
-                        <div class="text-muted small text-uppercase fw-bold mb-1">Duración y Vigencia</div>
-                        <div class="d-flex align-items-center gap-2">
-                            <i class="bi bi-calendar3 text-primary"></i>
-                            <span>{{ item.curso_detalle?.fecha_inicio | date:'dd/MM/yyyy' }} - {{ item.curso_detalle?.fecha_fin | date:'dd/MM/yyyy' }}</span>
+        <!-- Lista de Cursos -->
+        <div *ngIf="!isLoading()" class="row g-4">
+            <div *ngFor="let item of inscripciones()" class="col-md-6 col-lg-4">
+                <div class="card curso-card h-100 border-0 shadow-sm overflow-hidden">
+                    <!-- Header de la tarjeta con gradiente según estado -->
+                    <div class="card-header-gradient" [ngClass]="item.estado">
+                        <div class="d-flex justify-content-between align-items-start p-4 text-white">
+                            <div>
+                                <span class="badge rounded-pill bg-white text-dark mb-2 small shadow-sm px-3 py-1">
+                                    {{ item.curso_detalle?.nombre }}
+                                </span>
+                                <h4 class="fw-bold mb-0 text-white truncate-2" style="font-size: 1.25rem;">Curso de Especialización</h4>
+                            </div>
+                            <div class="status-icon">
+                                <i *ngIf="item.estado === 'confirmado'" class="bi bi-check-circle-fill fs-2"></i>
+                                <i *ngIf="item.estado === 'pendiente'" class="bi bi-clock-history fs-2"></i>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="info-row mb-3">
-                        <div class="text-muted small text-uppercase fw-bold mb-1">Inversión</div>
-                        <div class="h5 fw-bold text-dark mb-0">Bs. {{ item.curso_detalle?.precio }}</div>
-                    </div>
-
-                    <div class="info-row mb-4">
-                        <div class="text-muted small text-uppercase fw-bold mb-1">Estado del Pago</div>
-                        <div *ngIf="item.pago_detalle as pago" class="d-flex align-items-center gap-2">
-                            <span [ngClass]="pago.estado === 'pagado' ? 'text-success' : 'text-warning'" class="fw-bold">
-                                <i class="bi" [ngClass]="pago.estado === 'pagado' ? 'bi-patch-check' : 'bi-hourglass-split'"></i>
-                                {{ pago.estado === 'pagado' ? 'Completado' : 'Pendiente (' + pago.metodo + ')' }}
-                            </span>
+                    <div class="card-body p-4">
+                        <div class="info-row mb-3">
+                            <div class="text-muted small text-uppercase fw-bold mb-1">Duración y Vigencia</div>
+                            <div class="d-flex align-items-center gap-2 text-dark">
+                                <i class="bi bi-calendar3 text-primary"></i>
+                                <span class="small fw-semibold">{{ item.curso_detalle?.fecha_inicio | date:'dd/MM/yyyy' }} - {{ item.curso_detalle?.fecha_fin | date:'dd/MM/yyyy' }}</span>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="border-top pt-3 mt-3">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="badge" [ngClass]="item.estado === 'confirmado' ? 'bg-success-subtle text-success' : 'bg-warning-subtle text-warning'">
-                                Inscripción {{ item.estado | titlecase }}
-                            </span>
-                            <button class="btn btn-primary btn-sm rounded-pill px-3 shadow-sm">
-                                Ver Contenido
-                            </button>
+                        <div class="info-row mb-3">
+                            <div class="text-muted small text-uppercase fw-bold mb-1">Inversión</div>
+                            <div class="h5 fw-bold text-dark mb-0">Bs. {{ item.curso_detalle?.precio }}</div>
+                        </div>
+
+                        <div class="info-row mb-4">
+                            <div class="text-muted small text-uppercase fw-bold mb-1">Estado del Pago</div>
+                            <div *ngIf="item.pago_detalle as pago" class="d-flex align-items-center gap-2">
+                                <span [ngClass]="pago.estado === 'pagado' ? 'text-success' : 'text-warning'" class="fw-bold small">
+                                    <i class="bi" [ngClass]="pago.estado === 'pagado' ? 'bi-patch-check-fill' : 'bi-hourglass-split'"></i>
+                                    {{ pago.estado === 'pagado' ? 'Completado' : 'Pendiente (' + pago.metodo + ')' }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="border-top pt-3 mt-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="badge rounded-pill px-3 py-2" [ngClass]="item.estado === 'confirmado' ? 'bg-success-subtle text-success' : 'bg-warning-subtle text-warning'">
+                                    Inscripción {{ item.estado | titlecase }}
+                                </span>
+                                <button (click)="selectCurso({ id: item.id_curso, nombre: item.curso_detalle?.nombre })" class="btn btn-primary btn-sm rounded-pill px-4 py-2 shadow-sm fw-bold">
+                                    Ver Contenido <i class="bi bi-arrow-right ms-1"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <!-- Sin Cursos -->
+            <div *ngIf="inscripciones().length === 0" class="col-12 text-center py-5">
+                <div class="empty-state">
+                    <i class="bi bi-journal-x display-1 text-muted opacity-25"></i>
+                    <h4 class="mt-4 fw-bold">No tienes cursos registrados</h4>
+                    <p class="text-muted">Aún no te has inscrito en ningún curso. Contacta con administración para registrarte.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- VISTA 2: LISTADO DE PRÁCTICAS DEL CURSO SELECCIONADO -->
+    <div *ngIf="selectedCurso()" class="animate-fade-in">
+        <div class="header-section mb-4 d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
+            <div>
+                <button (click)="deselectCurso()" class="btn btn-outline-secondary btn-sm rounded-pill px-3 mb-3">
+                    <i class="bi bi-arrow-left me-1"></i> Volver a Mis Cursos
+                </button>
+                <h3 class="fw-bold text-dark mb-1">
+                    Prácticas de: <span class="text-primary">{{ selectedCurso()?.nombre }}</span>
+                </h3>
+                <p class="text-muted mb-0">Revisa y realiza las prácticas multimedia y de simulación asignadas.</p>
+            </div>
+            <div class="header-badge bg-info-gradient text-white px-3 py-2 rounded-pill shadow-sm small">
+                <i class="bi bi-wrench-adjustable me-2"></i>{{ filteredPracticas().length }} {{ filteredPracticas().length === 1 ? 'Práctica' : 'Prácticas' }}
+            </div>
         </div>
 
-        <!-- Sin Cursos -->
-        <div *ngFor="let item of (inscripciones().length === 0 ? [1] : [])" class="col-12 text-center py-5">
-            <div class="empty-state">
-                <i class="bi bi-journal-x display-1 text-muted opacity-25"></i>
-                <h4 class="mt-4 fw-bold">No tienes cursos registrados</h4>
-                <p class="text-muted">Aún no te has inscrito en ningún curso. Contacta con administración para registrarte.</p>
+        <!-- BARRA DE FILTROS LOCALES -->
+        <div class="filters-bar shadow-sm border-0 mb-4 bg-white p-3 rounded-4 animate-fade-in">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-5">
+                    <div class="filter-group">
+                        <label class="filter-label text-uppercase fw-bold text-muted small">Título o Descripción</label>
+                        <div class="search-input-group position-relative">
+                            <i class="bi bi-search position-absolute text-muted" style="left: 12px; top: 50%; transform: translateY(-50%);"></i>
+                            <input type="text" class="filter-control ps-5" placeholder="Buscar práctica..." [ngModel]="filterText()" (ngModelChange)="filterText.set($event)">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="filter-group">
+                        <label class="filter-label text-uppercase fw-bold text-muted small">Tipo de Práctica</label>
+                        <select class="filter-control shadow-none" [ngModel]="filterTipoPractica()" (ngModelChange)="filterTipoPractica.set($event)">
+                            <option value="todos">Todos los Tipos</option>
+                            <option *ngFor="let t of tiposPractica()" [value]="t.id">{{ t.nombre }}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="filter-group">
+                        <label class="filter-label text-uppercase fw-bold text-muted small">Estado</label>
+                        <select class="filter-control shadow-none" [ngModel]="filterEstado()" (ngModelChange)="filterEstado.set($event)">
+                            <option value="todos">Todos</option>
+                            <option value="activo">Disponibles</option>
+                            <option value="inactivo">No disponibles</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-1 text-end">
+                    <button class="btn btn-light-danger btn-clear-icon w-100" (click)="clearFilters()" title="Limpiar Filtros">
+                        <i class="bi bi-eraser-fill"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cargando Prácticas -->
+        <div *ngIf="isLoadingPracticas()" class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando prácticas...</span>
+            </div>
+        </div>
+
+        <!-- Tabla de Prácticas -->
+        <div *ngIf="!isLoadingPracticas()" class="card card-custom overflow-hidden border-0 shadow-sm rounded-4 animate-fade-in">
+            <div class="table-responsive">
+                <table class="table table-custom table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th class="text-center py-3" style="width: 60px;">#</th>
+                            <th class="py-3">Información de la Práctica</th>
+                            <th class="text-center py-3">Contenido</th>
+                            <th class="text-center py-3">Estado</th>
+                            <th class="text-end py-3pe-4" style="width: 150px;">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let item of filteredPracticas(); let i = index">
+                            <td class="text-center fw-bold py-3">
+                                <span class="text-muted">{{ i + 1 }}</span>
+                            </td>
+                            <td class="py-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-sm bg-light-primary text-primary me-3 rounded-circle d-flex align-items-center justify-content-center fw-bold shadow-sm" 
+                                         style="width: 40px; height: 40px; font-size: 0.9rem; background-color: #ebf8ff; color: #3182ce;">
+                                        {{ item.titulo.charAt(0) }}
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold text-dark" style="font-size: 0.95rem;">{{ item.titulo }}</div>
+                                        <div class="small text-muted text-uppercase fw-bold d-flex gap-2 mt-1" style="font-size: 0.65rem;">
+                                            <span class="text-primary"><i class="bi bi-tag-fill me-1"></i> {{ item.tipo_practica_nombre || 'Sin Tipo' }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="text-center py-3">
+                                <div class="d-flex justify-content-center gap-3">
+                                    <div class="content-badge badge-multimedia" [title]="'Recursos: ' + (item.recursos?.length || 0)">
+                                        <i class="bi bi-play-circle-fill"></i>
+                                        <span>{{ item.recursos?.length || 0 }}</span>
+                                    </div>
+                                    <div class="content-badge badge-tools" [title]="'Herramientas: ' + (item.herramientas?.length || 0)">
+                                        <i class="bi bi-tools"></i>
+                                        <span>{{ item.herramientas?.length || 0 }}</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="text-center py-3">
+                                <span [class]="item.estado ? 'badge-activo' : 'badge-inactivo'">
+                                    {{ item.estado ? 'Disponible' : 'No disponible' }}
+                                </span>
+                            </td>
+                            <td class="text-end py-3 pe-4">
+                                <div class="d-flex justify-content-end gap-2">
+                                    <button *ngIf="item.tipo_practica_nombre?.toLowerCase() === 'simulación' || item.tipo_practica_nombre?.toLowerCase() === 'simulacion' || item.tipo_practica_nombre?.toLowerCase() === 'teórica' || item.tipo_practica_nombre?.toLowerCase() === 'teorica'" 
+                                            class="btn-action btn-simulation" 
+                                            (click)="startSimulation(item)" title="Ingresar Práctica">
+                                        <i class="bi bi-arrow-right-circle-fill"></i>
+                                    </button>
+                                    <button class="btn-action btn-view" (click)="openDetails(item)" title="Ver Detalles">
+                                        <i class="bi bi-eye-fill"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- Sin Resultados -->
+                        <tr *ngIf="filteredPracticas().length === 0">
+                            <td colspan="5" class="text-center py-5">
+                                <div class="empty-state py-4">
+                                    <i class="bi bi-wrench-adjustable display-4 text-muted opacity-25"></i>
+                                    <h5 class="mt-3 fw-bold">No se encontraron prácticas</h5>
+                                    <p class="text-muted">Este curso no cuenta con prácticas que coincidan con la búsqueda.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE DETALLES DE PRÁCTICA (Copiado de mis-practicas) -->
+    <div class="modal-overlay" *ngIf="showDetailsModal()">
+        <div class="modal-content-custom animate-slide-up">
+            <div class="d-flex justify-content-between align-items-center mb-0 border-bottom pb-3">
+                <div>
+                    <h5 class="fw-bold mb-0 text-primary">{{ selectedPractica()?.titulo }}</h5>
+                    <div class="small text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">
+                        {{ selectedPractica()?.curso_nombre }} • {{ selectedPractica()?.tipo_practica_nombre }}
+                    </div>
+                </div>
+                <button class="btn-close" (click)="closeDetails()"></button>
+            </div>
+
+            <div class="modal-body-scroll">
+                <!-- Descripción de la Práctica -->
+                <div class="mb-5 p-4 bg-light rounded-4 border-start border-4 border-info shadow-sm">
+                    <h6 class="fw-bold mb-3 text-uppercase small text-info d-flex align-items-center">
+                        <i class="bi bi-info-circle-fill me-2 fs-5"></i>Descripción e Instrucciones
+                    </h6>
+                    <p class="mb-0 text-dark" style="white-space: pre-wrap; line-height: 1.6; font-size: 0.95rem;">
+                        {{ selectedPractica()?.descripcion }}
+                    </p>
+                    <div *ngIf="!selectedPractica()?.descripcion" class="text-muted italic small">
+                        No se han proporcionado instrucciones detalladas para esta práctica.
+                    </div>
+                </div>
+
+                <div class="row g-4">
+                    <!-- Recursos Multimedia -->
+                    <div class="col-md-6 border-end">
+                        <div class="d-flex align-items-center mb-4">
+                            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 30px; height: 30px;">
+                                <i class="bi bi-play-fill"></i>
+                            </div>
+                            <h6 class="fw-bold mb-0 text-uppercase small letter-spacing-1">Recursos Multimedia</h6>
+                        </div>
+                        
+                        <div *ngFor="let r of selectedPractica()?.recursos" class="mb-4">
+                            <div class="p-3 bg-white rounded-4 shadow-sm border border-light-subtle position-relative overflow-hidden">
+                                <div class="border-start border-3 border-primary ps-2">
+                                    <div class="fw-bold text-dark small">{{ r.titulo }}</div>
+                                    <div class="text-muted" style="font-size: 0.7rem;">{{ r.tipo_recurso_nombre }}</div>
+                                </div>
+                                <div class="d-flex gap-2 mt-3">
+                                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3" (click)="viewResource(r)" style="font-size: 0.7rem;">
+                                        <i class="bi bi-box-arrow-up-right me-1"></i> Abrir
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Visualizador de Video -->
+                            <div *ngIf="isVideo(r)" class="mt-2 video-preview-container bg-dark rounded-4 overflow-hidden">
+                                <video controls class="w-100" style="max-height: 250px;">
+                                    <source [src]="getResourceUrl(r)" type="video/mp4">
+                                    Tu navegador no soporta video.
+                                </video>
+                            </div>
+                        </div>
+                        <div *ngIf="!selectedPractica()?.recursos?.length" class="text-center py-5 bg-light rounded-4 border border-dashed">
+                            <i class="bi bi-camera-video text-muted d-block mb-2 fs-3"></i>
+                            <span class="text-muted small">Sin recursos multimedia</span>
+                        </div>
+                    </div>
+
+                    <!-- Herramientas Requeridas -->
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-center mb-4">
+                            <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 30px; height: 30px;">
+                                <i class="bi bi-tools"></i>
+                            </div>
+                            <h6 class="fw-bold mb-0 text-uppercase small letter-spacing-1">Herramientas Requeridas</h6>
+                        </div>
+
+                        <div *ngFor="let h of selectedPractica()?.herramientas" class="mb-3">
+                            <div class="p-3 bg-white rounded-4 shadow-sm border border-light-subtle d-flex justify-content-between align-items-center">
+                                <div class="border-start border-3 border-success ps-2">
+                                    <div class="fw-bold text-dark small">{{ h.herramienta_nombre }}</div>
+                                    <div class="badge bg-success-subtle text-success border border-success-subtle rounded-pill" style="font-size: 0.65rem;">
+                                        Cantidad: {{ h.cantidad_requerida }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div *ngIf="!selectedPractica()?.herramientas?.length" class="text-center py-5 bg-light rounded-4 border border-dashed">
+                            <i class="bi bi-wrench-adjustable text-muted d-block mb-2 fs-3"></i>
+                            <span class="text-muted small">Sin herramientas asignadas</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-end mt-4 pt-3 border-top">
+                <button class="btn btn-primary rounded-pill px-5 shadow-sm" (click)="closeDetails()">CERRAR DETALLES</button>
             </div>
         </div>
     </div>

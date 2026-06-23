@@ -31,6 +31,10 @@ export class ReconocimientoIaComponent implements OnInit, OnDestroy {
   cargandoAfiche = signal<boolean>(false);
   vistaPanelDerecho = signal<string>('detecciones'); // detecciones, ficha
 
+  // Índices de carrusel para pasos
+  carruselMedicionIdx = signal<number>(0);
+  carruselProcedimientoIdx = signal<number>(0);
+
   // Configuración de URL del stream de FastAPI
   streamUrl = 'http://localhost:5000/stream';
 
@@ -156,7 +160,10 @@ export class ReconocimientoIaComponent implements OnInit, OnDestroy {
       next: (data) => {
         this.aficheCargado.set(data);
         this.cargandoAfiche.set(false);
-        this.vistaPanelDerecho.set('ficha'); // Cambiar automáticamente a pestaña Ficha
+        // Resetear carruseles al cambiar de componente
+        this.carruselMedicionIdx.set(0);
+        this.carruselProcedimientoIdx.set(0);
+        this.vistaPanelDerecho.set('ficha');
       },
       error: (err) => {
         console.error('Error al cargar afiche para la clase:', clase, err);
@@ -164,6 +171,31 @@ export class ReconocimientoIaComponent implements OnInit, OnDestroy {
         this.cargandoAfiche.set(false);
       }
     });
+  }
+
+  // --- NAVEGACIÓN DE CARRUSELES ---
+  prevMedicion() {
+    const total = this.aficheCargado()?.pasos_medicion?.length || 0;
+    if (total === 0) return;
+    this.carruselMedicionIdx.update(i => (i - 1 + total) % total);
+  }
+
+  nextMedicion() {
+    const total = this.aficheCargado()?.pasos_medicion?.length || 0;
+    if (total === 0) return;
+    this.carruselMedicionIdx.update(i => (i + 1) % total);
+  }
+
+  prevProcedimiento() {
+    const total = this.aficheCargado()?.pasos_procedimiento?.length || 0;
+    if (total === 0) return;
+    this.carruselProcedimientoIdx.update(i => (i - 1 + total) % total);
+  }
+
+  nextProcedimiento() {
+    const total = this.aficheCargado()?.pasos_procedimiento?.length || 0;
+    if (total === 0) return;
+    this.carruselProcedimientoIdx.update(i => (i + 1) % total);
   }
 
   verFichaDesdeDeteccion(clase: string) {

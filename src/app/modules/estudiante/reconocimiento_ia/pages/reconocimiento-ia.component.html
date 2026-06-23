@@ -1,337 +1,298 @@
-<div class="container-fluid p-4">
-  <!-- Cabecera de Módulo -->
-  <div class="row mb-4 align-items-center">
-    <div class="col-md-8">
+<!-- WRAPPER PRINCIPAL -->
+<div class="reconocimiento-page">
+
+  <!-- ── CABECERA ───────────────────────────────────────────── -->
+  <div class="page-header">
+    <div class="header-left">
+      <div class="header-icon"><i class="bi bi-robot"></i></div>
       <div>
         <h2 class="title-tech m-0">RECONOCIMIENTO IA</h2>
-        <p class="subtitle-tech m-0 text-muted">Detector de componentes electrónicos Celucentro en tiempo real</p>
+        <p class="subtitle-tech m-0">Detector de componentes electrónicos en tiempo real</p>
       </div>
     </div>
-    <div class="col-md-4 text-md-end mt-3 mt-md-0">
-      <!-- Indicador de Estado del Servidor FastAPI en PyCharm -->
-      <div class="status-badge" [class.online]="conectado() && !errorConexion()" [class.offline]="!conectado() || errorConexion()">
-        <span class="status-dot"></span>
-        <span class="status-text">
-          {{ conectado() && !errorConexion() ? 'SERVICIO IA ACTIVO' : 'SERVICIO IA APAGADO' }}
-        </span>
-      </div>
+    <div class="status-badge" [class.online]="conectado() && !errorConexion()" [class.offline]="!conectado() || errorConexion()">
+      <span class="status-dot"></span>
+      <span class="status-text">{{ conectado() && !errorConexion() ? 'SERVICIO IA ACTIVO' : 'SERVICIO IA APAGADO' }}</span>
     </div>
   </div>
 
-  <!-- Alerta de Conexión en caso de que FastAPI en PyCharm no esté corriendo -->
-  <div class="alert alert-cyber mb-4" *ngIf="errorConexion()">
-    <div class="d-flex align-items-start gap-3">
-      <i class="bi bi-exclamation-triangle-fill fs-4 text-warning"></i>
-      <div>
-        <h5 class="alert-title m-0">CONEXIÓN REQUERIDA CON PYCHARM</h5>
-        <p class="alert-desc m-0">
-          No se ha detectado el servicio de Inteligencia Artificial en el puerto <code>5000</code>. 
-          Asegúrate de ejecutar el script de FastAPI en tu PyCharm (<code>uvicorn app:app --port 5000</code>) para habilitar la detección de componentes con YOLOv8 y tu cámara.
-        </p>
-        <button class="btn btn-sm btn-retry-tech mt-2" (click)="verificarConexion()">
-          <i class="bi bi-arrow-clockwise me-1"></i> Reintentar Conexión
-        </button>
-      </div>
+  <!-- ── ALERTA DE ERROR ────────────────────────────────────── -->
+  <div class="alert alert-cyber mb-3" *ngIf="errorConexion()">
+    <i class="bi bi-exclamation-triangle-fill text-warning me-2 fs-5"></i>
+    <div>
+      <h5 class="alert-title m-0">CONEXIÓN REQUERIDA</h5>
+      <p class="alert-desc m-0">Servicio IA no detectado en el puerto <code>5000</code>. Ejecuta <code>uvicorn app:app --port 5000</code> en PyCharm.</p>
+      <button class="btn btn-sm btn-retry-tech mt-2" (click)="verificarConexion()">
+        <i class="bi bi-arrow-clockwise me-1"></i>Reintentar
+      </button>
     </div>
   </div>
 
-  <!-- Contenido Principal -->
-  <div class="row" *ngIf="!errorConexion()">
-    <!-- Panel del Stream de Cámara (Izquierda) -->
-    <div class="col-lg-8 mb-4">
-      <div class="light-card camera-card shadow-sm h-100">
-        <div class="card-header-tech d-flex justify-content-between align-items-center">
+  <!-- ── CONTENIDO PRINCIPAL ────────────────────────────────── -->
+  <div class="main-grid" *ngIf="!errorConexion()">
+
+    <!-- ╔══════════════════════════════╗ -->
+    <!-- ║     COLUMNA IZQUIERDA        ║ -->
+    <!-- ╚══════════════════════════════╝ -->
+    <div class="col-camara">
+
+      <!-- FILTROS DE DETECCIÓN -->
+      <div class="filtros-card">
+        <div class="filtros-label"><i class="bi bi-funnel-fill me-1"></i> FILTRO DE DETECCIÓN</div>
+        <div class="filter-chips">
+          <button class="chip chip-todos"      [class.active]="filtroActivo() === 'TODOS'"     (click)="cambiarFiltro('TODOS')">
+            <span class="chip-dot" style="background:#00cccc"></span>TODOS
+          </button>
+          <button class="chip chip-capacitor"  [class.active]="filtroActivo() === 'CAPACITOR'" (click)="cambiarFiltro('CAPACITOR')">
+            <span class="chip-dot" style="background:#00a5ff"></span>CAPACITOR
+          </button>
+          <button class="chip chip-fpc"        [class.active]="filtroActivo() === 'FPC'"       (click)="cambiarFiltro('FPC')">
+            <span class="chip-dot" style="background:#ff6400"></span>FPC
+          </button>
+          <button class="chip chip-bobina"     [class.active]="filtroActivo() === 'BOBINA'"    (click)="cambiarFiltro('BOBINA')">
+            <span class="chip-dot" style="background:#ff0000"></span>BOBINA
+          </button>
+        </div>
+      </div>
+
+      <!-- CÁMARA -->
+      <div class="camera-card">
+        <div class="camera-card-header">
           <span class="section-title-tech">
-            <i class="bi bi-camera-video-fill me-2 text-primary"></i>FEED DE CÁMARA DE DIAGNÓSTICO
+            <i class="bi bi-camera-video-fill me-2 text-primary"></i>FEED DE DIAGNÓSTICO
           </span>
           <div class="camera-actions" *ngIf="conectado()">
-            <button *ngIf="camaraActiva()" class="btn btn-stop-camera" (click)="detenerCamara()">
-              <i class="bi bi-camera-video-off-fill me-2"></i>Apagar Cámara
+            <button *ngIf="camaraActiva()"  class="btn-cam btn-cam-stop"  (click)="detenerCamara()">
+              <i class="bi bi-camera-video-off-fill me-1"></i>Apagar
             </button>
-            <button *ngIf="!camaraActiva()" class="btn btn-start-camera animate-pulse" (click)="iniciarCamara()">
-              <i class="bi bi-camera-video-fill me-2"></i>Encender Cámara
+            <button *ngIf="!camaraActiva()" class="btn-cam btn-cam-start animate-pulse" (click)="iniciarCamara()">
+              <i class="bi bi-camera-video-fill me-1"></i>Encender
             </button>
           </div>
         </div>
 
-        <!-- Visor del Stream de Video -->
-        <div class="camera-viewport d-flex align-items-center justify-content-center">
-          <!-- Si la cámara está activa y hay conexión -->
-          <div class="stream-wrapper" #streamContainer *ngIf="camaraActiva() && conectado(); else camaraInactivaTpl" [class.fullscreen-wrapper]="isFullscreen()">
-            <img [src]="streamUrl" alt="Detección en tiempo real" class="stream-img img-fluid">
+        <div class="camera-viewport">
+          <!-- Stream activo -->
+          <div class="stream-wrapper" #streamContainer *ngIf="camaraActiva() && conectado(); else camaraOffTpl" [class.fullscreen-wrapper]="isFullscreen()">
+            <img [src]="streamUrl" alt="Stream en vivo" class="stream-img">
             <div class="camera-overlay-info">
               <span class="badge bg-dark-glass">Filtro: {{ filtroActivo() }}</span>
-              <span class="badge bg-dark-glass ms-2">Detecciones: {{ totalDetecciones() }}</span>
+              <span class="badge bg-dark-glass ms-2">{{ totalDetecciones() }} detec.</span>
             </div>
-            <!-- Botón flotante para pantalla completa -->
-            <button class="btn btn-fullscreen-overlay" (click)="toggleFullscreen()" title="Pantalla Completa">
+            <button class="btn-fullscreen-overlay" (click)="toggleFullscreen()" title="Pantalla Completa">
               <i class="bi" [class.bi-fullscreen]="!isFullscreen()" [class.bi-fullscreen-exit]="isFullscreen()"></i>
             </button>
           </div>
 
-          <!-- Plantilla para cámara inactiva -->
-          <ng-template #camaraInactivaTpl>
-            <div class="text-center p-5 camara-inactiva-placeholder">
-              <div class="inactive-icon-container">
-                <i class="bi bi-camera-video-off fs-1"></i>
-              </div>
+          <!-- Cámara apagada -->
+          <ng-template #camaraOffTpl>
+            <div class="camera-off-placeholder">
+              <div class="inactive-icon-container"><i class="bi bi-camera-video-off fs-1"></i></div>
               <h4 class="mt-3 text-secondary">CÁMARA APAGADA</h4>
-              <p class="text-muted text-max-width mx-auto">
-                Enciende la cámara para iniciar el escaneo de componentes electrónicos y su identificación automática por IA.
-              </p>
-              <button class="btn btn-primary-tech" [disabled]="!conectado()" (click)="iniciarCamara()">
+              <p class="text-muted text-max-width mx-auto">Enciende la cámara para detectar componentes.</p>
+              <button class="btn-primary-tech mt-2" [disabled]="!conectado()" (click)="iniciarCamara()">
                 <i class="bi bi-play-fill me-2"></i>INICIAR TRANSMISIÓN
               </button>
             </div>
           </ng-template>
         </div>
       </div>
-    </div>
 
-    <!-- Controles de Filtros y Detecciones (Derecha) -->
-    <div class="col-lg-4 mb-4">
-      <div class="d-flex flex-column gap-4 h-100">
-        <!-- Selector de Filtros -->
-        <div class="light-card p-4 shadow-sm">
-          <h5 class="section-title-tech mb-3">
-            <i class="bi bi-funnel-fill me-2 text-primary"></i>FILTROS DE DETECCIÓN
-          </h5>
-          <p class="text-muted small">Selecciona una categoría para aislar el componente en el visor de IA.</p>
-          
-          <div class="filter-chips-grid">
-            <button 
-              class="filter-chip-btn chip-todos" 
-              [class.active]="filtroActivo() === 'TODOS'"
-              (click)="cambiarFiltro('TODOS')">
-              <span class="chip-color-dot" style="background-color: #00cccc;"></span>
-              TODOS
-            </button>
-            
-            <button 
-              class="filter-chip-btn chip-fpc" 
-              [class.active]="filtroActivo() === 'FPC'"
-              (click)="cambiarFiltro('FPC')">
-              <span class="chip-color-dot" style="background-color: #ff6400;"></span>
-              FPC (Flex Connect)
-            </button>
-            
-            <button 
-              class="filter-chip-btn chip-capacitor" 
-              [class.active]="filtroActivo() === 'CAPACITOR'"
-              (click)="cambiarFiltro('CAPACITOR')">
-              <span class="chip-color-dot" style="background-color: #00a5ff;"></span>
-              CAPACITORES
-            </button>
-            
-            <button 
-              class="filter-chip-btn chip-bobina" 
-              [class.active]="filtroActivo() === 'BOBINA'"
-              (click)="cambiarFiltro('BOBINA')">
-              <span class="chip-color-dot" style="background-color: #ff0000;"></span>
-              BOBINAS
-            </button>
-          </div>
+      <!-- DETECCIONES EN VIVO (bajo la cámara) -->
+      <div class="detecciones-card">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <span class="section-title-tech"><i class="bi bi-cpu-fill me-2 text-primary"></i>DETECCIONES EN VIVO</span>
+          <span class="badge badge-detecciones" *ngIf="camaraActiva()">{{ totalDetecciones() }} ACTIVAS</span>
         </div>
 
-        <!-- Panel Lateral Derecho (Detecciones en Vivo y Ficha Técnica) -->
-        <div class="light-card p-4 shadow-sm flex-grow-1 d-flex flex-column" style="min-height: 520px;">
-          
-          <!-- Pestañas de Navegación del Panel Derecho (Sólo visibles si hay un afiche cargado) -->
-          <div class="d-flex border-bottom mb-3" *ngIf="aficheCargado()">
-            <button 
-              class="btn btn-sm flex-grow-1 pb-2 fw-bold text-center" 
-              [class.border-bottom-active]="vistaPanelDerecho() === 'detecciones'"
-              [class.text-muted]="vistaPanelDerecho() !== 'detecciones'"
-              style="border: none; background: transparent; border-bottom: 3px solid transparent; transition: all 0.2s;"
-              (click)="vistaPanelDerecho.set('detecciones')">
-              <i class="bi bi-cpu-fill me-1"></i> DETECCIONES
-            </button>
-            <button 
-              class="btn btn-sm flex-grow-1 pb-2 fw-bold text-center animate-pulse" 
-              [class.border-bottom-active]="vistaPanelDerecho() === 'ficha'"
-              [class.text-muted]="vistaPanelDerecho() !== 'ficha'"
-              style="border: none; background: transparent; border-bottom: 3px solid transparent; transition: all 0.2s;"
-              (click)="vistaPanelDerecho.set('ficha')">
-              <i class="bi bi-file-earmark-text-fill me-1"></i> FICHA TÉCNICA
-            </button>
-          </div>
-
-          <!-- CONTENIDO A: DETECCIONES EN VIVO -->
-          <div class="d-flex flex-column flex-grow-1" *ngIf="vistaPanelDerecho() === 'detecciones'">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-              <h5 class="section-title-tech m-0">
-                <i class="bi bi-cpu-fill me-2 text-primary"></i>DETECCIONES EN VIVO
-              </h5>
-              <span class="badge badge-detecciones" *ngIf="camaraActiva()">
-                {{ totalDetecciones() }} ACTIVAS
+        <div *ngIf="camaraActiva() && totalDetecciones() > 0; else noDetTpl" class="detecciones-list">
+          <div class="detection-item" *ngFor="let det of detecciones()">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <span class="detection-badge" [style.border-color]="getColorClase(det.clase)" [style.color]="getColorClase(det.clase)">
+                <i class="bi bi-cpu me-1"></i>{{ getNombreClase(det.clase) }}
               </span>
-            </div>
-
-            <!-- Si la cámara está activa y hay detecciones -->
-            <div class="detecciones-list-container flex-grow-1 overflow-auto pe-1" *ngIf="camaraActiva() && totalDetecciones() > 0; else noDeteccionesTpl">
-              <div class="detection-item" *ngFor="let det of detecciones(); let i = index">
-                <div class="detection-header d-flex justify-content-between align-items-center mb-1">
-                  <span class="detection-badge" [style.border-color]="getColorClase(det.clase)" [style.color]="getColorClase(det.clase)">
-                    <i class="bi bi-cpu me-1"></i> {{ getNombreClase(det.clase) }}
-                  </span>
-                  
-                  <div class="d-flex align-items-center gap-2">
-                    <span class="detection-conf" [style.color]="getColorClase(det.clase)">
-                      {{ det.confianza | percent:'1.0-0' }}
-                    </span>
-                    <!-- Botón para ir al afiche del componente -->
-                    <button class="btn btn-sm btn-outline-secondary p-1 py-0" (click)="verFichaDesdeDeteccion(det.clase)" title="Ver Ficha Técnica">
-                      <i class="bi bi-info-circle-fill text-primary"></i>
-                    </button>
-                  </div>
-                </div>
-                <div class="detection-body">
-                  <div class="progress-container-tech">
-                    <div class="progress-bar-tech" 
-                         [style.width]="(det.confianza * 100) + '%'"
-                         [style.background-color]="getColorClase(det.clase)">
-                    </div>
-                  </div>
-                  <div class="d-flex justify-content-between text-muted text-extra-small mt-1">
-                    <span>Coordenadas Bounding Box:</span>
-                    <span>[{{ det.bbox.join(', ') }}]</span>
-                  </div>
-                </div>
+              <div class="d-flex align-items-center gap-2">
+                <span class="detection-conf" [style.color]="getColorClase(det.clase)">{{ det.confianza | percent:'1.0-0' }}</span>
+                <button class="btn-ficha-quick" (click)="verFichaDesdeDeteccion(det.clase)" title="Ver Ficha Técnica">
+                  <i class="bi bi-info-circle-fill"></i>
+                </button>
               </div>
             </div>
-
-            <!-- Plantilla para cuando no hay detecciones en pantalla -->
-            <ng-template #noDeteccionesTpl>
-              <div class="text-center p-4 m-auto d-flex flex-column align-items-center justify-content-center flex-grow-1">
-                <div class="radar-scan-container" *ngIf="camaraActiva()">
-                  <div class="radar-ring"></div>
-                  <div class="radar-ring"></div>
-                  <div class="radar-ring"></div>
-                  <i class="bi bi-eye fs-2 text-primary animate-pulse"></i>
-                </div>
-                <i class="bi bi-camera-video text-secondary fs-1 mb-2" *ngIf="!camaraActiva()"></i>
-                <h6 class="text-secondary mt-3">
-                  {{ camaraActiva() ? 'ESCANEANDO PLACA...' : 'ESPERANDO CÁMARA' }}
-                </h6>
-                <p class="text-muted small text-max-width mx-auto">
-                  {{ camaraActiva() ? 'Apunta la cámara a la placa del celular para identificar los FPC, Capacitores y Bobinas.' : 'Enciende el feed de video de diagnóstico para iniciar.' }}
-                </p>
-              </div>
-            </ng-template>
-          </div>
-
-          <!-- CONTENIDO B: FICHA TÉCNICA (AFICHE INTERACTIVO) -->
-          <div class="d-flex flex-column flex-grow-1 overflow-auto pe-1" *ngIf="vistaPanelDerecho() === 'ficha' && aficheCargado()">
-            <div class="afiche-container animate-fade-in">
-              
-              <!-- Cabecera del Afiche -->
-              <div class="afiche-header-est mb-3">
-                <span class="badge text-white px-2 py-1 mb-2 text-uppercase" [style.background-color]="getColorClase(aficheCargado().clase_ia)" style="font-size: 0.65rem; font-weight: 700; border-radius: 50px;">
-                  📌 {{ aficheCargado().clase_ia }}
-                </span>
-                <h4 class="afiche-title-est m-0 text-uppercase">{{ aficheCargado().nombre }}</h4>
-              </div>
-
-              <!-- Imágenes de Referencia y Símbolo -->
-              <div class="afiche-media-grid mb-3">
-                <div class="afiche-media-box shadow-sm">
-                  <img [src]="aficheCargado().imagen_referencia || 'placeholder-camera.png'" alt="Imagen de referencia real">
-                  <span class="afiche-media-label">Foto Real</span>
-                </div>
-                <div class="afiche-media-box shadow-sm">
-                  <img [src]="aficheCargado().imagen_simbolo || 'placeholder-symbol.png'" alt="Símbolo electrónico">
-                  <span class="afiche-media-label">Símbolo</span>
-                </div>
-              </div>
-
-              <!-- Descripción General -->
-              <div class="mb-3">
-                <p class="text-muted small m-0" style="text-align: justify; line-height: 1.4;">
-                  {{ aficheCargado().descripcion_general }}
-                </p>
-              </div>
-
-              <!-- Función (Checks) -->
-              <div class="mb-3" *ngIf="aficheCargado().funciones?.length">
-                <h6 class="section-title-tech mb-2" style="font-size: 0.75rem; color: #0f172a;"><i class="bi bi-check-circle-fill text-success"></i> FUNCIÓN</h6>
-                <div class="list-checks-est p-2 px-3">
-                  <div class="check-item-est py-1 d-flex align-items-center gap-2" *ngFor="let fn of aficheCargado().funciones">
-                    <span class="text-success fw-bold">✔</span> <span>{{ fn.texto }}</span>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Características (Viñetas) -->
-              <div class="mb-3" *ngIf="aficheCargado().caracteristicas?.length">
-                <h6 class="section-title-tech mb-2" style="font-size: 0.75rem; color: #0f172a;"><i class="bi bi-info-circle-fill text-primary"></i> CARACTERÍSTICAS</h6>
-                <div class="list-bullets-est p-2 px-3">
-                  <div class="bullet-item-est py-1 d-flex align-items-start gap-2" *ngFor="let car of aficheCargado().caracteristicas">
-                    <span class="text-primary fw-bold" style="font-size: 1rem; line-height: 1;">•</span> <span>{{ car.texto }}</span>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Medición Paso a Paso -->
-              <div class="mb-3" *ngIf="aficheCargado().pasos_medicion?.length">
-                <h6 class="section-title-tech mb-2" style="font-size: 0.75rem; color: #0f172a;"><i class="bi bi-activity text-info"></i> PROCEDIMIENTO DE MEDICIÓN</h6>
-                <div class="d-flex flex-column gap-2">
-                  <div class="step-card-est p-2 px-3" *ngFor="let paso of aficheCargado().pasos_medicion; let stepIdx = index">
-                    <div class="d-flex justify-content-between align-items-center mb-1">
-                      <span class="step-number-est">Paso {{ paso.orden }}</span>
-                    </div>
-                    <p class="text-muted small m-0 mb-2">{{ paso.descripcion }}</p>
-                    
-                    <!-- Multimedia del Paso de Medición -->
-                    <div class="step-media-container mb-1" *ngIf="paso.recursos?.length">
-                      <div class="step-media-item shadow-sm" *ngFor="let rec of paso.recursos">
-                        <!-- Imagen -->
-                        <img *ngIf="rec.tipo === 'imagen' || rec.archivo.endsWith('.jpg') || rec.archivo.endsWith('.png') || rec.archivo.endsWith('.webp')" [src]="rec.archivo" alt="Recurso del paso" class="img-fluid rounded">
-                        <!-- Video -->
-                        <video *ngIf="rec.tipo === 'video' || rec.archivo.endsWith('.mp4') || rec.archivo.endsWith('.webm')" [src]="rec.archivo" controls class="w-100 rounded"></video>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Cambios o Reparaciones (Procedimientos) -->
-              <div class="mb-3" *ngIf="aficheCargado().pasos_procedimiento?.length">
-                <h6 class="section-title-tech mb-2" style="font-size: 0.75rem; color: #0f172a;"><i class="bi bi-arrow-left-right text-warning"></i> CAMBIOS O REPARACIONES</h6>
-                <div class="d-flex flex-column gap-2">
-                  <div class="step-card-est reparacion-step p-2 px-3" *ngFor="let paso of aficheCargado().pasos_procedimiento; let stepIdx = index">
-                    <div class="d-flex justify-content-between align-items-center mb-1">
-                      <span class="step-number-est reparacion-badge">Paso {{ paso.orden }}</span>
-                    </div>
-                    <p class="text-muted small m-0 mb-2">{{ paso.descripcion }}</p>
-                    
-                    <!-- Multimedia del Paso de Reparación -->
-                    <div class="step-media-container mb-1" *ngIf="paso.recursos?.length">
-                      <div class="step-media-item shadow-sm" *ngFor="let rec of paso.recursos">
-                        <!-- Imagen -->
-                        <img *ngIf="rec.tipo === 'imagen' || rec.archivo.endsWith('.jpg') || rec.archivo.endsWith('.png') || rec.archivo.endsWith('.webp')" [src]="rec.archivo" alt="Recurso del paso" class="img-fluid rounded">
-                        <!-- Video -->
-                        <video *ngIf="rec.tipo === 'video' || rec.archivo.endsWith('.mp4') || rec.archivo.endsWith('.webm')" [src]="rec.archivo" controls class="w-100 rounded"></video>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Herramientas Requeridas -->
-              <div class="mb-2" *ngIf="aficheCargado().herramientas?.length">
-                <h6 class="section-title-tech mb-2" style="font-size: 0.75rem; color: #0f172a;"><i class="bi bi-box-fill text-warning"></i> HERRAMIENTAS REQUERIDAS</h6>
-                <div class="tools-grid-est">
-                  <div class="tool-badge-est shadow-sm" *ngFor="let tool of aficheCargado().herramientas">
-                    <i class="bi bi-wrench-adjustable-fill text-warning mb-1" style="font-size: 1.1rem;"></i>
-                    <span class="text-truncate w-100" [title]="tool.nombre">{{ tool.nombre }}</span>
-                  </div>
-                </div>
-              </div>
-
+            <div class="progress-container-tech">
+              <div class="progress-bar-tech" [style.width]="(det.confianza * 100)+'%'" [style.background-color]="getColorClase(det.clase)"></div>
             </div>
           </div>
         </div>
+
+        <ng-template #noDetTpl>
+          <div class="no-det-placeholder">
+            <div class="radar-scan-container" *ngIf="camaraActiva()">
+              <div class="radar-ring"></div><div class="radar-ring"></div><div class="radar-ring"></div>
+              <i class="bi bi-eye fs-3 text-primary animate-pulse"></i>
+            </div>
+            <i class="bi bi-camera-video text-secondary fs-2 mb-2" *ngIf="!camaraActiva()"></i>
+            <p class="text-muted small mt-2 mb-0">{{ camaraActiva() ? 'Apunta la cámara a la placa...' : 'Enciende la cámara para iniciar.' }}</p>
+          </div>
+        </ng-template>
       </div>
-    </div>
-  </div>
-</div>
+
+    </div><!-- /col-camara -->
+
+    <!-- ╔══════════════════════════════╗ -->
+    <!-- ║   COLUMNA DERECHA – AFICHE   ║ -->
+    <!-- ╚══════════════════════════════╝ -->
+    <div class="col-ficha">
+
+      <!-- Estado: sin afiche seleccionado -->
+      <div class="ficha-empty" *ngIf="!aficheCargado() && !cargandoAfiche()">
+        <div class="ficha-empty-icon"><i class="bi bi-file-earmark-text"></i></div>
+        <h5 class="mt-3">Sin componente seleccionado</h5>
+        <p class="text-muted small text-center mx-auto" style="max-width:200px">Activa un filtro o haz clic en <i class="bi bi-info-circle-fill text-primary"></i> en una detección para ver su ficha técnica.</p>
+      </div>
+
+      <!-- Estado: cargando -->
+      <div class="ficha-loading" *ngIf="cargandoAfiche()">
+        <div class="spinner-border text-primary mb-3" role="status"></div>
+        <p class="text-muted small">Cargando ficha técnica...</p>
+      </div>
+
+      <!-- AFICHE CARGADO -->
+      <div class="ficha-content animate-fade-in" *ngIf="aficheCargado() && !cargandoAfiche()">
+
+        <!-- ── CABECERA DEL AFICHE ────────────── -->
+        <div class="ficha-header" [style.border-top-color]="getColorClase(aficheCargado().clase_ia)">
+          <div class="d-flex align-items-center gap-2 mb-1">
+            <span class="clase-badge" [style.background]="getColorClase(aficheCargado().clase_ia)">
+              📌 {{ aficheCargado().clase_ia }}
+            </span>
+          </div>
+          <h3 class="ficha-nombre text-uppercase">{{ aficheCargado().nombre }}</h3>
+        </div>
+
+        <!-- ── IMÁGENES ───────────────────────── -->
+        <div class="ficha-imagenes">
+          <div class="img-box shadow-sm">
+            <img [src]="aficheCargado().imagen_referencia" alt="Foto Real" *ngIf="aficheCargado().imagen_referencia">
+            <div class="img-placeholder" *ngIf="!aficheCargado().imagen_referencia"><i class="bi bi-image text-muted fs-3"></i></div>
+            <span class="img-label">📷 Foto Real</span>
+          </div>
+          <div class="img-box shadow-sm">
+            <img [src]="aficheCargado().imagen_simbolo" alt="Símbolo" *ngIf="aficheCargado().imagen_simbolo">
+            <div class="img-placeholder" *ngIf="!aficheCargado().imagen_simbolo"><i class="bi bi-diagram-3 text-muted fs-3"></i></div>
+            <span class="img-label">⚡ Símbolo</span>
+          </div>
+        </div>
+
+        <!-- ── DESCRIPCIÓN ────────────────────── -->
+        <p class="ficha-desc">{{ aficheCargado().descripcion_general }}</p>
+
+        <!-- ── FUNCIÓN + CARACTERÍSTICAS ─────── -->
+        <div class="ficha-row-2col" *ngIf="aficheCargado().funciones?.length || aficheCargado().caracteristicas?.length">
+          <!-- Función -->
+          <div class="ficha-bloque" *ngIf="aficheCargado().funciones?.length">
+            <div class="bloque-title"><i class="bi bi-check-circle-fill text-success me-1"></i>FUNCIÓN</div>
+            <div class="bloque-list">
+              <div class="bloque-item" *ngFor="let fn of aficheCargado().funciones">
+                <span class="check-icon">✔</span>{{ fn.texto }}
+              </div>
+            </div>
+          </div>
+          <!-- Características -->
+          <div class="ficha-bloque" *ngIf="aficheCargado().caracteristicas?.length">
+            <div class="bloque-title"><i class="bi bi-list-ul text-primary me-1"></i>CARACTERÍSTICAS</div>
+            <div class="bloque-list">
+              <div class="bloque-item" *ngFor="let c of aficheCargado().caracteristicas">
+                <span class="bullet-icon">•</span>{{ c.texto }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── CARRUSEL MEDICIÓN ──────────────── -->
+        <div class="carrusel-section" *ngIf="aficheCargado().pasos_medicion?.length">
+          <div class="carrusel-header">
+            <div class="bloque-title m-0"><i class="bi bi-activity text-info me-1"></i>MEDICIÓN</div>
+            <div class="carrusel-nav">
+              <button class="btn-nav" (click)="prevMedicion()" [disabled]="aficheCargado().pasos_medicion.length <= 1">
+                <i class="bi bi-chevron-left"></i>
+              </button>
+              <span class="carrusel-counter">
+                {{ carruselMedicionIdx() + 1 }} / {{ aficheCargado().pasos_medicion.length }}
+              </span>
+              <button class="btn-nav" (click)="nextMedicion()" [disabled]="aficheCargado().pasos_medicion.length <= 1">
+                <i class="bi bi-chevron-right"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Slide activo -->
+          <div class="carrusel-slide" *ngFor="let paso of aficheCargado().pasos_medicion; let i = index" [class.visible]="i === carruselMedicionIdx()">
+            <div class="slide-numero">Paso {{ paso.orden }}</div>
+            <p class="slide-desc">{{ paso.descripcion }}</p>
+            <div class="slide-media" *ngIf="paso.recursos?.length">
+              <ng-container *ngFor="let rec of paso.recursos">
+                <img *ngIf="rec.tipo === 'imagen'" [src]="rec.archivo" alt="Imagen del paso" class="slide-img">
+                <video *ngIf="rec.tipo === 'video'" [src]="rec.archivo" controls class="slide-video"></video>
+              </ng-container>
+            </div>
+          </div>
+
+          <!-- Dots de paginación -->
+          <div class="carrusel-dots">
+            <span class="dot" *ngFor="let paso of aficheCargado().pasos_medicion; let i = index"
+                  [class.active]="i === carruselMedicionIdx()"
+                  (click)="carruselMedicionIdx.set(i)"></span>
+          </div>
+        </div>
+
+        <!-- ── CARRUSEL REPARACIÓN ────────────── -->
+        <div class="carrusel-section carrusel-rep" *ngIf="aficheCargado().pasos_procedimiento?.length">
+          <div class="carrusel-header">
+            <div class="bloque-title m-0"><i class="bi bi-tools text-warning me-1"></i>CAMBIOS / REPARACIÓN</div>
+            <div class="carrusel-nav">
+              <button class="btn-nav btn-nav-rep" (click)="prevProcedimiento()" [disabled]="aficheCargado().pasos_procedimiento.length <= 1">
+                <i class="bi bi-chevron-left"></i>
+              </button>
+              <span class="carrusel-counter">
+                {{ carruselProcedimientoIdx() + 1 }} / {{ aficheCargado().pasos_procedimiento.length }}
+              </span>
+              <button class="btn-nav btn-nav-rep" (click)="nextProcedimiento()" [disabled]="aficheCargado().pasos_procedimiento.length <= 1">
+                <i class="bi bi-chevron-right"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="carrusel-slide" *ngFor="let paso of aficheCargado().pasos_procedimiento; let i = index" [class.visible]="i === carruselProcedimientoIdx()">
+            <div class="slide-numero slide-numero-rep">Paso {{ paso.orden }}</div>
+            <p class="slide-desc">{{ paso.descripcion }}</p>
+            <div class="slide-media" *ngIf="paso.recursos?.length">
+              <ng-container *ngFor="let rec of paso.recursos">
+                <img *ngIf="rec.tipo === 'imagen'" [src]="rec.archivo" alt="Imagen del paso" class="slide-img">
+                <video *ngIf="rec.tipo === 'video'" [src]="rec.archivo" controls class="slide-video"></video>
+              </ng-container>
+            </div>
+          </div>
+
+          <div class="carrusel-dots">
+            <span class="dot dot-rep" *ngFor="let paso of aficheCargado().pasos_procedimiento; let i = index"
+                  [class.active]="i === carruselProcedimientoIdx()"
+                  (click)="carruselProcedimientoIdx.set(i)"></span>
+          </div>
+        </div>
+
+        <!-- ── HERRAMIENTAS ───────────────────── -->
+        <div class="ficha-herramientas" *ngIf="aficheCargado().herramientas?.length">
+          <div class="bloque-title mb-2"><i class="bi bi-box-fill text-warning me-1"></i>HERRAMIENTAS REQUERIDAS</div>
+          <div class="tools-grid">
+            <div class="tool-chip" *ngFor="let tool of aficheCargado().herramientas" [title]="tool.nombre">
+              <i class="bi bi-wrench-adjustable-fill text-warning"></i>
+              <span>{{ tool.nombre }}</span>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /ficha-content -->
+    </div><!-- /col-ficha -->
+
+  </div><!-- /main-grid -->
+</div><!-- /reconocimiento-page -->

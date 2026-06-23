@@ -128,9 +128,6 @@
                      style="animation-delay: 0.1s;">
                     <label class="hud-label text-info"><i class="bi bi-info-circle me-2"></i>DESCRIPCIÓN</label>
                     <div class="hud-content">{{ selectedHerramienta().descripcion }}</div>
-                    <div class="hud-tap-hint" *ngIf="activeHUD() !== 'desc'">
-                        <i class="bi bi-hand-index-thumb me-1"></i> Toca para expandir
-                    </div>
                 </div>
 
                 <div class="hud-card glass-panel usage fade-in-left" 
@@ -139,9 +136,6 @@
                      style="animation-delay: 0.2s;">
                     <label class="hud-label text-primary"><i class="bi bi-play-circle me-2"></i>MODO DE USO</label>
                     <div class="hud-content">{{ selectedHerramienta().uso }}</div>
-                    <div class="hud-tap-hint" *ngIf="activeHUD() !== 'uso'">
-                        <i class="bi bi-hand-index-thumb me-1"></i> Toca para expandir
-                    </div>
                 </div>
             </div>
 
@@ -153,9 +147,6 @@
                      style="animation-delay: 0.3s;">
                     <label class="hud-label text-danger"><i class="bi bi-shield-exclamation me-2"></i>SEGURIDAD</label>
                     <div class="hud-content">{{ selectedHerramienta().info_importante }}</div>
-                    <div class="hud-tap-hint" *ngIf="activeHUD() !== 'seg'">
-                        <i class="bi bi-hand-index-thumb me-1"></i> Toca para expandir
-                    </div>
                 </div>
             </div>
 

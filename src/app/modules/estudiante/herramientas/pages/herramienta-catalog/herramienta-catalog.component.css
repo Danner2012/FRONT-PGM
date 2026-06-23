@@ -150,7 +150,7 @@
 
 .hud-card {
     pointer-events: auto;
-    padding: clamp(1rem, 2vw, 1.5rem);
+    padding: 0.8rem 1rem;
     border-radius: 1.5rem;
     transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     margin-bottom: 1rem;
@@ -163,7 +163,7 @@
 }
 
 .hud-card:not(.expanded) {
-    max-height: 70px;
+    max-height: 58px;
     background: rgba(15, 23, 42, 0.4);
 }
 
@@ -190,17 +190,17 @@
 .hud-label {
     display: flex;
     align-items: center;
-    font-size: clamp(0.7rem, 1vw, 0.8rem);
+    font-size: clamp(0.68rem, 1vw, 0.78rem);
     font-weight: 800;
     letter-spacing: 1.5px;
     margin-bottom: 0;
-    min-height: 30px;
-    transition: margin 0.3s;
     text-transform: uppercase;
+    flex: 1;
+    white-space: nowrap;
 }
 
 .hud-card.expanded .hud-label {
-    margin-bottom: 1.2rem;
+    margin-bottom: 1rem;
     padding-bottom: 0.8rem;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
@@ -219,28 +219,6 @@
 .hud-card.expanded .hud-content {
     opacity: 1;
     max-height: 100%;
-}
-
-.hud-tap-hint {
-    font-size: 0.7rem;
-    color: #fff;
-    font-weight: 600;
-    background: rgba(255, 255, 255, 0.15);
-    padding: 4px 12px;
-    border-radius: 50px;
-    margin-top: 8px;
-    text-align: center;
-    align-self: center;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    animation: pulse-hint 2s infinite;
-}
-
-@keyframes pulse-hint {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-    100% { transform: scale(1); }
 }
 
 .glass-panel {

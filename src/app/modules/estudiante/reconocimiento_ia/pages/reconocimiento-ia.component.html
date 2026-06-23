@@ -296,12 +296,29 @@
 
         <!-- SECCIÓN: HERRAMIENTAS -->
         <ng-container *ngIf="tabActiva() === 'herramientas' && aficheCargado().herramientas?.length">
-          <!-- ── HERRAMIENTAS ───────────────────── -->
           <div class="ficha-herramientas">
-            <div class="bloque-title mb-2">HERRAMIENTAS REQUERIDAS</div>
-            <div class="tools-grid">
-              <div class="tool-chip" *ngFor="let tool of aficheCargado().herramientas" [title]="tool.nombre">
-                <span>{{ tool.nombre }}</span>
+            <div class="bloque-title mb-3">HERRAMIENTAS REQUERIDAS</div>
+            <div class="herr-cards-grid">
+              <div class="herr-card" *ngFor="let tool of aficheCargado().herramientas"
+                   (click)="abrirVisorHerramienta(tool)">
+                <div class="herr-card-img">
+                  <img [src]="getImageUrl(tool.imagen_previa)" [alt]="tool.nombre"
+                       *ngIf="tool.imagen_previa; else noHerramienta">
+                  <ng-template #noHerramienta>
+                    <div class="herr-no-img"><i class="bi bi-wrench-adjustable fs-3 text-muted"></i></div>
+                  </ng-template>
+                  <div class="herr-badge-3d" *ngIf="tool.modelos_3d?.length > 0">
+                    <i class="bi bi-box me-1"></i>3D
+                  </div>
+                  <div class="herr-hover-overlay">
+                    <i class="bi bi-eye-fill fs-4"></i>
+                    <span class="small fw-bold mt-1">VER 3D</span>
+                  </div>
+                </div>
+                <div class="herr-card-body">
+                  <h6 class="herr-nombre">{{ tool.nombre }}</h6>
+                  <p class="herr-desc" *ngIf="tool.descripcion">{{ tool.descripcion }}</p>
+                </div>
               </div>
             </div>
           </div>
@@ -311,11 +328,82 @@
     </div><!-- /col-ficha -->
 
   </div><!-- /main-grid -->
-  
+
   <!-- MODAL DE VISUALIZACIÓN DE IMÁGENES -->
   <div class="image-viewer-modal" *ngIf="mostrarModalImagen()" (click)="cerrarModalImagen()">
     <span class="close-viewer-btn" (click)="cerrarModalImagen()">&times;</span>
     <img [src]="imagenSeleccionadaUrl()" alt="Visualización ampliada" class="image-viewer-content" (click)="$event.stopPropagation()">
+  </div>
+
+  <!-- MODAL VISOR 3D DE HERRAMIENTA -->
+  <div class="modal-overlay" *ngIf="mostrarVisorHerramienta() && herramientaSeleccionada()" (click)="cerrarVisorHerramienta()">
+    <div class="modal-content-custom modal-inmersive view-mode animate-zoom-in" (click)="$event.stopPropagation()">
+
+      <!-- Header flotante -->
+      <div class="inmersive-header d-flex justify-content-between align-items-start p-4">
+        <div>
+          <span class="badge bg-primary rounded-pill mb-2 px-3">{{ herramientaSeleccionada().categoria_info?.nombre || 'Herramienta' }}</span>
+          <h3 class="fw-bold mb-0 text-white shadow-text">{{ herramientaSeleccionada().nombre }}</h3>
+        </div>
+        <button class="btn-close-circle glass" (click)="cerrarVisorHerramienta()">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+
+      <!-- Visor principal -->
+      <div class="main-viewer-box bg-dark inmersive-box">
+
+        <!-- Navegación modelos -->
+        <div class="model-nav-controls" *ngIf="herramientaSeleccionada().modelos_3d?.length > 1">
+          <button class="nav-btn prev" (click)="prevModel3D()"><i class="bi bi-chevron-left"></i></button>
+          <div class="model-counter">{{ activeModelIdx() + 1 }} / {{ herramientaSeleccionada().modelos_3d.length }}</div>
+          <button class="nav-btn next" (click)="nextModel3D()"><i class="bi bi-chevron-right"></i></button>
+        </div>
+
+        <!-- Three.js viewer -->
+        <app-three-viewer
+          *ngIf="previewUrl3D()"
+          [src]="previewUrl3D()"
+          [schemaUrl]="schemaUrl()"
+          [rotation]="getRotation3D()"
+          [scale]="scaleValue()"
+          [autoRotate]="true">
+        </app-three-viewer>
+
+        <!-- HUD izquierdo -->
+        <div class="hud-container left gap-3 p-4">
+          <div class="hud-card glass-panel fade-in-left"
+               [class.expanded]="activeHUD() === 'desc'"
+               (click)="activeHUD.set(activeHUD() === 'desc' ? null : 'desc')">
+            <label class="hud-label text-info"><i class="bi bi-info-circle me-2"></i>DESCRIPCIÓN</label>
+            <div class="hud-content">{{ herramientaSeleccionada().descripcion }}</div>
+          </div>
+          <div class="hud-card glass-panel usage fade-in-left"
+               [class.expanded]="activeHUD() === 'uso'"
+               (click)="activeHUD.set(activeHUD() === 'uso' ? null : 'uso')">
+            <label class="hud-label text-primary"><i class="bi bi-play-circle me-2"></i>MODO DE USO</label>
+            <div class="hud-content">{{ herramientaSeleccionada().uso }}</div>
+          </div>
+        </div>
+
+        <!-- HUD derecho -->
+        <div class="hud-container right p-4">
+          <div class="hud-card glass-panel security fade-in-right"
+               [class.expanded]="activeHUD() === 'seg'"
+               (click)="activeHUD.set(activeHUD() === 'seg' ? null : 'seg')">
+            <label class="hud-label text-danger"><i class="bi bi-shield-exclamation me-2"></i>SEGURIDAD</label>
+            <div class="hud-content">{{ herramientaSeleccionada().info_importante }}</div>
+          </div>
+        </div>
+
+        <!-- Sin modelo 3D -->
+        <div *ngIf="!previewUrl3D()" class="d-flex flex-column align-items-center justify-content-center h-100 text-white-50">
+          <i class="bi bi-slash-circle fs-1 mb-2"></i>
+          <p>Esta herramienta no tiene modelo 3D asignado</p>
+        </div>
+
+      </div>
+    </div>
   </div>
 
 </div><!-- /reconocimiento-page -->

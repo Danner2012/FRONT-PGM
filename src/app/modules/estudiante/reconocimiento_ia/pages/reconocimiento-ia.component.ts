@@ -1,18 +1,22 @@
 import { Component, OnInit, OnDestroy, inject, signal, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IaService } from '../../../../services/ia.service';
+import { HerramientaService } from '../../../../services/herramienta.service';
+import { ThreeViewerComponent } from '../../../../shared/components/three-viewer/three-viewer.component';
 import { Subscription, interval } from 'rxjs';
 import { switchMap, catchError } from 'rxjs/operators';
 
 @Component({
   selector: 'app-reconocimiento-ia',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ThreeViewerComponent],
   templateUrl: './reconocimiento-ia.component.html',
   styleUrls: ['../styles/reconocimiento-ia.component.css']
 })
 export class ReconocimientoIaComponent implements OnInit, OnDestroy {
   private iaService = inject(IaService);
+  private herramientaService = inject(HerramientaService);
+  private baseUrl = 'http://localhost:8000';
 
   @ViewChild('streamContainer') streamContainer!: ElementRef<HTMLDivElement>;
 
@@ -30,10 +34,22 @@ export class ReconocimientoIaComponent implements OnInit, OnDestroy {
   aficheCargado = signal<any | null>(null);
   todosLosAfiches = signal<any[]>([]);
   cargandoAfiche = signal<boolean>(false);
-  tabActiva = signal<string>('general'); // general, medicion, reparacion, herramientas
+  tabActiva = signal<string>('general');
   mostrarModalImagen = signal<boolean>(false);
   imagenSeleccionadaUrl = signal<string>('');
-  vistaPanelDerecho = signal<string>('detecciones'); // detecciones, ficha
+  vistaPanelDerecho = signal<string>('detecciones');
+
+  // Estados para visor 3D de herramienta
+  herramientaSeleccionada = signal<any>(null);
+  mostrarVisorHerramienta = signal<boolean>(false);
+  activeModelIdx = signal<number>(0);
+  previewUrl3D = signal<string | null>(null);
+  schemaUrl = signal<string | null>(null);
+  scaleValue = signal<number>(1.0);
+  rotX = signal<number>(0);
+  rotY = signal<number>(0);
+  rotZ = signal<number>(0);
+  activeHUD = signal<string | null>(null);
 
   // Índices de carrusel para pasos
   carruselMedicionIdx = signal<number>(0);
@@ -238,6 +254,78 @@ export class ReconocimientoIaComponent implements OnInit, OnDestroy {
   cerrarModalImagen() {
     this.mostrarModalImagen.set(false);
     this.imagenSeleccionadaUrl.set('');
+  }
+
+  // --- VISOR 3D DE HERRAMIENTA ---
+  abrirVisorHerramienta(herramienta: any) {
+    if (!herramienta?.nombre) return;
+    // Buscar herramienta completa en el servicio por nombre
+    this.herramientaService.getHerramientas().subscribe({
+      next: (todas: any[]) => {
+        const encontrada = todas.find(
+          h => h.nombre?.toLowerCase().trim() === herramienta.nombre?.toLowerCase().trim()
+        );
+        if (encontrada) {
+          this.herramientaSeleccionada.set(encontrada);
+          this.activeModelIdx.set(0);
+          this.activeHUD.set(null);
+          this.updatePreview3D();
+          this.mostrarVisorHerramienta.set(true);
+        }
+      },
+      error: (err) => console.error('Error al buscar herramienta:', err)
+    });
+  }
+
+  cerrarVisorHerramienta() {
+    this.mostrarVisorHerramienta.set(false);
+    this.herramientaSeleccionada.set(null);
+    this.previewUrl3D.set(null);
+  }
+
+  updatePreview3D() {
+    const h = this.herramientaSeleccionada();
+    if (h && h.modelos_3d && h.modelos_3d.length > 0) {
+      const model = h.modelos_3d[this.activeModelIdx()];
+      this.previewUrl3D.set(
+        model.archivo.startsWith('http') ? model.archivo : `${this.baseUrl}${model.archivo}`
+      );
+      this.schemaUrl.set(
+        model.archivo_esquema
+          ? (model.archivo_esquema.startsWith('http') ? model.archivo_esquema : `${this.baseUrl}${model.archivo_esquema}`)
+          : null
+      );
+      this.scaleValue.set(model.escala || 1);
+      const rot = (model.rotacion_default || '0 0 0').split(' ');
+      this.rotX.set(parseFloat(rot[0] || '0'));
+      this.rotY.set(parseFloat(rot[1] || '0'));
+      this.rotZ.set(parseFloat(rot[2] || '0'));
+    } else {
+      this.previewUrl3D.set(null);
+    }
+  }
+
+  nextModel3D() {
+    const total = this.herramientaSeleccionada()?.modelos_3d?.length || 0;
+    if (total <= 1) return;
+    this.activeModelIdx.update(i => (i + 1) % total);
+    this.updatePreview3D();
+  }
+
+  prevModel3D() {
+    const total = this.herramientaSeleccionada()?.modelos_3d?.length || 0;
+    if (total <= 1) return;
+    this.activeModelIdx.update(i => (i - 1 + total) % total);
+    this.updatePreview3D();
+  }
+
+  getRotation3D() {
+    return { x: this.rotX(), y: this.rotY(), z: this.rotZ() };
+  }
+
+  getImageUrl(path: string | null): string {
+    if (!path) return 'logocel.png';
+    return path.startsWith('http') ? path : `${this.baseUrl}${path}`;
   }
 
   // Helper para obtener color asociado a cada clase

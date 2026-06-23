@@ -200,24 +200,68 @@
   display: block;
 }
 
-/* Animación de línea de escáner */
-.scanner-line {
+/* Botón de pantalla completa flotante */
+.btn-fullscreen-overlay {
   position: absolute;
-  width: 100%;
-  height: 3px;
-  background: linear-gradient(90deg, transparent, #00ffff, transparent);
-  box-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff;
-  top: 0;
-  animation: scan 4s linear infinite;
-  z-index: 10;
-  pointer-events: none;
+  top: 16px;
+  right: 16px;
+  z-index: 15;
+  background: var(--dark-glass);
+  backdrop-filter: blur(8px);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  transition: all 0.2s;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
 }
 
-@keyframes scan {
-  0% { top: 0%; }
-  50% { top: 100%; }
-  100% { top: 0%; }
+.btn-fullscreen-overlay:hover {
+  background: rgba(15, 23, 42, 0.9);
+  color: #00ffff;
+  transform: scale(1.05);
 }
+
+/* Adaptación del stream en modo pantalla completa nativa */
+.stream-wrapper:fullscreen {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #000 !important;
+}
+
+.stream-wrapper:fullscreen .stream-img {
+  width: auto;
+  height: 100vh;
+  max-height: 100vh;
+  object-fit: contain;
+}
+
+/* Soporte Webkit (Safari, Chrome más antiguo) */
+.stream-wrapper:-webkit-full-screen {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #000 !important;
+}
+
+.stream-wrapper:-webkit-full-screen .stream-img {
+  width: auto;
+  height: 100vh;
+  max-height: 100vh;
+  object-fit: contain;
+}
+
 
 .camera-overlay-info {
   position: absolute;

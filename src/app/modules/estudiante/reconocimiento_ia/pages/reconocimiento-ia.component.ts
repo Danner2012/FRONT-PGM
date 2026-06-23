@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IaService } from '../../../../services/ia.service';
 import { Subscription, interval } from 'rxjs';
@@ -14,6 +14,8 @@ import { switchMap, catchError } from 'rxjs/operators';
 export class ReconocimientoIaComponent implements OnInit, OnDestroy {
   private iaService = inject(IaService);
 
+  @ViewChild('streamContainer') streamContainer!: ElementRef<HTMLDivElement>;
+
   // Estados reactivos (Signals)
   filtroActivo = signal<string>('TODOS');
   camaraActiva = signal<boolean>(false);
@@ -22,6 +24,7 @@ export class ReconocimientoIaComponent implements OnInit, OnDestroy {
   totalDetecciones = signal<number>(0);
   errorConexion = signal<boolean>(false);
   cargando = signal<boolean>(false);
+  isFullscreen = signal<boolean>(false);
 
   // Configuración de URL del stream de FastAPI
   streamUrl = 'http://localhost:5000/stream';
@@ -32,10 +35,28 @@ export class ReconocimientoIaComponent implements OnInit, OnDestroy {
   ngOnInit() {
     // Verificar si el servidor FastAPI está corriendo al iniciar
     this.verificarConexion();
+    document.addEventListener('fullscreenchange', this.onFullscreenChange);
   }
 
   ngOnDestroy() {
     this.detenerPolling();
+    document.removeEventListener('fullscreenchange', this.onFullscreenChange);
+  }
+
+  onFullscreenChange = () => {
+    this.isFullscreen.set(!!document.fullscreenElement);
+  };
+
+  toggleFullscreen() {
+    if (!this.streamContainer) return;
+    const element = this.streamContainer.nativeElement;
+    if (!document.fullscreenElement) {
+      element.requestFullscreen().catch(err => {
+        console.error(`Error al activar pantalla completa: ${err.message}`);
+      });
+    } else {
+      document.exitFullscreen();
+    }
   }
 
   verificarConexion() {

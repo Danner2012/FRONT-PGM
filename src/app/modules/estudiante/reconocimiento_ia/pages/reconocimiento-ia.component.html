@@ -62,14 +62,16 @@
         <!-- Visor del Stream de Video -->
         <div class="camera-viewport d-flex align-items-center justify-content-center">
           <!-- Si la cámara está activa y hay conexión -->
-          <div class="stream-wrapper" *ngIf="camaraActiva() && conectado(); else camaraInactivaTpl">
+          <div class="stream-wrapper" #streamContainer *ngIf="camaraActiva() && conectado(); else camaraInactivaTpl" [class.fullscreen-wrapper]="isFullscreen()">
             <img [src]="streamUrl" alt="Detección en tiempo real" class="stream-img img-fluid">
-            <!-- Capa superpuesta del scanner de IA -->
-            <div class="scanner-line"></div>
             <div class="camera-overlay-info">
               <span class="badge bg-dark-glass">Filtro: {{ filtroActivo() }}</span>
               <span class="badge bg-dark-glass ms-2">Detecciones: {{ totalDetecciones() }}</span>
             </div>
+            <!-- Botón flotante para pantalla completa -->
+            <button class="btn btn-fullscreen-overlay" (click)="toggleFullscreen()" title="Pantalla Completa">
+              <i class="bi" [class.bi-fullscreen]="!isFullscreen()" [class.bi-fullscreen-exit]="isFullscreen()"></i>
+            </button>
           </div>
 
           <!-- Plantilla para cámara inactiva -->

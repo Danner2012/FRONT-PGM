@@ -31,6 +31,8 @@ export class ReconocimientoIaComponent implements OnInit, OnDestroy {
   todosLosAfiches = signal<any[]>([]);
   cargandoAfiche = signal<boolean>(false);
   tabActiva = signal<string>('general'); // general, medicion, reparacion, herramientas
+  mostrarModalImagen = signal<boolean>(false);
+  imagenSeleccionadaUrl = signal<string>('');
   vistaPanelDerecho = signal<string>('detecciones'); // detecciones, ficha
 
   // Índices de carrusel para pasos
@@ -225,6 +227,17 @@ export class ReconocimientoIaComponent implements OnInit, OnDestroy {
 
   regresarAListado() {
     this.aficheCargado.set(null);
+  }
+
+  abrirModalImagen(url: string) {
+    if (!url) return;
+    this.imagenSeleccionadaUrl.set(url);
+    this.mostrarModalImagen.set(true);
+  }
+
+  cerrarModalImagen() {
+    this.mostrarModalImagen.set(false);
+    this.imagenSeleccionadaUrl.set('');
   }
 
   // Helper para obtener color asociado a cada clase

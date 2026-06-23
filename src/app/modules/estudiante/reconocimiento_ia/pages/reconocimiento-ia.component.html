@@ -178,12 +178,12 @@
         <ng-container *ngIf="tabActiva() === 'general'">
           <!-- ── IMÁGENES ───────────────────────── -->
           <div class="ficha-imagenes">
-            <div class="img-box shadow-sm">
+            <div class="img-box shadow-sm" (click)="abrirModalImagen(aficheCargado().imagen_referencia)" style="cursor: pointer;">
               <img [src]="aficheCargado().imagen_referencia" alt="Foto Real" *ngIf="aficheCargado().imagen_referencia">
               <div class="img-placeholder" *ngIf="!aficheCargado().imagen_referencia"><i class="bi bi-image text-muted fs-3"></i></div>
               <span class="img-label">Foto Real</span>
             </div>
-            <div class="img-box shadow-sm">
+            <div class="img-box shadow-sm" (click)="abrirModalImagen(aficheCargado().imagen_simbolo)" style="cursor: pointer;">
               <img [src]="aficheCargado().imagen_simbolo" alt="Símbolo" *ngIf="aficheCargado().imagen_simbolo">
               <div class="img-placeholder" *ngIf="!aficheCargado().imagen_simbolo"><i class="bi bi-diagram-3 text-muted fs-3"></i></div>
               <span class="img-label">Símbolo</span>
@@ -241,7 +241,7 @@
               <p class="slide-desc">{{ paso.descripcion }}</p>
               <div class="slide-media" *ngIf="paso.recursos?.length">
                 <ng-container *ngFor="let rec of paso.recursos">
-                  <img *ngIf="rec.tipo === 'imagen'" [src]="rec.archivo" alt="Imagen del paso" class="slide-img">
+                  <img *ngIf="rec.tipo === 'imagen'" [src]="rec.archivo" alt="Imagen del paso" class="slide-img" (click)="abrirModalImagen(rec.archivo)" style="cursor: pointer;">
                   <video *ngIf="rec.tipo === 'video'" [src]="rec.archivo" controls class="slide-video"></video>
                 </ng-container>
               </div>
@@ -280,7 +280,7 @@
               <p class="slide-desc">{{ paso.descripcion }}</p>
               <div class="slide-media" *ngIf="paso.recursos?.length">
                 <ng-container *ngFor="let rec of paso.recursos">
-                  <img *ngIf="rec.tipo === 'imagen'" [src]="rec.archivo" alt="Imagen del paso" class="slide-img">
+                  <img *ngIf="rec.tipo === 'imagen'" [src]="rec.archivo" alt="Imagen del paso" class="slide-img" (click)="abrirModalImagen(rec.archivo)" style="cursor: pointer;">
                   <video *ngIf="rec.tipo === 'video'" [src]="rec.archivo" controls class="slide-video"></video>
                 </ng-container>
               </div>
@@ -311,4 +311,11 @@
     </div><!-- /col-ficha -->
 
   </div><!-- /main-grid -->
+  
+  <!-- MODAL DE VISUALIZACIÓN DE IMÁGENES -->
+  <div class="image-viewer-modal" *ngIf="mostrarModalImagen()" (click)="cerrarModalImagen()">
+    <span class="close-viewer-btn" (click)="cerrarModalImagen()">&times;</span>
+    <img [src]="imagenSeleccionadaUrl()" alt="Visualización ampliada" class="image-viewer-content" (click)="$event.stopPropagation()">
+  </div>
+
 </div><!-- /reconocimiento-page -->
